@@ -1,0 +1,111 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: # No params
+
+jobs:
+  build:
+    name: Build release binaries
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            name: gear-linux-x64-nightly.tar.xz
+
+          - target: x86_64-apple-darwin
+            os: macOS-latest
+            name: gear-macos-x64-nightly.tar.gz
+
+          - target: aarch64-apple-darwin
+            os: macOS-latest
+            name: gear-macos-m1-nightly.tar.gz
+
+          # TODO: Get rid of `termion` crate then uncomment
+          # https://gitlab.redox-os.org/redox-os/termion/-/issues/167
+          #
+          #- target: x86_64-pc-windows-msvc
+          # os: windows-latest
+          # name: gear-windows-x64-nightly.zip
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: gear-tech/gear
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Setup nightly Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+
+      - name: Setup Rust for specified target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        env:
+          SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          strip gear-node || true
+          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
+          du -h ../../../${{ matrix.name }}
+
+      - name: macOS artifacts
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          strip gear-node || true
+          tar czvf ../../../${{ matrix.name }} gear-node
+          du -h ../../../${{ matrix.name }}
+
+      - name: Windows artifacts
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          strip gear-node.exe
+          7z a ../../../${{ matrix.name }} gear-node.exe
+          du -h ../../../${{ matrix.name }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ matrix.name }}
+
+  deploy:
+    name: Deploy binaries
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: artifact
+          cname: builds.gear.rs
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
