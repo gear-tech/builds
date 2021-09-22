@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch: # No params
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   build:
     name: Build release binaries
@@ -24,12 +27,9 @@ jobs:
             os: macOS-latest
             name: gear-macos-m1-nightly.tar.gz
 
-          # TODO: Get rid of `termion` crate then uncomment
-          # https://gitlab.redox-os.org/redox-os/termion/-/issues/167
-          #
-          #- target: x86_64-pc-windows-msvc
-          # os: windows-latest
-          # name: gear-windows-x64-nightly.zip
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            name: gear-windows-x64-nightly.zip
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -55,13 +55,21 @@ jobs:
           override: true
           target: ${{ matrix.target }}
 
+      - name: Workaround with libclang.dll
+        if: matrix.os == 'windows-latest'
+        run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
+
+      - name: Install LLVM
+        if: matrix.os == 'windows-latest'
+        run: choco install llvm -y
+
       - name: Build
         uses: actions-rs/cargo@v1
         env:
           SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
         with:
           command: build
-          args: --release --target ${{ matrix.target }}
+          args: -p gear-node --release --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -85,7 +93,6 @@ jobs:
           cd target/${{ matrix.target }}/release
           strip gear-node.exe
           7z a ../../../${{ matrix.name }} gear-node.exe
-          du -h ../../../${{ matrix.name }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
