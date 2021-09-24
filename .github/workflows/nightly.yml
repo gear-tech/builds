@@ -17,19 +17,19 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: gear-linux-x64-nightly.tar.xz
+            name: gear-nightly-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
             os: macOS-latest
-            name: gear-macos-x64-nightly.tar.gz
+            name: gear-nightly-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
             os: macOS-latest
-            name: gear-macos-m1-nightly.tar.gz
+            name: gear-nightly-macos-m1.tar.gz
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: gear-windows-x64-nightly.zip
+            name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true

@@ -12,7 +12,7 @@ Packages include:
 
 ## Nightly Builds
 
-* Windows x64: https://builds.gear.rs/gear-windows-x64-nightly.zip
-* macOS M1: https://builds.gear.rs/gear-macos-m1-nightly.tar.gz
-* macOS Intel x64: https://builds.gear.rs/gear-macos-x64-nightly.tar.gz
-* Linux x64: https://builds.gear.rs/gear-linux-x64-nightly.tar.xz
+* Windows x64: https://builds.gear.rs/gear-nightly-windows-x86_64.zip
+* macOS M1: https://builds.gear.rs/gear-nightly-macos-m1.tar.gz
+* macOS Intel x64: https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz
+* Linux x64: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
