@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            os: self-hosted
+            os: ubuntu-latest
             runtime: true
             name: gear-runtime-nightly-wasm.tar.xz
 
@@ -81,7 +81,7 @@ jobs:
           args: -p gear-node --release --target ${{ matrix.target }}
 
       - name: Linux artifacts node
-        if: matrix.os == 'ubuntu-latest' && !matrix.runtime
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && !matrix.runtime
         run: |
           cd target/${{ matrix.target }}/release
           strip gear-node || true
@@ -89,7 +89,7 @@ jobs:
           du -h ../../../${{ matrix.name }}
 
       - name: Linux artifacts runtime
-        if: matrix.os == 'ubuntu-latest' && matrix.runtime
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && !matrix.runtime
         run: |
           cd target/${{ matrix.target }}/wbuild/gear-runtime
           strip gear_runtime.wasm || true
