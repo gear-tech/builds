@@ -93,7 +93,7 @@ jobs:
           du -h ../../../${{ matrix.name }}
 
       - name: Linux artifacts runtime
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && !matrix.runtime }}
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && matrix.runtime }}
         run: |
           cd target/${{ matrix.target }}/release/wbuild/gear-runtime
           strip gear_runtime.wasm || true
