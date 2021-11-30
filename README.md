@@ -16,4 +16,4 @@ Packages include:
 * macOS M1: https://builds.gear.rs/gear-nightly-macos-m1.tar.gz
 * macOS Intel x64: https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz
 * Linux x64: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
-* Gear Runtime Wasm: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
+* Gear Runtime Wasm: https://builds.gear.rs/gear-runtime-nightly-wasm.tar.xz
