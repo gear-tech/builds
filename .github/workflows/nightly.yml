@@ -96,7 +96,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && matrix.runtime }}
         run: |
           cd target/${{ matrix.target }}/release/wbuild/gear-runtime
-          strip gear_runtime.wasm || true
+          # strip gear_runtime.wasm || true
           XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear_runtime.wasm
           du -h ../../../${{ matrix.name }}
 
