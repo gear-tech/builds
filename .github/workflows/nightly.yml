@@ -50,6 +50,10 @@ jobs:
 
       - name: Cache
         uses: Swatinem/rust-cache@v1
+      
+      - name: Linux node deps
+        if: ${{ matrix.os == 'self-hosted' }}
+        run: sudo apt install -y git clang curl libssl-dev llvm libudev-dev cmake
 
       - name: Setup nightly Rust
         uses: actions-rs/toolchain@v1
