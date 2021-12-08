@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  node:
+    image: ghcr.io/gear-tech/builds/node
+    ports:
+      - '30333:30333'
+      - '9933:9933'
+      - '9944:9944'
+      - '9165:9165'
+    command: gear-node --dev --tmp -l0
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=test
+      - POSTGRES_DB=test
+    ports:
+      - '5432:5432'
+
+  backend:
+    image: ghcr.io/gear-tech/builds/backend
+    depends_on:
+      - node
+      - postgres
+    ports:
+      - '3001:3000'
+    environment:
+      - DB_NAME=test
+      - DB_USER=test
+      - DB_PASSWORD=test
+      - DB_HOST=postgres
+
+  frontend:
+    image: ghcr.io/gear-tech/builds/frontend
+    depends_on:
+      - backend
+    ports:
+      - '3000:3000'
