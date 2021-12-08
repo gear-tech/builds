@@ -1,0 +1,55 @@
+name: Docker
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: # No params
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: gear-tech/gear-js
+
+      - name: Log in
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract backend metadata
+        id: meta_backend
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/${{ github.repository }}/backend
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: website/backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta_backend.outputs.tags }}
+          labels: ${{ steps.meta_backend.outputs.labels }}
+
+      - name: Extract frontend metadata
+        id: meta_frontend
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/${{ github.repository }}/frontend
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: website
+          file: website/frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta_frontend.outputs.tags }}
+          labels: ${{ steps.meta_frontend.outputs.labels }}
