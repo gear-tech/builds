@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # No params
 
 jobs:
-  build:
+  build-js:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -53,3 +53,33 @@ jobs:
           push: true
           tags: ${{ steps.meta_frontend.outputs.tags }}
           labels: ${{ steps.meta_frontend.outputs.labels }}
+
+  build-node:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract node metadata
+        id: meta_node
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/${{ github.repository }}/node
+
+      - name: Build and push node
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/node
+          push: true
+          tags: ${{ steps.meta_node.outputs.tags }}
+          labels: ${{ steps.meta_node.outputs.labels }}
