@@ -20,9 +20,9 @@ Packages include:
 
 ## Docker Images
 
-- Gear node (running in dev mode): https://github.com/orgs/gear-tech/packages/container/package/builds%2Fnode
-- Website backend: https://github.com/orgs/gear-tech/packages/container/package/builds%2Fbackend
-- Website frontend: https://github.com/orgs/gear-tech/packages/container/package/builds%2Ffrontend
+- Gear node: https://github.com/orgs/gear-tech/packages/container/package/node
+- Website backend: https://github.com/orgs/gear-tech/packages/container/package/backend
+- Website frontend: https://github.com/orgs/gear-tech/packages/container/package/frontend
 
 ## Running GUI Locally
 
