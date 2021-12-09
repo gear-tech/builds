@@ -8,14 +8,14 @@ services:
       - '9933:9933'
       - '9944:9944'
       - '9165:9165'
-    command: gear-node --dev --tmp -l0
+    command: gear-node --dev --tmp -l0 --unsafe-ws-external --unsafe-rpc-external --rpc-methods Unsafe --rpc-cors all
 
   postgres:
     image: postgres
     environment:
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_USER=test
       - POSTGRES_DB=test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
     ports:
       - '5432:5432'
 
@@ -27,10 +27,10 @@ services:
     ports:
       - '3001:3000'
     environment:
+      - DB_HOST=postgres
       - DB_NAME=test
       - DB_USER=test
       - DB_PASSWORD=test
-      - DB_HOST=postgres
 
   frontend:
     image: ghcr.io/gear-tech/frontend
