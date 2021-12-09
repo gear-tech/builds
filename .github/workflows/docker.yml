@@ -27,7 +27,7 @@ jobs:
         with:
           context: docker/node
           push: true
-          tags: ghcr.io/${{ github.repository }}/node:latest
+          tags: ghcr.io/gear-tech/node:latest
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
           context: .
           file: website/backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/backend:latest
+          tags: ghcr.io/gear-tech/backend:latest
 
       - name: Build and push frontend
         uses: docker/build-push-action@v2
@@ -48,4 +48,4 @@ jobs:
           context: website
           file: website/frontend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/frontend:latest
+          tags: ghcr.io/gear-tech/frontend:latest

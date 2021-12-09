@@ -2,7 +2,7 @@ version: '3'
 
 services:
   node:
-    image: ghcr.io/gear-tech/builds/node
+    image: ghcr.io/gear-tech/node
     ports:
       - '30333:30333'
       - '9933:9933'
@@ -20,7 +20,7 @@ services:
       - '5432:5432'
 
   backend:
-    image: ghcr.io/gear-tech/builds/backend
+    image: ghcr.io/gear-tech/backend
     depends_on:
       - node
       - postgres
@@ -33,7 +33,7 @@ services:
       - DB_HOST=postgres
 
   frontend:
-    image: ghcr.io/gear-tech/builds/frontend
+    image: ghcr.io/gear-tech/frontend
     depends_on:
       - backend
     ports:
