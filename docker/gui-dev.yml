@@ -3,12 +3,12 @@ version: '3'
 services:
   node:
     image: ghcr.io/gear-tech/node
-    ports:
-      - '30333:30333'
-      - '9933:9933'
-      - '9944:9944'
-      - '9165:9165'
     command: gear-node --dev --tmp -l0 --unsafe-ws-external --unsafe-rpc-external --rpc-methods Unsafe --rpc-cors all
+    expose:
+      - '9165'
+      - '9933'
+      - '9944'
+      - '30333'
 
   postgres:
     image: postgres
@@ -16,8 +16,8 @@ services:
       - POSTGRES_DB=test
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
-    ports:
-      - '5432:5432'
+    expose:
+      - '5432'
 
   backend:
     image: ghcr.io/gear-tech/backend
@@ -31,6 +31,10 @@ services:
       - DB_NAME=test
       - DB_USER=test
       - DB_PASSWORD=test
+      - WS_PROVIDER=ws://node:9944
+      - ACCOUNT_SEED=0000000000000000000000000000000000000000000000000000000000000001
+      - SUDO_SEED=0000000000000000000000000000000000000000000000000000000000000001
+      - SITE_ACCOUNT_BALANCE=10000000000
 
   frontend:
     image: ghcr.io/gear-tech/frontend
