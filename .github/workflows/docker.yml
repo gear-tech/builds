@@ -52,7 +52,7 @@ jobs:
       - name: Build and push frontend
         uses: docker/build-push-action@v2
         with:
-          context: website
+          context: .
           file: website/frontend/Dockerfile
           push: true
           tags: ghcr.io/gear-tech/frontend:latest
