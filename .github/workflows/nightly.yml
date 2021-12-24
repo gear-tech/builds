@@ -97,7 +97,7 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/release/wbuild/gear-runtime
           # strip gear_runtime.wasm || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../../../${{ matrix.name }} gear_runtime.wasm
+          XZ_OPT=-9 tar --sort='name' -cvJf ../../../../../${{ matrix.name }} gear_runtime.wasm gear_runtime.compact.wasm gear_runtime.compact.compressed.wasm
           du -h ../../../../../${{ matrix.name }}
 
       - name: macOS artifacts
