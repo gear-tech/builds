@@ -16,28 +16,19 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            os: self-hosted
-            runtime: true
-            name: gear-runtime-nightly-wasm.tar.xz
-
-          - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            runtime: false
             name: gear-nightly-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
             os: macOS-latest
-            runtime: false
             name: gear-nightly-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
             os: macOS-latest
-            runtime: false
             name: gear-nightly-macos-m1.tar.gz
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            runtime: false
             name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
@@ -85,20 +76,12 @@ jobs:
           args: -p gear-node --release --target ${{ matrix.target }}
 
       - name: Linux artifacts node
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && !matrix.runtime }}
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' }}
         run: |
           cd target/${{ matrix.target }}/release
           strip gear-node || true
           XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
-
-      - name: Linux artifacts runtime
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' && matrix.runtime }}
-        run: |
-          cd target/${{ matrix.target }}/release/wbuild/gear-runtime
-          # strip gear_runtime.wasm || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../../../${{ matrix.name }} gear_runtime.wasm gear_runtime.compact.wasm gear_runtime.compact.compressed.wasm
-          du -h ../../../../../${{ matrix.name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
