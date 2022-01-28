@@ -18,6 +18,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             name: gear-nightly-linux-x86_64.tar.xz
+            rustcflags: -C target-feature=+crt-static
 
           - target: x86_64-apple-darwin
             os: macOS-latest
@@ -41,7 +42,7 @@ jobs:
 
       - name: Cache
         uses: Swatinem/rust-cache@v1
-      
+
       - name: Linux node deps
         if: ${{ matrix.os == 'self-hosted' }}
         run: sudo apt install -y git clang curl libssl-dev llvm libudev-dev cmake
@@ -70,7 +71,7 @@ jobs:
       - name: Build
         uses: actions-rs/cargo@v1
         env:
-          SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+          RUSTFLAGS: ${{ matrix.rustcflags }}
         with:
           command: build
           args: -p gear-node --release --target ${{ matrix.target }}
@@ -120,3 +121,11 @@ jobs:
           force_orphan: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Smoke test
+        run: |
+          sleep 60
+          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
+          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
+          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
+          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
