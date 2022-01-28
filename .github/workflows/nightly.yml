@@ -18,7 +18,6 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             name: gear-nightly-linux-x86_64.tar.xz
-            rustcflags: -C target-feature=+crt-static
 
           - target: x86_64-apple-darwin
             os: macOS-latest
@@ -70,8 +69,6 @@ jobs:
 
       - name: Build
         uses: actions-rs/cargo@v1
-        env:
-          RUSTFLAGS: ${{ matrix.rustcflags }}
         with:
           command: build
           args: -p gear-node --release --target ${{ matrix.target }}
