@@ -45,6 +45,17 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v1
 
+      # - name: Remove default cargo
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: sudo apt remove cargo
+
+      - name: Install rustup 1.24.3
+        if: matrix.os != 'windows-latest'
+        run:
+          wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init"
+          chmod +x rustup-init
+          ./rustup-init
+
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
@@ -62,7 +73,6 @@ jobs:
         with:
           toolchain: nightly
           target: wasm32-unknown-unknown
-          default: true
 
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
@@ -78,7 +88,7 @@ jobs:
           rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
           ln -s $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
 
-      - name: 'Win: Pin to the specific nightly toolchain'
+      - name: 'Windows: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
         run: |
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
