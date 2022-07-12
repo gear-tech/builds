@@ -54,13 +54,13 @@ jobs:
         run: |
           wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init"
           chmod +x rustup-init
-          ./rustup-init
+          ./rustup-init -y
 
       - name: 'Windows: Install rustup 1.24.3'
         if: matrix.os == 'windows-latest'
         run: |
           wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init.exe"
-          rustup-init.exe
+          rustup-init.exe -y
 
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
