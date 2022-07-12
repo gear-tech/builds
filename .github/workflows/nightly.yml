@@ -80,8 +80,8 @@ jobs:
       - name: 'Win: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
         run: |
-          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
-          cp -rf $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
+          Remove-Item -Path "$env:HOMEPATH/.rustup/toolchains/nightly-${{ matrix.target }}" -Force -Recurse
+          Copy-Item -Path "$env:HOMEPATH/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "$env:HOMEPATH/.rustup/toolchains/${{ matrix.target }}" -Recurse
 
       # - name: Workaround with libclang.dll
       #  if: matrix.os == 'windows-latest'
