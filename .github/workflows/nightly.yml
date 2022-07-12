@@ -54,7 +54,7 @@ jobs:
       - name: Setup nightly Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable, nightly
           target: wasm32-unknown-unknown
 
       - name: Install a specific nightly toolchain
@@ -74,8 +74,8 @@ jobs:
       - name: 'Win: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
         run: |
-          rmdir %HOMEPATH%/.rustup/toolchains/nightly-${{ matrix.target }} /s /q
-          copy %HOMEPATH%/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} %HOMEPATH%/.rustup/toolchains/${{ matrix.target }}
+          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
+          cp -rf $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
 
       # - name: Workaround with libclang.dll
       #  if: matrix.os == 'windows-latest'
