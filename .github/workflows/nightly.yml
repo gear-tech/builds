@@ -45,16 +45,22 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v1
 
-      - name: Setup Rust for specified target
+      - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - name: Setup nightly Rust
+      - name: Setup WASM toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable, nightly
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
           target: wasm32-unknown-unknown
 
       - name: Install a specific nightly toolchain
