@@ -35,24 +35,3 @@ jobs:
           context: docker/node-workshop
           push: true
           tags: ghcr.io/gear-tech/node-workshop:latest
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          repository: gear-tech/gear-js
-
-      - name: Build and push backend
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: website/backend/Dockerfile
-          push: true
-          tags: ghcr.io/gear-tech/backend:latest
-
-      - name: Build and push frontend
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: website/frontend/Dockerfile
-          push: true
-          tags: ghcr.io/gear-tech/frontend:latest

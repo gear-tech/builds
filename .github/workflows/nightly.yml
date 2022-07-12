@@ -1,6 +1,8 @@
 name: Nightly
 
 on:
+  pull_request: # FIXME: Remove before merge
+    branches: [master]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch: # No params
@@ -35,16 +37,12 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v1
-
-      - name: Linux node deps
-        if: ${{ matrix.os == 'self-hosted' }}
-        run: sudo apt install -y git clang curl libssl-dev llvm libudev-dev cmake
+      # - name: Cache
+      #  uses: Swatinem/rust-cache@v1
 
       - name: Setup nightly Rust
         uses: actions-rs/toolchain@v1
@@ -59,49 +57,55 @@ jobs:
           override: true
           target: ${{ matrix.target }}
 
-      - name: Workaround with libclang.dll
-        if: matrix.os == 'windows-latest'
-        run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
+      # - name: Workaround with libclang.dll
+      #  if: matrix.os == 'windows-latest'
+      #  run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
 
-      - name: Install LLVM
-        if: matrix.os == 'windows-latest'
-        run: choco install llvm -y
+      # - name: Install LLVM
+      #  if: matrix.os == 'windows-latest'
+      #  run: choco install llvm -y
 
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: -p gear-node --release --target ${{ matrix.target }}
+      # - name: Build
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: build
+      #     args: -p gear-node --release --target ${{ matrix.target }}
 
-      - name: Linux artifacts node
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' }}
+      - name: Test cargo
         run: |
-          cd target/${{ matrix.target }}/release
-          strip gear-node || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+          cargo --version
+          cargo +nightly --version
 
-      - name: macOS artifacts
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd target/${{ matrix.target }}/release
-          strip gear-node || true
-          tar czvf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+      # - name: Linux artifacts node
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/release
+      #     strip gear-node || true
+      #     XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
+      #     du -h ../../../${{ matrix.name }}
 
-      - name: Windows artifacts
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd target/${{ matrix.target }}/release
-          strip gear-node.exe
-          7z a ../../../${{ matrix.name }} gear-node.exe
+      # - name: macOS artifacts
+      #   if: matrix.os == 'macos-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/release
+      #     strip gear-node || true
+      #     tar czvf ../../../${{ matrix.name }} gear-node
+      #     du -h ../../../${{ matrix.name }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          path: ${{ matrix.name }}
+      # - name: Windows artifacts
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/release
+      #     strip gear-node.exe
+      #     7z a ../../../${{ matrix.name }} gear-node.exe
+
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     path: ${{ matrix.name }}
 
   deploy:
+    if: false # FIXME: Remove before merge
     name: Deploy binaries
     needs: build
     runs-on: ubuntu-latest
