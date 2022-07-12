@@ -82,7 +82,7 @@ jobs:
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
         run: |
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
-          Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
+          Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
 
       # - name: Workaround with libclang.dll
       #  if: matrix.os == 'windows-latest'
