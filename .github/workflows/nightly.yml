@@ -49,6 +49,9 @@ jobs:
       #   if: matrix.os == 'ubuntu-latest'
       #   run: sudo apt remove cargo
 
+      - name: Disable rustup autoupdate
+        run: rustup set auto-self-update disable
+
       - name: 'macOS/Linux: Install rustup 1.24.3'
         if: matrix.os != 'windows-latest'
         run: |
