@@ -49,12 +49,18 @@ jobs:
       #   if: matrix.os == 'ubuntu-latest'
       #   run: sudo apt remove cargo
 
-      - name: Install rustup 1.24.3
+      - name: 'macOS/Linux: Install rustup 1.24.3'
         if: matrix.os != 'windows-latest'
-        run:
+        run: |
           wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init"
           chmod +x rustup-init
           ./rustup-init
+
+      - name: 'Windows: Install rustup 1.24.3'
+        if: matrix.os == 'windows-latest'
+        run: |
+          wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init.exe"
+          rustup-init.exe
 
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
