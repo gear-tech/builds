@@ -1,8 +1,6 @@
 name: Nightly
 
 on:
-  pull_request: # FIXME: Remove before merge
-    branches: [master]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch: # No params
