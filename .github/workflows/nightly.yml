@@ -7,6 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  NIGHTLY_TOOLCHAIN_VERSION: ${{ secrets.NIGHTLY_TOOLCHAIN_VERSION }}
 
 jobs:
   build:
@@ -35,37 +36,76 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
 
       - name: Cache
         uses: Swatinem/rust-cache@v1
 
-      - name: Linux node deps
-        if: ${{ matrix.os == 'self-hosted' }}
-        run: sudo apt install -y git clang curl libssl-dev llvm libudev-dev cmake
+      - name: Disable rustup autoupdate
+        run: rustup set auto-self-update disable
 
-      - name: Setup nightly Rust
+      - name: 'Linux: Install rustup 1.24.3'
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init"
+          chmod +x rustup-init
+          ./rustup-init -y
+          rustup --version
+
+      - name: 'macOS: Install rustup 1.24.3'
+        if: matrix.os == 'macOS-latest'
+        run: |
+          wget "https://static.rust-lang.org/rustup/archive/1.24.3/x86_64-apple-darwin/rustup-init"
+          chmod +x rustup-init
+          ./rustup-init -y
+          rustup --version
+
+      - name: 'Windows: Install rustup 1.24.3'
+        if: matrix.os == 'windows-latest'
+        run: |
+          Invoke-WebRequest "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init.exe" -OutFile "rustup-init.exe"
+          .\rustup-init.exe -y
+          rustup --version
+
+      - name: Setup toolchain for specified target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Setup WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Setup nightly WASM toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           target: wasm32-unknown-unknown
 
-      - name: Setup Rust for specified target
+      - name: Install a specific nightly toolchain
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-          override: true
-          target: ${{ matrix.target }}
+          toolchain: nightly-${{ env.NIGHTLY_TOOLCHAIN_VERSION }}
+          target: wasm32-unknown-unknown
+          components: llvm-tools-preview
 
-      - name: Workaround with libclang.dll
-        if: matrix.os == 'windows-latest'
-        run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
+      - name: 'macOS/Linux: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os != 'windows-latest' }}
+        run: |
+          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
+          ln -s $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
 
-      - name: Install LLVM
-        if: matrix.os == 'windows-latest'
-        run: choco install llvm -y
+      - name: 'Windows: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
+        run: |
+          Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
+          Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -73,8 +113,8 @@ jobs:
           command: build
           args: -p gear-node --release --target ${{ matrix.target }}
 
-      - name: Linux artifacts node
-        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'self-hosted' }}
+      - name: Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/release
           strip gear-node || true
@@ -109,6 +149,15 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
 
+      - name: Backup the old version
+        run: |
+          cd artifact
+          ls -la
+          wget -nc https://builds.gear.rs/gear-nightly-windows-x86_64.zip && true
+          wget -nc https://builds.gear.rs/gear-nightly-macos-m1.tar.gz && true
+          wget -nc https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -122,7 +171,7 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
-          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
-          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
-          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
-          wget -O /dev/null "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
