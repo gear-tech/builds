@@ -48,10 +48,18 @@ jobs:
       - name: Disable rustup autoupdate
         run: rustup set auto-self-update disable
 
-      - name: 'macOS/Linux: Install rustup 1.24.3'
-        if: matrix.os != 'windows-latest'
+      - name: 'Linux: Install rustup 1.24.3'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           wget "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init"
+          chmod +x rustup-init
+          ./rustup-init -y
+          rustup --version
+
+      - name: 'macOS: Install rustup 1.24.3'
+        if: matrix.os == 'macOS-latest'
+        run: |
+          wget "https://static.rust-lang.org/rustup/archive/1.24.3/x86_64-apple-darwin/rustup-init"
           chmod +x rustup-init
           ./rustup-init -y
           rustup --version
