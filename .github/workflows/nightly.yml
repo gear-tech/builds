@@ -18,9 +18,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            name: gear-nightly-linux-x86_64.tar.xz
+          # - target: x86_64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          #   name: gear-nightly-linux-x86_64.tar.xz
 
           # - target: x86_64-apple-darwin
           #   os: macOS-latest
@@ -42,8 +42,8 @@ jobs:
         with:
           repository: gear-tech/gear
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v1
+      # - name: Cache
+      #   uses: Swatinem/rust-cache@v1
 
       # - name: Remove default cargo
       #   if: matrix.os == 'ubuntu-latest'
@@ -64,7 +64,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           Invoke-WebRequest "https://static.rust-lang.org/rustup/archive/1.24.3/${{ matrix.target }}/rustup-init.exe" -OutFile "rustup-init.exe"
-          rustup-init.exe -y
+          Get-ChildItem
+          .\rustup-init.exe -y
           rustup --version
 
       - name: Setup toolchain for specified target
