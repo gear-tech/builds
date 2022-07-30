@@ -87,12 +87,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-node --release --target ${{ matrix.target }}
+          args: -p gear-node --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear-node || true
           XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
@@ -100,7 +100,7 @@ jobs:
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear-node || true
           tar czvf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
@@ -108,7 +108,7 @@ jobs:
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear-node.exe
           7z a ../../../${{ matrix.name }} gear-node.exe
 
