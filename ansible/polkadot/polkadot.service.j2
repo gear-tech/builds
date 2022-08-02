@@ -1,0 +1,14 @@
+Unit]
+Description=Polkadot Node
+After=network.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+ExecStart=/usr/local/bin/polkadot --dev --unsafe-ws-external --rpc-external --prometheus-external
+Restart=always
+RestartSec=3
+LimitNOFILE=10000
+
+[Install]
+WantedBy=multi-user.target

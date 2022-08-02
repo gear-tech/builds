@@ -15,18 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Log in
-        uses: docker/login-action@v1
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push node for workshop
-        uses: docker/build-push-action@v2
-        with:
-          context: docker/polkadot
-          push: true
-          tags: |
-            ghcr.io/gear-tech/polkadot:0.9.26
-            ghcr.io/gear-tech/polkadot:latest
+          directory: ansible/polkadot
+          playbook: playbook.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ALICE_HOST }},${{ secrets.BOB_HOST }},
