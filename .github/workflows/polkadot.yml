@@ -21,4 +21,6 @@ jobs:
           directory: ansible/polkadot
           playbook: playbook.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ALICE_HOST }},${{ secrets.BOB_HOST }},
+          inventory: |
+            ${{ secrets.ALICE_HOST }}
+            ${{ secrets.BOB_HOST }}
