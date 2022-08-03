@@ -1,0 +1,62 @@
+---
+- name: Deploy Polkadot
+  hosts: all
+  remote_user: ubuntu
+  vars:
+    - user: polkadot
+
+  tasks:
+    - name: Create group
+      group:
+        name: '{{ user }}'
+        state: present
+
+    - name: Create user
+      become: yes
+      user:
+        name: '{{ user }}'
+        groups: '{{ user }}'
+        shell: /sbin/nologin
+        append: yes
+        state: present
+        create_home: yes
+
+    - name: Copy spec JSON
+      become: yes
+      copy:
+        src: rococo-custom-2-raw.json
+        dest: /home/{{ user }}
+        owner: '{{ user }}'
+        group: '{{ user }}'
+
+    - name: Copy SystemD config
+      become: yes
+      template:
+        src: polkadot.service.j2
+        dest: /etc/systemd/system/polkadot.service
+        owner: root
+        group: root
+
+    - name: Stop service
+      become: yes
+      systemd:
+        name: polkadot
+        state: stopped
+        daemon_reload: yes
+
+    - name: Download polkadot executable
+      become: yes
+      get_url:
+        url: https://github.com/paritytech/polkadot/releases/download/v0.9.26/polkadot
+        dest: /usr/local/bin
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Start service
+      become: yes
+      systemd:
+        name: polkadot
+        state: started
+        enabled: yes
+        daemon_reload: yes

@@ -1,0 +1,26 @@
+name: Polkadot
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          directory: ansible/polkadot
+          playbook: playbook.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: |
+            ${{ secrets.ALICE_HOST }} name=alice node_key=0000000000000000000000000000000000000000000000000000000000000001
+            ${{ secrets.BOB_HOST }} name=bob bootnode=/dns4/${{ secrets.ALICE_HOST }}/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
