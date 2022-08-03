@@ -21,6 +21,14 @@
         state: present
         create_home: yes
 
+    - name: Copy spec JSON
+      become: yes
+      copy:
+        src: rococo-custom-2-raw.json
+        dest: /home/{{ user }}
+        owner: '{{ user }}'
+        group: '{{ user }}'
+
     - name: Copy SystemD config
       become: yes
       template:
@@ -34,6 +42,7 @@
       systemd:
         name: polkadot
         state: stopped
+        daemon_reload: yes
 
     - name: Download polkadot executable
       become: yes
@@ -50,3 +59,4 @@
         name: polkadot
         state: started
         enabled: yes
+        daemon_reload: yes
