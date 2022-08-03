@@ -76,11 +76,13 @@ jobs:
         run: |
           rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
           ln -s $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
+
       - name: 'Windows: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
         run: |
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -94,6 +96,7 @@ jobs:
           strip gear-node || true
           XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
+
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
@@ -101,12 +104,14 @@ jobs:
           strip gear-node || true
           tar czvf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
+
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node.exe
           7z a ../../../${{ matrix.name }} gear-node.exe
+
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v2
@@ -130,6 +135,7 @@ jobs:
           wget -nc https://builds.gear.rs/gear-nightly-macos-m1.tar.gz && true
           wget -nc https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
           wget -nc https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
