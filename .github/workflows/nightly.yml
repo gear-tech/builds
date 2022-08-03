@@ -1,0 +1,149 @@
+name: Nightly
+
+on:
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: # No params
+
+env:
+  CARGO_TERM_COLOR: always
+  NIGHTLY_TOOLCHAIN_VERSION: ${{ secrets.NIGHTLY_TOOLCHAIN_VERSION }}
+
+jobs:
+  build:
+    name: Build release binaries
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            name: gear-nightly-linux-x86_64.tar.xz
+
+          - target: x86_64-apple-darwin
+            os: macOS-latest
+            name: gear-nightly-macos-x86_64.tar.gz
+
+          - target: aarch64-apple-darwin
+            os: macOS-latest
+            name: gear-nightly-macos-m1.tar.gz
+
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            name: gear-nightly-windows-x86_64.zip
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gear-tech/gear
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Setup toolchain for specified target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Setup WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+
+      - name: Install a specific nightly toolchain
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-${{ env.NIGHTLY_TOOLCHAIN_VERSION }}
+          target: wasm32-unknown-unknown
+          components: llvm-tools-preview
+
+      - name: 'macOS/Linux: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os != 'windows-latest' }}
+        run: |
+          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
+          ln -s $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
+      - name: 'Windows: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
+        run: |
+          Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
+          Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -p gear-node --profile production --target ${{ matrix.target }}
+
+      - name: Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear-node || true
+          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
+          du -h ../../../${{ matrix.name }}
+      - name: macOS artifacts
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear-node || true
+          tar czvf ../../../${{ matrix.name }} gear-node
+          du -h ../../../${{ matrix.name }}
+      - name: Windows artifacts
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear-node.exe
+          7z a ../../../${{ matrix.name }} gear-node.exe
+      - name: Upload artifacts
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ matrix.name }}
+
+  deploy:
+    name: Deploy binaries
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Backup the old version
+        run: |
+          cd artifact
+          ls -la
+          wget -nc https://builds.gear.rs/gear-nightly-windows-x86_64.zip && true
+          wget -nc https://builds.gear.rs/gear-nightly-macos-m1.tar.gz && true
+          wget -nc https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: artifact
+          cname: builds.gear.rs
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Smoke test
+        run: |
+          sleep 60
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
