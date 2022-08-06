@@ -19,4 +19,34 @@ Packages include:
 
 # Ansible Scripts
 
-...
+You can deploy Gear node using Ansible scripts.
+
+## Install Ansible
+
+- macOS:
+
+    ```
+    brew install ansible
+    ```
+
+- Ubuntu Linux:
+
+    ```
+    sudo apt update
+    sudo apt install software-properties-common
+    sudo add-apt-repository --yes --update ppa:ansible/ansible
+    sudo apt install ansible
+    ```
+## Deploy Gear Node
+
+Using a private key file for SSH access:
+
+```
+ansible-playbook ansible/gear-node/install.yml -i <my-host>, -u <user> --key-file <path-to-key-file>
+```
+
+Using a root user login/password for SSH access:
+
+```
+ansible-playbook ansible/gear-node/install.yml -i <my-host>, -u <user> -k
+```
