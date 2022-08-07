@@ -1,0 +1,58 @@
+---
+- name: Deploy Gear Node
+  hosts: all
+  vars:
+    - user: gear
+    - name: MY_SUPER_NODE
+    - port_http: 9933
+    - port_ws: 9944
+    - port_p2p: 30333
+
+  tasks:
+    - name: Create group
+      group:
+        name: '{{ user }}'
+        state: present
+
+    - name: Create user
+      become: yes
+      user:
+        name: '{{ user }}'
+        groups: '{{ user }}'
+        shell: /sbin/nologin
+        append: yes
+        state: present
+        create_home: yes
+
+    - name: Copy SystemD config
+      become: yes
+      template:
+        src: gear-node.service.j2
+        dest: /etc/systemd/system/gear-node.service
+        owner: root
+        group: root
+
+    - name: Stop service
+      become: yes
+      systemd:
+        name: gear-node
+        state: stopped
+        daemon_reload: yes
+
+    - name: Download and unpack Gear node executable
+      become: yes
+      unarchive:
+        src: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Start service
+      become: yes
+      systemd:
+        name: gear-node
+        state: started
+        enabled: yes
+        daemon_reload: yes

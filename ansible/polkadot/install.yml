@@ -1,7 +1,6 @@
 ---
 - name: Deploy Polkadot
   hosts: all
-  remote_user: ubuntu
   vars:
     - user: polkadot
 
@@ -19,7 +18,6 @@
         shell: /sbin/nologin
         append: yes
         state: present
-        create_home: yes
 
     - name: Copy spec JSON
       become: yes
@@ -50,6 +48,7 @@
         url: https://github.com/paritytech/polkadot/releases/download/v0.9.26/polkadot
         dest: /usr/local/bin
         mode: 0755
+        force: yes
         owner: root
         group: root
 

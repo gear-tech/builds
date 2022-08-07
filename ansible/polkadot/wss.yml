@@ -1,0 +1,89 @@
+---
+- name: Configure WSS
+  hosts: all
+  vars:
+    - email: hello@gear-tech.io
+
+  tasks:
+    - name: Enable firewall
+      ufw:
+        state: enabled
+        policy: allow
+
+    - name: Allow OpenSSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow Nginx
+      ufw:
+        rule: allow
+        name: "Nginx Full"
+
+    - name: Deny anything except allowed
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Install Nginx, Certbot et al.
+      become: yes
+      apt:
+        name: [nginx, certbot, python3-certbot-nginx]
+        state: latest
+        update_cache: yes
+
+    - name: Start Nginx
+      become: yes
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Create WWW directory
+      become: yes
+      file:
+        path: /var/www/{{ inventory_hostname }}/html
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy index.html
+      become: yes
+      copy:
+        remote_src: yes
+        src: /var/www/html/index.nginx-debian.html
+        dest: /var/www/{{ inventory_hostname }}/html/index.html
+
+    - name: Copy Nginx configuration
+      become: yes
+      template:
+        src: server-block.j2
+        dest: /etc/nginx/sites-available/{{ inventory_hostname }}
+
+    - name: Enable Nginx configuration
+      become: yes
+      file:
+        src: /etc/nginx/sites-available/{{ inventory_hostname }}
+        dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}
+        state: link
+
+    - name: Restart Nginx
+      become: yes
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Install a certificate
+      become: yes
+      command: >
+        certbot --nginx
+        -d {{ inventory_hostname }}
+        -m {{ email }}
+        --agree-tos --noninteractive --redirect
+
+    - name: Set cron job for auto renewal
+      cron:
+        name: "renew letsencrypt"
+        special_time: monthly
+        job: "/usr/bin/certbot renew"
