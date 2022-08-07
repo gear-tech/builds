@@ -6,7 +6,7 @@
     - email: hello@gear-tech.io
 
   tasks:
-    - name: Install Nginx, certbot et al.
+    - name: Install Nginx, Certbot et al.
       become: yes
       apt:
         name: [nginx, certbot, python3-certbot-nginx]
@@ -48,7 +48,7 @@
         name: nginx
         state: restarted
 
-    - name: Create and install the certificate
+    - name: Install a certificate
       become: yes
       command: >
         certbot --nginx

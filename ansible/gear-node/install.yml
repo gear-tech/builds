@@ -1,9 +1,12 @@
 ---
 - name: Deploy Gear Node
   hosts: all
-  remote_user: ubuntu
   vars:
     - user: gear
+    - name: MY_SUPER_NODE
+    - port_http: 9933
+    - port_ws: 9944
+    - port_p2p: 30333
 
   tasks:
     - name: Create group
@@ -36,7 +39,7 @@
         state: stopped
         daemon_reload: yes
 
-  - name: Downloar and unpack Gear node executable
+    - name: Download and unpack Gear node executable
       become: yes
       unarchive:
         src: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
