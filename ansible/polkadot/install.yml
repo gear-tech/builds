@@ -19,7 +19,6 @@
         shell: /sbin/nologin
         append: yes
         state: present
-        create_home: yes
 
     - name: Copy spec JSON
       become: yes

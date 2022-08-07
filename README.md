@@ -66,7 +66,7 @@ Refer the [ansible/gear-node/install.yml](ansible/gear-node/install.yml) config 
 - `port_ws` (default: `9944`) is the WebSockets RPC server TCP port
 - `port_p2p` (default: `30333`) is the P2P protocol TCP port
 
-## Deploy Gear node
+## Install Gear node
 
 - **Preferred way:** Using a private key file for SSH access:
 
@@ -90,4 +90,30 @@ Refer the [ansible/gear-node/install.yml](ansible/gear-node/install.yml) config 
 
     ```
     ansible-playbook ansible/gear-node/install.yml -i node.gear.rs, -u root -k
+    ```
+
+## Remove Gear node
+
+- **Preferred way:** Using a private key file for SSH access:
+
+    ```
+    ansible-playbook ansible/gear-node/remove.yml -i <my-host>, -u <user> --key-file <path-to-key-file>
+    ```
+
+    Example:
+
+    ```
+    ansible-playbook ansible/gear-node/remove.yml -i node.gear.rs, -u root --key-file ~/key.pem
+    ```
+
+- Using a root user login/password for SSH access:
+
+    ```
+    ansible-playbook ansible/gear-node/remove.yml -i <my-host>, -u <user> -k
+    ```
+
+    Example:
+
+    ```
+    ansible-playbook ansible/gear-node/remove.yml -i node.gear.rs, -u root -k
     ```
