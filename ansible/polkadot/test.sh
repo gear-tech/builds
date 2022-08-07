@@ -12,4 +12,4 @@
 set -e
 cd "$(dirname "$0")"
 
-ansible-playbook install.yml --inventory-file .ansible_inventory --key-file .ansible_key
+ansible-playbook install.yml --inventory-file .ansible_inventory -u ubuntu --key-file .ansible_key

@@ -21,6 +21,7 @@ jobs:
           directory: ansible/polkadot
           playbook: install.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: -u ubuntu
           inventory: |
             ${{ secrets.ALICE_HOST }} name=alice node_key=0000000000000000000000000000000000000000000000000000000000000001
             ${{ secrets.BOB_HOST }} name=bob bootnode=/dns4/${{ secrets.ALICE_HOST }}/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp

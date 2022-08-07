@@ -1,7 +1,6 @@
 ---
 - name: Deploy Polkadot
   hosts: all
-  remote_user: ubuntu
   vars:
     - user: polkadot
 

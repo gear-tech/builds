@@ -1,11 +1,30 @@
 ---
 - name: Configure WSS
   hosts: all
-  remote_user: ubuntu
   vars:
     - email: hello@gear-tech.io
 
   tasks:
+    - name: Enable firewall
+      ufw:
+        state: enabled
+        policy: allow
+
+    - name: Allow OpenSSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow Nginx
+      ufw:
+        rule: allow
+        name: "Nginx Full"
+
+    - name: Deny anything except allowed
+      ufw:
+        state: enabled
+        policy: deny
+
     - name: Install Nginx, Certbot et al.
       become: yes
       apt:
