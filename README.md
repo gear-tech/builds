@@ -77,7 +77,7 @@ Refer the [ansible/gear-node/install.yml](ansible/gear-node/install.yml) config 
     Example:
 
     ```
-    ansible-playbook ansible/gear-node/install.yml -i node.gear.rs, -u root --key-file ~/key.pem
+    ansible-playbook ansible/gear-node/install.yml -i node.gear.rs, -u root --key-file ~/.ssh/id_rsa
     ```
 
 - Using a root user login/password for SSH access:
@@ -103,7 +103,7 @@ Refer the [ansible/gear-node/install.yml](ansible/gear-node/install.yml) config 
     Example:
 
     ```
-    ansible-playbook ansible/gear-node/remove.yml -i node.gear.rs, -u root --key-file ~/key.pem
+    ansible-playbook ansible/gear-node/remove.yml -i node.gear.rs, -u root --key-file ~/.ssh/id_rsa
     ```
 
 - Using a root user login/password for SSH access:
