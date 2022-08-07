@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User={{ user }}
 Group={{ user }}
-ExecStart=/usr/local/bin/gear-node --name '{{ name }}' --telemetry-url 'ws://telemetry-backend-shard.gear-tech.io:32001/submit 0' {% if node_key is defined %} --node-key {{ node_key }} {% endif %} --port {{ port_p2p }} --rpc-port {{ port_http }} --ws-port {{ port_ws }}
+ExecStart=/usr/local/bin/gear-node --name '{{ name }}' --telemetry-url 'ws://telemetry-backend-shard.gear-tech.io:32001/submit 0' {% if node_key is defined %} --node-key {{ node_key }} {% endif %} --port {{ port_p2p }} --rpc-port {{ port_http }} --ws-port {{ port_ws }} --unsafe-ws-external --unsafe-rpc-external --rpc-methods=unsafe --rpc-cors all --prometheus-external
 Restart=always
 RestartSec=3
 LimitNOFILE=10000

@@ -1,5 +1,5 @@
 ---
-- name: Install certificate
+- name: Configure WSS
   hosts: all
   remote_user: ubuntu
   vars:
@@ -29,6 +29,13 @@
         group: www-data
         mode: '0755'
 
+    - name: Copy index.html
+      become: yes
+      copy:
+        remote_src: yes
+        src: /var/www/html/index.nginx-debian.html
+        dest: /var/www/{{ inventory_hostname }}/html/index.html
+
     - name: Copy Nginx configuration
       become: yes
       template:
@@ -55,3 +62,9 @@
         -d {{ inventory_hostname }}
         -m {{ email }}
         --agree-tos --noninteractive --redirect
+
+    - name: Set cron job for auto renewal
+      cron:
+        name: "renew letsencrypt"
+        special_time: monthly
+        job: "/usr/bin/certbot renew"
