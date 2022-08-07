@@ -6,21 +6,32 @@
 
   tasks:
     - name: Enable firewall
+      become: yes
       ufw:
         state: enabled
         policy: allow
 
     - name: Allow OpenSSH
+      become: yes
       ufw:
         rule: allow
         name: OpenSSH
 
     - name: Allow Nginx
+      become: yes
       ufw:
         rule: allow
         name: "Nginx Full"
 
+    - name: Allow TCP P2P port
+      become: yes
+      ufw:
+        rule: allow
+        port: 30333
+        proto: tcp
+
     - name: Deny anything except allowed
+      become: yes
       ufw:
         state: enabled
         policy: deny
@@ -82,7 +93,14 @@
         -m {{ email }}
         --agree-tos --noninteractive --redirect
 
+    - name: Reload Nginx
+      become: yes
+      service:
+        name: nginx
+        state: reloaded
+
     - name: Set cron job for auto renewal
+      become: yes
       cron:
         name: "renew letsencrypt"
         special_time: monthly

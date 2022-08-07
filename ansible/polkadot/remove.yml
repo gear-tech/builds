@@ -2,14 +2,14 @@
 - name: Remove Gear Node
   hosts: all
   vars:
-    - user: gear
+    - user: polkadot
 
   tasks:
     - name: Stop service
       become: yes
       ignore_errors: yes
       systemd:
-        name: gear-node
+        name: polkadot
         state: stopped
 
     - name: Delete user
@@ -28,7 +28,7 @@
     - name: Delete SystemD config
       become: yes
       file:
-        path: /etc/systemd/system/gear-node.service
+        path: /etc/systemd/system/polkadot.service
         state: absent
 
     - name: Reload SystemD
@@ -36,8 +36,8 @@
       systemd:
         daemon_reload: yes
 
-    - name: Delete Gear node executable
+    - name: Delete Polkadot executable
       become: yes
       file:
-        path: /usr/local/bin/gear-node
+        path: /usr/local/bin/polkadot
         state: absent
