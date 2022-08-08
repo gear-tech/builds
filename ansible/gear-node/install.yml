@@ -1,5 +1,5 @@
 ---
-- name: Deploy Gear Node
+- name: Install Gear Node
   hosts: all
   vars:
     - user: gear

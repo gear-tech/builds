@@ -79,11 +79,11 @@
         dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}
         state: link
 
-    - name: Restart Nginx
+    - name: Reload Nginx
       become: yes
       service:
         name: nginx
-        state: restarted
+        state: reloaded
 
     - name: Install a certificate
       become: yes
@@ -93,7 +93,7 @@
         -m {{ email }}
         --agree-tos --noninteractive --redirect
 
-    - name: Reload Nginx
+    - name: Reload Nginx again
       become: yes
       service:
         name: nginx

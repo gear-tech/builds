@@ -1,5 +1,5 @@
 ---
-- name: Deploy Polkadot
+- name: Install Polkadot
   hosts: all
   vars:
     - user: polkadot
