@@ -1,0 +1,20 @@
+[Unit]
+Description=Rococo Node
+After=network.target
+
+[Service]
+Type=simple
+User={{ item.name }}
+Group={{ item.name }}
+ExecStart=/usr/local/bin/polkadot --{{ item.name }} --validator --chain "/home/{{ item.name }}/rococo-custom-2-raw.json" --unsafe-ws-external --unsafe-rpc-external --rpc-methods=unsafe --rpc-cors all --prometheus-external
+    {%- if item.node_key is defined %} --node-key {{ item.node_key }}{% endif %}
+    {%- if item.bootnode is defined %} --bootnodes {{ item.bootnode }}{% endif %}
+    {%- if item.port_p2p is defined %} --port {{ item.port_p2p }}{% endif %}
+    {%- if item.port_ws  is defined %} --ws-port {{ item.port_ws }}{% endif %}
+
+Restart=always
+RestartSec=3
+LimitNOFILE=10000
+
+[Install]
+WantedBy=multi-user.target

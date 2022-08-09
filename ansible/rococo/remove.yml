@@ -1,34 +1,40 @@
 ---
-- name: Remove Polkadot
+- name: Remove Rococo
   hosts: all
   vars:
-    - user: polkadot
+    nodes:
+      - name: alice
+      - name: bob
 
   tasks:
     - name: Stop service
       become: yes
+      loop: '{{ nodes }}'
       ignore_errors: yes
       systemd:
-        name: polkadot
+        name: rococo-{{ item.name }}
         state: stopped
 
     - name: Delete user
       become: yes
+      loop: '{{ nodes }}'
       user:
-        name: '{{ user }}'
+        name: '{{ item.name }}'
         state: absent
         remove: yes
 
     - name: Delete group
       become: yes
+      loop: '{{ nodes }}'
       group:
-        name: '{{ user }}'
+        name: '{{ item.name }}'
         state: absent
 
     - name: Delete SystemD config
       become: yes
+      loop: '{{ nodes }}'
       file:
-        path: /etc/systemd/system/polkadot.service
+        path: /etc/systemd/system/rococo-{{ item.name }}.service
         state: absent
 
     - name: Reload SystemD

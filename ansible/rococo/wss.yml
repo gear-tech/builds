@@ -102,6 +102,6 @@
     - name: Set cron job for auto renewal
       become: yes
       cron:
-        name: "renew letsencrypt"
+        name: Renew letsencrypt
         special_time: monthly
-        job: "/usr/bin/certbot renew"
+        job: /usr/bin/certbot renew
