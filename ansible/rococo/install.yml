@@ -1,45 +1,56 @@
 ---
-- name: Install Polkadot
+- name: Install Rococo
   hosts: all
   vars:
-    - user: polkadot
+    nodes:
+      - name: alice
+        node_key: '0000000000000000000000000000000000000000000000000000000000000001'
+      - name: bob
+        port_p2p: '30334'
+        port_ws: '9945'
+        bootnode: '/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp'
 
   tasks:
     - name: Create group
       become: yes
+      loop: '{{ nodes }}'
       group:
-        name: '{{ user }}'
+        name: '{{ item.name }}'
         state: present
 
     - name: Create user
       become: yes
+      loop: '{{ nodes }}'
       user:
-        name: '{{ user }}'
-        groups: '{{ user }}'
+        name: '{{ item.name }}'
+        groups: '{{ item.name }}'
         shell: /sbin/nologin
         append: yes
         state: present
 
     - name: Copy spec JSON
       become: yes
+      loop: '{{ nodes }}'
       copy:
         src: rococo-custom-2-raw.json
-        dest: /home/{{ user }}
-        owner: '{{ user }}'
-        group: '{{ user }}'
+        dest: /home/{{ item.name }}
+        owner: '{{ item.name }}'
+        group: '{{ item.name }}'
 
     - name: Copy SystemD config
       become: yes
+      loop: '{{ nodes }}'
       template:
-        src: polkadot.service.j2
-        dest: /etc/systemd/system/polkadot.service
+        src: rococo.service.j2
+        dest: /etc/systemd/system/rococo-{{ item.name }}.service
         owner: root
         group: root
 
     - name: Stop service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: polkadot
+        name: rococo-{{ item.name }}
         state: stopped
         daemon_reload: yes
 
@@ -55,8 +66,9 @@
 
     - name: Start service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: polkadot
+        name: rococo-{{ item.name }}
         state: started
         enabled: yes
         daemon_reload: yes
