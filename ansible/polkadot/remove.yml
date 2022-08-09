@@ -1,5 +1,5 @@
 ---
-- name: Remove Gear Node
+- name: Remove Polkadot
   hosts: all
   vars:
     - user: polkadot
