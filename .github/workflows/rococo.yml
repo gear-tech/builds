@@ -1,7 +1,7 @@
 name: Rococo
 
 on:
-  pull_request:
+  pull_request: # FIXME: Remove!
     branches: [master]
   workflow_dispatch:
 
@@ -15,11 +15,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Remove Rococo
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          directory: ansible/rococo
+          playbook: remove.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: -u ubuntu
+          inventory: ${{ secrets.RELAY_HOST }}
+
       - name: Install Rococo
         uses: dawidd6/action-ansible-playbook@v2
         with:
           directory: ansible/rococo
           playbook: install.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: -u ubuntu
+          inventory: ${{ secrets.RELAY_HOST }}
+
+      - name: Configure WSS
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          directory: ansible/rococo
+          playbook: wss.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
           inventory: ${{ secrets.RELAY_HOST }}

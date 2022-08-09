@@ -3,10 +3,11 @@
   hosts: all
   vars:
     - user: gear
-    - name: MY_SUPER_NODE
+    - node_name: MY_SUPER_NODE
     - port_http: 9933
     - port_ws: 9944
     - port_p2p: 30333
+    - telemetry: ws://telemetry-backend-shard.gear-tech.io:32001
 
   tasks:
     - name: Create group
@@ -46,7 +47,7 @@
         src: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
         dest: /usr/local/bin
         remote_src: yes
-        mode: 0755
+        mode: '0755'
         owner: root
         group: root
 
