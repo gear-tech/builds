@@ -6,9 +6,9 @@
       - name: alice
         node_key: '0000000000000000000000000000000000000000000000000000000000000001'
       - name: bob
-        port_p2p: '30334'
-        port_ws: '9945'
-        bootnode: '/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp'
+        port_p2p: 30334
+        port_ws: 9945
+        bootnode: /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
 
   tasks:
     - name: Create group
@@ -59,7 +59,7 @@
       get_url:
         url: https://github.com/paritytech/polkadot/releases/download/v0.9.26/polkadot
         dest: /usr/local/bin
-        mode: 0755
+        mode: '0755'
         force: yes
         owner: root
         group: root
