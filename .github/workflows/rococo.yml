@@ -6,30 +6,39 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: rococo
+            playbook: install
+            host: RELAY_HOST
+
+          - name: gear-node
+            playbook: install-collator
+            host: PARA_HOST
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Remove Rococo
+      - name: Remove ${{ matrix.name }}
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          directory: ansible/rococo
+          directory: ansible/${{ matrix.name }}
           playbook: remove.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ secrets.RELAY_HOST }}
+          inventory: ${{ secrets[matrix.host] }}
 
-      - name: Install Rococo
+      - name: Install ${{ matrix.name }}
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          directory: ansible/rococo
-          playbook: install.yml
+          directory: ansible/${{ matrix.name }}
+          playbook: ${{ matrix.playbook }}.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ secrets.RELAY_HOST }}
+          inventory: ${{ secrets[matrix.host] }}
 
       - name: Configure WSS
         uses: dawidd6/action-ansible-playbook@v2
@@ -38,4 +47,4 @@ jobs:
           playbook: wss.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ secrets.RELAY_HOST }}
+          inventory: ${{ secrets[matrix.host] }}

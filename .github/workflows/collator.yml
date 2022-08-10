@@ -1,0 +1,77 @@
+name: Collator
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gear-tech/gear
+          ref: gshep/draft-rococo-3
+
+      - name: Setup WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -rp gear-node --no-default-features
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifact
+          cp -fv target/release/gear-node artifact/
+          cd artifact
+          strip gear-node || true
+          ./gear-node export-genesis-state > gear-2000-genesis
+          ./gear-node export-genesis-wasm  > gear-2000-wasm
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: artifact
+
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Delete previous release
+        uses: dev-drprasad/delete-tag-and-release@v0.1.3
+        with:
+          delete_release: true
+          tag_name: collator
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          tag_name: collator
+          draft: false
+          fail_on_unmatched_files: true
+          files: artifact/*

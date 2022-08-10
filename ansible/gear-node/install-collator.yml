@@ -1,13 +1,13 @@
 ---
-- name: Install Gear Node
+- name: Install Gear Collator
   hosts: all
   vars:
     user: gear
-    node_name: MY_SUPER_NODE
-    port_http: 9933
-    port_ws: 9944
-    port_p2p: 30333
-    telemetry: ws://telemetry-backend-shard.gear-tech.io:32001
+    collator: yes
+    relay:
+      chain: /home/{{ user }}/rococo-raw.json
+      port_p2p: 30343
+      port_ws: 9977
 
   tasks:
     - name: Create group
@@ -26,6 +26,14 @@
         state: present
         create_home: yes
 
+    - name: Copy spec JSON
+      become: yes
+      copy:
+        src: ../rococo/rococo-bob-raw.json
+        dest: /home/{{ user }}/rococo-raw.json
+        owner: '{{ user }}'
+        group: '{{ user }}'
+
     - name: Copy SystemD config
       become: yes
       template:
@@ -41,13 +49,13 @@
         state: stopped
         daemon_reload: yes
 
-    - name: Download and unpack Gear node executable
+    - name: Downloads Gear collator executable
       become: yes
-      unarchive:
-        src: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
+      get_url:
+        url: https://github.com/gear-tech/builds/releases/download/collator/gear-node
         dest: /usr/local/bin
-        remote_src: yes
         mode: '0755'
+        force: yes
         owner: root
         group: root
 
