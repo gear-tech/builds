@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User={{ user }}
 Group={{ user }}
-ExecStart=/usr/local/bin/gear-node --name '{{ node_name }}' --port {{ port_p2p }} --rpc-port {{ port_http }} --ws-port {{ port_ws }} --unsafe-ws-external --rpc-cors all
+ExecStart=/usr/local/bin/gear-node --name '{{ node_name }}' --port {{ port_p2p }} --rpc-port {{ port_http }} --ws-port {{ port_ws }} --rpc-cors all
     {%- if telemetry is defined %} --telemetry-url '{{ telemetry }}/submit 0'{% endif %}
     {%- if bootnode is defined %} --bootnodes {{ bootnode }}{% endif %}
     {%- if chain is defined %} --chain {{ chain }}{% endif %}
