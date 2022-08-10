@@ -2,7 +2,7 @@
 - name: Remove Gear Node
   hosts: all
   vars:
-    - user: gear
+    user: gear
 
   tasks:
     - name: Stop service

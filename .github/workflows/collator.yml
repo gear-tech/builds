@@ -1,8 +1,6 @@
-name: Rococo
+name: Collator
 
 on:
-  pull_request:
-    branches: [master]
   workflow_dispatch:
 
 env:
