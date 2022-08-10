@@ -14,11 +14,11 @@ jobs:
         include:
           - name: rococo
             install: install.yml
-            host: ${{ secrets.RELAY_HOST }}
+            host: RELAY_HOST
 
           - name: gear-node
             install: install-collator.yml
-            host: ${{ secrets.PARA_HOST }}
+            host: PARA_HOST
 
     steps:
       - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
           playbook: remove.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ matrix.host }}
+          inventory: ${{ secrets[matrix.host] }}
 
       - name: Install ${{ matrix.name }}
         uses: dawidd6/action-ansible-playbook@v2
@@ -40,7 +40,7 @@ jobs:
           playbook: ${{ matrix.install }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ matrix.host }}
+          inventory: ${{ secrets[matrix.host] }}
 
       - name: Configure WSS
         uses: dawidd6/action-ansible-playbook@v2
@@ -49,4 +49,4 @@ jobs:
           playbook: wss.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
-          inventory: ${{ matrix.host }}
+          inventory: ${{ secrets[matrix.host] }}
