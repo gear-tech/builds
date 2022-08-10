@@ -1,8 +1,6 @@
 name: Rococo
 
 on:
-  pull_request: # FIXME: Remove!
-    branches: [master]
   workflow_dispatch:
 
 jobs:
