@@ -1,0 +1,53 @@
+name: Rococo
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build release binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gear-tech/gear
+          ref: gshep/draft-rococo-3
+
+      - name: Setup WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -rp gear-node --no-default-features
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifacts
+          cp -fv target/release/gear-node artifacts/
+          cd artifacts
+          strip gear-node || true
+          ./gear-node export-genesis-state > gear-2000-genesis
+          ./gear-node export-genesis-wasm > gear-2000-wasm
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
