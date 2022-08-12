@@ -8,6 +8,9 @@
       - name: bob
         port_p2p: 30334
         port_ws: 9945
+      - name: charlie
+        port_p2p: 30335
+        port_ws: 9946
 
   tasks:
     - name: Create group

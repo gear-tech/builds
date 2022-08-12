@@ -5,6 +5,7 @@
     nodes:
       - name: alice
       - name: bob
+      - name: charlie
 
   tasks:
     - name: Stop service
