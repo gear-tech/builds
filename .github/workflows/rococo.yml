@@ -11,11 +11,13 @@ jobs:
       matrix:
         include:
           - name: rococo
-            playbook: install
+            install: install
+            remove: remove
             host: RELAY_HOST
 
           - name: gear-node
-            playbook: install-parachain
+            install: install-parachain
+            remove: remove-parachain
             host: PARA_HOST
 
     steps:
@@ -26,16 +28,19 @@ jobs:
         uses: dawidd6/action-ansible-playbook@v2
         with:
           directory: ansible/${{ matrix.name }}
-          playbook: remove.yml
+          playbook: ${{ matrix.remove }}.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
           inventory: ${{ secrets[matrix.host] }}
+
+      - name: Delay 30s
+        run: run: sleep 30
 
       - name: Install ${{ matrix.name }}
         uses: dawidd6/action-ansible-playbook@v2
         with:
           directory: ansible/${{ matrix.name }}
-          playbook: ${{ matrix.playbook }}.yml
+          playbook: ${{ matrix.install }}.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
           inventory: ${{ secrets[matrix.host] }}
