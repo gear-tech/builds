@@ -1,0 +1,50 @@
+---
+- name: Remove Gear Node
+  hosts: all
+  vars:
+    nodes:
+      - user: alice
+      - user: bob
+      - user: charlie
+
+  tasks:
+    - name: Stop service
+      become: yes
+      loop: '{{ nodes }}'
+      ignore_errors: yes
+      systemd:
+        name: gear-node-{{ item.user }}
+        state: stopped
+
+    - name: Delete user
+      become: yes
+      loop: '{{ nodes }}'
+      user:
+        name: '{{ item.user }}'
+        state: absent
+        remove: yes
+
+    - name: Delete group
+      become: yes
+      loop: '{{ nodes }}'
+      group:
+        name: '{{ item.user }}'
+        state: absent
+
+    - name: Delete SystemD config
+      become: yes
+      loop: '{{ nodes }}'
+      file:
+        path: /etc/systemd/system/gear-node-{{ item.user }}.service
+        state: absent
+
+    - name: Reload SystemD
+      become: yes
+      systemd:
+        daemon_reload: yes
+
+    - name: Delete Gear node executable
+      become: yes
+      file:
+        path: /usr/local/bin/gear-node
+        state: absent

@@ -4,24 +4,24 @@ After=network.target
 
 [Service]
 Type=simple
-User={{ user }}
-Group={{ user }}
+User={{ item.user }}
+Group={{ item.user }}
 ExecStart=/usr/local/bin/gear-node --rpc-cors all
-    {%- if node_name is defined %} --name '{{ node_name }}'{% endif %}
-    {%- if port_p2p is defined %} --port {{ port_p2p }}{% endif %}
-    {%- if port_http is defined %} --rpc-port {{ port_http }}{% endif %}
-    {%- if port_ws is defined %} --ws-port {{ port_ws }}{% endif %}
-    {%- if telemetry is defined %} --telemetry-url '{{ telemetry }}/submit 0'{% endif %}
-    {%- if bootnode is defined %} --bootnodes {{ bootnode }}{% endif %}
-    {%- if chain is defined %} --chain {{ chain }}{% endif %}
-    {%- if collator is defined and collator %} --alice --collator --force-authoring{% endif %}
-    {%- if node_key is defined %} --node-key {{ node_key }}{% endif %}
-    {%- if validator is defined %} --validator{% endif %}
-    {%- if relay is defined %} -- --execution wasm
-        {%- if relay.bootnode is defined %} --bootnodes {{ relay.bootnode }}{% endif %}
-        {%- if relay.chain is defined %} --chain {{ relay.chain }}{% endif %}
-        {%- if relay.port_p2p is defined %} --port {{ relay.port_p2p }}{% endif %}
-        {%- if relay.port_ws is defined %} --ws-port {{ relay.port_ws }}{% endif %}
+    {%- if item.node_name is defined %} --name '{{ item.node_name }}'{% endif %}
+    {%- if item.port_p2p is defined %} --port {{ item.port_p2p }}{% endif %}
+    {%- if item.port_http is defined %} --rpc-port {{ item.port_http }}{% endif %}
+    {%- if item.port_ws is defined %} --ws-port {{ item.port_ws }}{% endif %}
+    {%- if item.telemetry is defined %} --telemetry-url '{{ item.telemetry }}/submit 0'{% endif %}
+    {%- if item.bootnode is defined %} --bootnodes {{ item.bootnode }}{% endif %}
+    {%- if item.chain is defined %} --chain {{ item.chain }}{% endif %}
+    {%- if item.collator is defined and item.collator %} --{{ item.user }} --collator --force-authoring{% endif %}
+    {%- if item.node_key is defined %} --node-key {{ item.node_key }}{% endif %}
+    {%- if item.validator is defined and item.validator %} --{{ item.user }} --validator{% endif %}
+    {%- if item.relay is defined %} -- --execution wasm
+        {%- if item.relay.bootnode is defined %} --bootnodes {{ item.relay.bootnode }}{% endif %}
+        {%- if item.relay.chain is defined %} --chain {{ item.relay.chain }}{% endif %}
+        {%- if item.relay.port_p2p is defined %} --port {{ item.relay.port_p2p }}{% endif %}
+        {%- if item.relay.port_ws is defined %} --ws-port {{ item.relay.port_ws }}{% endif %}
     {%- endif %}
 
 Restart=always

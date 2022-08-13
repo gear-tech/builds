@@ -2,25 +2,40 @@
 - name: Install Gear Collator
   hosts: all
   vars:
-    user: gear
-    collator: yes
-    relay:
-      chain: /home/{{ user }}/rococo-raw.json
-      port_p2p: 30343
-      port_ws: 9977
+    nodes:
+      - user: alice
+        collator: yes
+        relay:
+          chain: /home/alice/rococo-raw.json
+          port_p2p: 30343
+      - user: bob
+        collator: yes
+        port_p2p: 30334
+        port_ws: 9945
+        relay:
+          chain: /home/bob/rococo-raw.json
+          port_p2p: 30344
+      - user: charlie
+        port_p2p: 30335
+        port_ws: 9946
+        relay:
+          chain: /home/charlie/rococo-raw.json
+          port_p2p: 30345
 
   tasks:
     - name: Create group
       become: yes
+      loop: '{{ nodes }}'
       group:
-        name: '{{ user }}'
+        name: '{{ item.user }}'
         state: present
 
     - name: Create user
       become: yes
+      loop: '{{ nodes }}'
       user:
-        name: '{{ user }}'
-        groups: '{{ user }}'
+        name: '{{ item.user }}'
+        groups: '{{ item.user }}'
         shell: /sbin/nologin
         append: yes
         state: present
@@ -28,24 +43,27 @@
 
     - name: Copy spec JSON
       become: yes
+      loop: '{{ nodes }}'
       copy:
         src: ../rococo/rococo-bob-raw.json
-        dest: /home/{{ user }}/rococo-raw.json
-        owner: '{{ user }}'
-        group: '{{ user }}'
+        dest: /home/{{ item.user }}/rococo-raw.json
+        owner: '{{ item.user }}'
+        group: '{{ item.user }}'
 
     - name: Copy SystemD config
       become: yes
+      loop: '{{ nodes }}'
       template:
         src: gear-node.service.j2
-        dest: /etc/systemd/system/gear-node.service
+        dest: /etc/systemd/system/gear-node-{{ item.user }}.service
         owner: root
         group: root
 
     - name: Stop service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: gear-node
+        name: gear-node-{{ item.user }}
         state: stopped
         daemon_reload: yes
 
@@ -61,8 +79,9 @@
 
     - name: Start service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: gear-node
+        name: gear-node-{{ item.user }}
         state: started
         enabled: yes
         daemon_reload: yes
