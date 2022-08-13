@@ -15,7 +15,7 @@ jobs:
             host: RELAY_HOST
 
           - name: gear-node
-            playbook: install-collator
+            playbook: install-parachain
             host: PARA_HOST
 
     steps:

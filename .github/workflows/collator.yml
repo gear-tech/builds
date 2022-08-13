@@ -35,7 +35,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp gear-node --no-default-features
+          args: -rp gear-node
 
       - name: Collect artifacts
         run: |
