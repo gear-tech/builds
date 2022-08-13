@@ -34,7 +34,7 @@ jobs:
           inventory: ${{ secrets[matrix.host] }}
 
       - name: Delay 30s
-        run: run: sleep 30
+        run: sleep 30
 
       - name: Install ${{ matrix.name }}
         uses: dawidd6/action-ansible-playbook@v2
