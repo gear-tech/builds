@@ -35,7 +35,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp gear-node
+          args: -rp gear-node --no-default-features
 
       - name: Collect artifacts
         run: |
@@ -79,7 +79,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp polkadot --no-default-features
+          args: -rp polkadot
 
       - name: Collect artifacts
         run: |
