@@ -23,11 +23,11 @@
         rule: allow
         name: "Nginx Full"
 
-    - name: Allow TCP P2P port
+    - name: Allow TCP P2P ports
       become: yes
       ufw:
         rule: allow
-        port: 30333
+        port: 30333:30444
         proto: tcp
 
     - name: Deny anything except allowed
