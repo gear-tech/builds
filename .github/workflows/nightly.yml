@@ -112,7 +112,7 @@ jobs:
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: ${{ matrix.name }}
 
@@ -123,7 +123,7 @@ jobs:
     if: github.event_name != 'pull_request'
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
 
       - name: Backup the old version
         run: |
