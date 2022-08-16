@@ -1,4 +1,4 @@
-name: Parachain artifacts
+name: Collator
 
 on:
   workflow_dispatch:
