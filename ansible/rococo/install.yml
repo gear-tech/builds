@@ -59,7 +59,7 @@
     - name: Download polkadot executable
       become: yes
       get_url:
-        url: https://github.com/paritytech/polkadot/releases/download/v0.9.26/polkadot
+        url: https://github.com/gear-tech/builds/releases/download/parachain/polkadot
         dest: /usr/local/bin
         mode: '0755'
         force: yes
