@@ -1,4 +1,4 @@
-name: Collator
+name: Parachain binaries
 
 on:
   workflow_dispatch:
