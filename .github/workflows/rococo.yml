@@ -49,7 +49,7 @@ jobs:
         uses: dawidd6/action-ansible-playbook@v2
         with:
           directory: ansible/rococo
-          playbook: wss.yml
+          playbook: wss-ubuntu.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
           inventory: ${{ secrets[matrix.host] }}
