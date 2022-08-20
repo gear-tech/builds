@@ -6,6 +6,9 @@
       - name: alice
       - name: bob
       - name: charlie
+      - name: dave
+      - name: eve
+      - name: ferdie
 
   tasks:
     - name: Stop service

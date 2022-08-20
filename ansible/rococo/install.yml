@@ -3,14 +3,40 @@
   hosts: all
   vars:
     nodes:
-      - name: alice
+      - name: alice # 12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
         node_key: '0000000000000000000000000000000000000000000000000000000000000001'
-      - name: bob
+        chain: bootnode
+        debug: yes
+
+      - name: bob # 12D3KooWHdiAxVd8uMQR1hGWXccidmfCwLqcMpGwR6QcTP6QRMuD
+        node_key: '0000000000000000000000000000000000000000000000000000000000000002'
+        chain: default
         port_p2p: 30334
         port_ws: 9945
-      - name: charlie
+
+      - name: charlie # 12D3KooWSCufgHzV4fCwRijfH2k3abrpAJxTKxEvN1FDuRXA2U9x
+        node_key: '0000000000000000000000000000000000000000000000000000000000000003'
+        chain: default
         port_p2p: 30335
         port_ws: 9946
+
+      - name: dave # 12D3KooWSsChzF81YDUKpe9Uk5AHV5oqAaXAcWNSPYgoLauUk4st
+        node_key: '0000000000000000000000000000000000000000000000000000000000000004'
+        chain: default
+        port_p2p: 30343
+        port_ws: 9947
+
+      - name: eve # 12D3KooWSuTq6MG9gPt7qZqLFKkYrfxMewTZhj9nmRHJkPwzWDG2
+        node_key: '0000000000000000000000000000000000000000000000000000000000000005'
+        chain: default
+        port_p2p: 30344
+        port_ws: 9948
+
+      - name: ferdie # 12D3KooWMz5U7fR8mF5DNhZSSyFN8c19kU63xYopzDSNCzoFigYk
+        node_key: '0000000000000000000000000000000000000000000000000000000000000006'
+        chain: default
+        port_p2p: 30345
+        port_ws: 9949
 
   tasks:
     - name: Create group
@@ -34,7 +60,7 @@
       become: yes
       loop: '{{ nodes }}'
       copy:
-        src: rococo-{{ item.name }}-raw.json
+        src: rococo-{{ item.chain }}-raw.json
         dest: /home/{{ item.name }}
         owner: '{{ item.name }}'
         group: '{{ item.name }}'
