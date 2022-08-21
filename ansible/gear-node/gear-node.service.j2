@@ -6,12 +6,14 @@ After=network.target
 Type=simple
 User={{ item.user }}
 Group={{ item.user }}
+{% if item.debug is defined and item.debug %}Environment="RUST_LOG=debug"{% endif %}
+
 ExecStart=/usr/local/bin/gear-node --rpc-cors all
-    {%- if item.node_name is defined %} --name '{{ item.node_name }}'{% endif %}
+    {%- if item.node_name is defined %} --name "{{ item.node_name }}"{% endif %}
     {%- if item.port_p2p is defined %} --port {{ item.port_p2p }}{% endif %}
     {%- if item.port_http is defined %} --rpc-port {{ item.port_http }}{% endif %}
     {%- if item.port_ws is defined %} --ws-port {{ item.port_ws }}{% endif %}
-    {%- if item.telemetry is defined %} --telemetry-url '{{ item.telemetry }}/submit 0'{% endif %}
+    {%- if item.telemetry is defined %} --telemetry-url "{{ item.telemetry }}/submit 0"{% endif %}
     {%- if item.bootnode is defined %} --bootnodes {{ item.bootnode }}{% endif %}
     {%- if item.chain is defined %} --chain {{ item.chain }}{% endif %}
     {%- if item.collator is defined and item.collator %} --{{ item.user }} --collator --force-authoring{% endif %}
@@ -19,9 +21,10 @@ ExecStart=/usr/local/bin/gear-node --rpc-cors all
     {%- if item.validator is defined and item.validator %} --{{ item.user }} --validator{% endif %}
     {%- if item.relay is defined %} -- --execution wasm
         {%- if item.relay.bootnode is defined %} --bootnodes {{ item.relay.bootnode }}{% endif %}
-        {%- if item.relay.chain is defined %} --chain {{ item.relay.chain }}{% endif %}
+        {%- if item.relay.chain is defined %} --chain "{{ item.relay.chain }}"{% endif %}
         {%- if item.relay.port_p2p is defined %} --port {{ item.relay.port_p2p }}{% endif %}
         {%- if item.relay.port_ws is defined %} --ws-port {{ item.relay.port_ws }}{% endif %}
+        {%- if item.relay.telemetry is defined %} --telemetry-url "{{ item.relay.telemetry }}/submit 0"{% endif %}
     {%- endif %}
 
 Restart=always
