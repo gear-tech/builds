@@ -1,0 +1,148 @@
+---
+- name: Install Gear Collator
+  hosts: all
+  vars:
+    exec: gear-collator
+    nodes:
+      - user: alice
+        collator: yes
+        chain: /home/ubuntu/gear-2000-raw.json
+        port_p2p: 40333
+        port_ws: 9946
+        relay:
+          node_name: Alice-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30333
+
+      - user: bob
+        collator: yes
+        chain: /home/ubuntu/gear-2000-raw.json
+        port_p2p: 40334
+        port_ws: 9945
+        relay:
+          node_name: Bob-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30334
+
+      - user: rpc1
+        node_name: RPC1
+        debug: yes
+        chain: /home/ubuntu/gear-2000-raw.json
+        port_p2p: 40335
+        port_ws: 9944
+        relay:
+          node_name: RPC1-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30335
+
+      - user: charlie
+        collator: yes
+        chain: /home/ubuntu/gear-2001-raw.json
+        port_p2p: 40343
+        port_ws: 9956
+        relay:
+          node_name: Charlie-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30343
+
+      - user: dave
+        collator: yes
+        chain: /home/ubuntu/gear-2001-raw.json
+        port_p2p: 40344
+        port_ws: 9955
+        relay:
+          node_name: Dave-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30344
+
+      - user: rpc2
+        node_name: RPC2
+        debug: yes
+        chain: /home/ubuntu/gear-2001-raw.json
+        port_p2p: 40345
+        port_ws: 9954
+        relay:
+          node_name: RPC2-Collator
+          chain: /home/ubuntu/rococo-raw.json
+          port_p2p: 30345
+
+  tasks:
+    - name: Create group
+      become: yes
+      loop: '{{ nodes }}'
+      group:
+        name: '{{ item.user }}'
+        state: present
+
+    - name: Create user
+      become: yes
+      loop: '{{ nodes }}'
+      user:
+        name: '{{ item.user }}'
+        groups: '{{ item.user }}'
+        shell: /sbin/nologin
+        append: yes
+        state: present
+
+    - name: Copy Rococo spec JSON
+      become: yes
+      copy:
+        src: ../rococo/rococo-default-raw.json
+        dest: /home/ubuntu/rococo-raw.json
+        mode: '0644'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copy Gear 2000 spec JSON
+      become: yes
+      copy:
+        src: gear-2000-raw.json
+        dest: /home/ubuntu/
+        mode: '0644'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copy Gear 2001 spec JSON
+      become: yes
+      copy:
+        src: gear-2001-raw.json
+        dest: /home/ubuntu/
+        mode: '0644'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copy SystemD config
+      become: yes
+      loop: '{{ nodes }}'
+      template:
+        src: ../gear-node/gear-node.service.j2
+        dest: /etc/systemd/system/gear-collator-{{ item.user }}.service
+        owner: root
+        group: root
+
+    - name: Stop service
+      become: yes
+      loop: '{{ nodes }}'
+      systemd:
+        name: gear-collator-{{ item.user }}
+        state: stopped
+        daemon_reload: yes
+
+    - name: Download Gear collator executable
+      become: yes
+      get_url:
+        url: https://github.com/gear-tech/builds/releases/download/parachain/gear-node
+        dest: /usr/local/bin/gear-collator
+        mode: '0755'
+        force: yes
+        owner: root
+        group: root
+
+    - name: Start service
+      become: yes
+      loop: '{{ nodes }}'
+      systemd:
+        name: gear-collator-{{ item.user }}
+        state: started
+        enabled: yes
+        daemon_reload: yes

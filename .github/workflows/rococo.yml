@@ -48,7 +48,7 @@ jobs:
       - name: Configure WSS
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          directory: ansible/rococo
+          directory: ansible/misc
           playbook: wss-ubuntu.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: -u ubuntu
