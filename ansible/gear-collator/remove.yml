@@ -1,11 +1,14 @@
 ---
-- name: Remove Gear Node
+- name: Remove Gear Collator
   hosts: all
   vars:
     nodes:
       - user: alice
       - user: bob
+      - user: rpc1
       - user: charlie
+      - user: dave
+      - user: rpc2
 
   tasks:
     - name: Stop service
@@ -13,7 +16,7 @@
       loop: '{{ nodes }}'
       ignore_errors: yes
       systemd:
-        name: gear-node-{{ item.user }}
+        name: gear-collator-{{ item.user }}
         state: stopped
 
     - name: Delete user
@@ -35,7 +38,7 @@
       become: yes
       loop: '{{ nodes }}'
       file:
-        path: /etc/systemd/system/gear-node-{{ item.user }}.service
+        path: /etc/systemd/system/gear-collator-{{ item.user }}.service
         state: absent
 
     - name: Reload SystemD
@@ -43,8 +46,8 @@
       systemd:
         daemon_reload: yes
 
-    - name: Delete Gear node executable
+    - name: Delete Gear collator executable
       become: yes
       file:
-        path: /usr/local/bin/gear-node
+        path: /usr/local/bin/gear-collator
         state: absent

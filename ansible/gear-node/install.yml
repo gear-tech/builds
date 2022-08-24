@@ -2,6 +2,7 @@
 - name: Install Gear Node
   hosts: all
   vars:
+    exec: gear-node
     item:
       user: gear
       node_name: MY_SUPER_NODE
