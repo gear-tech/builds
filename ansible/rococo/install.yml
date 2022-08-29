@@ -100,3 +100,16 @@
         state: started
         enabled: yes
         daemon_reload: yes
+
+    - name: Stop logging
+      become: yes
+      register: rsyslog
+      systemd:
+        name: rsyslog
+        state: stopped
+        enabled: no
+
+    - name: Reboot
+      when: rsyslog is changed
+      become: yes
+      reboot:

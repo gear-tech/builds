@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
-          ref: gshep/draft-rococo-3
+          ref: shep/issue-1296
 
       - name: Setup WASM toolchain
         uses: actions-rs/toolchain@v1
@@ -35,16 +35,15 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp gear-node --no-default-features
+          args: -rp gear-collator --no-default-features
 
       - name: Collect artifacts
         run: |
           mkdir -p artifact
-          cp -fv target/release/gear-node artifact/
+          cp -fv target/release/gear-collator artifact/
           cd artifact
-          strip gear-node || true
-          ./gear-node export-genesis-state > gear-2000-genesis
-          ./gear-node export-genesis-wasm  > gear-2000-wasm
+          strip gear-collator || true
+          ./gear-collator export-genesis-wasm  > gear-wasm
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
