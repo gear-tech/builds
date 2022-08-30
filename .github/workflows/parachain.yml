@@ -35,7 +35,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp gear-collator --no-default-features
+          args: -rp gear-collator --no-default-features --features rococo-gear-native
 
       - name: Collect artifacts
         run: |
