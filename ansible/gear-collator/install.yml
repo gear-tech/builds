@@ -136,8 +136,8 @@
     - name: Download Gear collator executable
       become: yes
       get_url:
-        url: https://github.com/gear-tech/builds/releases/download/parachain/gear-node
-        dest: /usr/local/bin/gear-collator
+        url: https://github.com/gear-tech/builds/releases/download/parachain/gear-collator
+        dest: /usr/local/bin
         mode: '0755'
         force: yes
         owner: root
