@@ -13,8 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: sy-switch-new-collator # FIXME: Remove after success
+
+      - name: Checkout Gear
+        uses: actions/checkout@v3
+        with:
           repository: gear-tech/gear
           ref: gshep/issue-1296
+          path: gear
 
       - name: Setup WASM toolchain
         uses: actions-rs/toolchain@v1
@@ -30,20 +36,25 @@ jobs:
 
       - name: Cache
         uses: Swatinem/rust-cache@v1
+        with:
+          workspaces: |
+            gear -> target
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -rp gear-collator --no-default-features --features rococo-gear-native
+          args: --manifest-path gear/Cargo.toml -rp gear-collator --no-default-features --features rococo-gear-native
 
       - name: Collect artifacts
         run: |
           mkdir -p artifact
-          cp -fv target/release/gear-collator artifact/
+          cp -fv gear/target/release/gear-collator artifact/
           cd artifact
           strip gear-collator || true
-          ./gear-collator export-genesis-wasm  > gear-wasm
+          ./gear-collator export-genesis-wasm --chain ../ansible/gear-collator/gear-2000-raw.json > gear-wasm
+          ./gear-collator export-genesis-state --chain ../ansible/gear-collator/gear-2000-raw.json > gear-2000-genesis
+          ./gear-collator export-genesis-state --chain ../ansible/gear-collator/gear-2001-raw.json > gear-2001-genesis
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
