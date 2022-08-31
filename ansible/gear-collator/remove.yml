@@ -51,3 +51,7 @@
       file:
         path: /usr/local/bin/gear-collator
         state: absent
+
+    - name: Reboot
+      become: yes
+      reboot:

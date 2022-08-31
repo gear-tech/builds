@@ -51,3 +51,7 @@
       file:
         path: /usr/local/bin/polkadot
         state: absent
+
+    - name: Reboot
+      become: yes
+      reboot:
