@@ -33,7 +33,7 @@ jobs:
           target: wasm32-unknown-unknown
 
       - name: Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
             gear -> target
