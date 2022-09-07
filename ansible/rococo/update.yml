@@ -1,0 +1,31 @@
+---
+- name: Update Rococo
+  hosts: all
+  vars:
+    nodes:
+      - name: alice
+      - name: bob
+      - name: charlie
+      - name: dave
+      - name: eve
+      - name: ferdie
+
+  tasks:
+    - name: Download polkadot executable
+      become: yes
+      get_url:
+        url: https://github.com/paritytech/polkadot/releases/download/v0.9.28/polkadot
+        dest: /usr/local/bin
+        mode: '0755'
+        force: yes
+        owner: root
+        group: root
+
+    - name: Retart service
+      become: yes
+      loop: '{{ nodes }}'
+      systemd:
+        name: rococo-{{ item.name }}
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
