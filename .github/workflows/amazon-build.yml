@@ -15,6 +15,9 @@ jobs:
       - name: Install dependencies
         run: |
           yum install -y gcc gcc-с++ git gzip make tar wget
+          gcc --versin
+          c++ --version
+          git --version
 
       - name: Install CMake
         run: |
