@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     container: amazonlinux:latest
     steps:
+      - name: Install dependencies
+        run: |
+          sudo yum install tar
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
