@@ -29,3 +29,9 @@ jobs:
         with:
           toolchain: nightly
           target: wasm32-unknown-unknown
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -p gear-node --profile production
