@@ -1,0 +1,27 @@
+name: Build for Amazon Linux
+
+on:
+  pull_request: # FIXME: Add to Nightly
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: amazonlinux:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gear-tech/gear
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
