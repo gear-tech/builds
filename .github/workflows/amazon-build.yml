@@ -19,7 +19,7 @@ jobs:
       - name: Install CMake
         run: |
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.tar.gz
-          tar -xvf cmake-3.24.0-linux-x86_64.tar.gz -O /usr/local
+          tar -xvf cmake-3.24.0-linux-x86_64.tar.gz -C /usr/local
           rm cmake-3.24.0-linux-x86_64.tar.gz
           cmake --version
 
