@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          yum install -y gcc gcc-с++ git gzip make tar wget
+          yum-config-manager --enable extras
+          yum update -y && yum install -y gcc gcc-с++ git gzip make tar wget
           gcc --version
           c++ --version
           git --version
