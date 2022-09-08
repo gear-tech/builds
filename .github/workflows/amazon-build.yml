@@ -14,7 +14,14 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          yum install -y cmake gcc git gzip make tar
+          yum install -y gcc git gzip make tar
+
+      - name: Install CMake
+        run: |
+          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.tar.gz
+          tar -xvf cmake-3.24.0-linux-x86_64.tar.gz -O /usr/local
+          rm cmake-3.24.0-linux-x86_64.tar.gz
+          cmake --version
 
       - name: Checkout
         uses: actions/checkout@v3
