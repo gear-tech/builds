@@ -54,6 +54,8 @@ jobs:
           sed 's/Rococo[ ]Gear[ ]Local[ ]Testnet/Rococo\ Gear\ Testnet\ 2/g' ../gear-2000-plain.json > ../gear-2001-plain.json
           sed --in-place 's/rococo_gear_local_testnet/rococo_gear_testnet_2/g' ../gear-2001-plain.json
           sed --in-place 's/[ ]2000/\ 2001/g' ../gear-2001-plain.json
+          sed --in-place '78,101s/5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY/5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy/g' ../gear-2001-plain.json
+          sed --in-place '78,101s/5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty/5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y/g' ../gear-2001-plain.json
           ./gear-collator build-spec --chain ../gear-2001-plain.json --raw --disable-default-bootnode > ./gear-2001-raw.json
           ./gear-collator export-genesis-state --chain ./gear-2001-raw.json > gear-2001-genesis
           sed --in-place 's/Rococo[ ]Gear[ ]Local[ ]Testnet/Rococo\ Gear\ Testnet\ 1/g' ../gear-2000-plain.json
