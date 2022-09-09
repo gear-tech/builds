@@ -15,6 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           yum update -y && yum install -y amazon-linux-extras gcc gcc-с++ git gzip make tar wget
+          ln -s /usr/bin/cpp /usr/bin/c++
           gcc --version
           c++ --version
           git --version
