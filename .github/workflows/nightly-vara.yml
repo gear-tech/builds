@@ -40,7 +40,7 @@ jobs:
       - name: Configure Amazon Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar wget
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar wget xz
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
           chmod +x cmake-3.24.0-linux-x86_64.sh
           ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
@@ -104,7 +104,7 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
 
       - name: macOS artifacts
