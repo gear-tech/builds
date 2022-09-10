@@ -1,25 +1,34 @@
 ---
-- name: Install Gear Node
+- name: Install Vara Node
   hosts: all
   vars:
     exec: gear-node
-    item:
-      user: gear
-      node_name: MY_SUPER_NODE
-      port_http: 9933
-      port_ws: 9944
-      port_p2p: 30333
-      telemetry: ws://telemetry-backend-shard.gear-tech.io:32001
+    nodes:
+      - user: alice
+        node_name: vara-node-01
+        port_http: 9933
+        port_ws: 9944
+        port_p2p: 30333
+        telemetry: wss://telemetry.rs
+
+      - user: bob
+        node_name: vara-node-01
+        port_http: 9934
+        port_ws: 9945
+        port_p2p: 30334
+        telemetry: wss://telemetry.rs
 
   tasks:
     - name: Create group
       become: yes
+      loop: '{{ nodes }}'
       group:
         name: '{{ item.user }}'
         state: present
 
     - name: Create user
       become: yes
+      loop: '{{ nodes }}'
       user:
         name: '{{ item.user }}'
         groups: '{{ item.user }}'
@@ -29,23 +38,25 @@
 
     - name: Copy SystemD config
       become: yes
+      loop: '{{ nodes }}'
       template:
-        src: gear-node.service.j2
-        dest: /etc/systemd/system/gear-node.service
+        src: ../gear-node/gear-node.service.j2
+        dest: /etc/systemd/system/vara-{{ item.user }}.service
         owner: root
         group: root
 
     - name: Stop service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: gear-node
+        name: vara-{{ item.user }}
         state: stopped
         daemon_reload: yes
 
     - name: Download and unpack Gear node executable
       become: yes
       unarchive:
-        src: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
+        src: https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'
@@ -54,8 +65,9 @@
 
     - name: Start service
       become: yes
+      loop: '{{ nodes }}'
       systemd:
-        name: gear-node
+        name: vara-{{ item.user }}
         state: started
         enabled: yes
         daemon_reload: yes

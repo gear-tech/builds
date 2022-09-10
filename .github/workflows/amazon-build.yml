@@ -1,0 +1,48 @@
+name: Build for Amazon Linux
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: amazonlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar wget
+          clang --version
+          gcc --version
+          c++ --version
+          git --version
+
+      - name: Install CMake
+        run: |
+          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
+          chmod +x cmake-3.24.0-linux-x86_64.sh
+          ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
+          rm cmake-3.24.0-linux-x86_64.sh
+          cmake --version
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gear-tech/gear
+
+      - name: Setup nightly WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -p gear-node --profile production
