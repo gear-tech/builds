@@ -1,8 +1,7 @@
 name: Build for Amazon Linux
 
 on:
-  pull_request: # FIXME: Add to Nightly
-    branches: [master]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
