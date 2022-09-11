@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User={{ item.name }}
 Group={{ item.name }}
-{% if item.debug is defined and item.debug %}Environment="RUST_LOG=debug"{% endif %}
+{% if item.debug is defined and item.debug %}Environment="RUST_LOG=debug,netlink_proto::connection=info,netlink_proto::codecs=info"{% endif %}
 
 ExecStart=/usr/local/bin/polkadot --{{ item.name }} --validator --rpc-cors all
     {%- if item.chain is defined %} --chain "/home/{{ item.name }}/rococo-{{ item.chain }}-raw.json"{% endif %}

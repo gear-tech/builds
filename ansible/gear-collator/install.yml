@@ -9,6 +9,7 @@
         chain: /home/ubuntu/gear-2000-raw.json
         port_p2p: 40333
         port_ws: 9946
+        telemetry: wss://telemetry.rs
         relay:
           node_name: Alice-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -19,6 +20,7 @@
         chain: /home/ubuntu/gear-2000-raw.json
         port_p2p: 40334
         port_ws: 9945
+        telemetry: wss://telemetry.rs
         relay:
           node_name: Bob-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -30,6 +32,7 @@
         chain: /home/ubuntu/gear-2000-raw.json
         port_p2p: 40335
         port_ws: 9944
+        telemetry: wss://telemetry.rs
         relay:
           node_name: RPC1-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -40,6 +43,7 @@
         chain: /home/ubuntu/gear-2001-raw.json
         port_p2p: 40343
         port_ws: 9956
+        telemetry: wss://telemetry.rs
         relay:
           node_name: Charlie-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -50,6 +54,7 @@
         chain: /home/ubuntu/gear-2001-raw.json
         port_p2p: 40344
         port_ws: 9955
+        telemetry: wss://telemetry.rs
         relay:
           node_name: Dave-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -61,6 +66,7 @@
         chain: /home/ubuntu/gear-2001-raw.json
         port_p2p: 40345
         port_ws: 9954
+        telemetry: wss://telemetry.rs
         relay:
           node_name: RPC2-Collator
           chain: /home/ubuntu/rococo-raw.json
@@ -98,21 +104,23 @@
         owner: ubuntu
         group: ubuntu
 
-    - name: Copy Gear 2000 spec JSON
+    - name: Download Gear 2000 spec JSON
       become: yes
-      copy:
-        src: gear-2000-raw.json
+      get_url:
+        url: https://github.com/gear-tech/builds/releases/download/parachain/gear-2000-raw.json
         dest: /home/ubuntu/
         mode: '0644'
+        force: yes
         owner: ubuntu
         group: ubuntu
 
-    - name: Copy Gear 2001 spec JSON
+    - name: Download Gear 2001 spec JSON
       become: yes
-      copy:
-        src: gear-2001-raw.json
+      get_url:
+        url: https://github.com/gear-tech/builds/releases/download/parachain/gear-2001-raw.json
         dest: /home/ubuntu/
         mode: '0644'
+        force: yes
         owner: ubuntu
         group: ubuntu
 

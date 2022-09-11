@@ -6,9 +6,9 @@ After=network.target
 Type=simple
 User={{ item.user }}
 Group={{ item.user }}
-{% if item.debug is defined and item.debug %}Environment="RUST_LOG=debug"{% endif %}
+{% if item.debug is defined and item.debug %}Environment="RUST_LOG=debug,netlink_proto::connection=info,netlink_proto::codecs=info"{% endif %}
 
-ExecStart=/usr/local/bin/{{ exec }} --rpc-cors all
+ExecStart=/usr/local/bin/{{ exec }} --rpc-cors all --execution wasm
     {%- if item.node_name is defined %} --name "{{ item.node_name }}"{% endif %}
     {%- if item.port_p2p is defined %} --port {{ item.port_p2p }}{% endif %}
     {%- if item.port_http is defined %} --rpc-port {{ item.port_http }}{% endif %}

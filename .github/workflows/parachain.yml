@@ -50,9 +50,19 @@ jobs:
           cp -fv gear/target/release/gear-collator artifact/
           cd artifact
           strip gear-collator || true
-          ./gear-collator export-genesis-wasm --chain ../ansible/gear-collator/gear-2000-raw.json > gear-wasm
-          ./gear-collator export-genesis-state --chain ../ansible/gear-collator/gear-2000-raw.json > gear-2000-genesis
-          ./gear-collator export-genesis-state --chain ../ansible/gear-collator/gear-2001-raw.json > gear-2001-genesis
+          ./gear-collator build-spec --disable-default-bootnode > ../gear-2000-plain.json
+          sed 's/Rococo[ ]Gear[ ]Local[ ]Testnet/Rococo\ Gear\ Testnet\ 2/g' ../gear-2000-plain.json > ../gear-2001-plain.json
+          sed --in-place 's/rococo_gear_local_testnet/rococo_gear_testnet_2/g' ../gear-2001-plain.json
+          sed --in-place 's/[ ]2000/\ 2001/g' ../gear-2001-plain.json
+          sed --in-place '78,101s/5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY/5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy/g' ../gear-2001-plain.json
+          sed --in-place '78,101s/5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty/5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y/g' ../gear-2001-plain.json
+          ./gear-collator build-spec --chain ../gear-2001-plain.json --raw --disable-default-bootnode > ./gear-2001-raw.json
+          ./gear-collator export-genesis-state --chain ./gear-2001-raw.json > gear-2001-genesis
+          sed --in-place 's/Rococo[ ]Gear[ ]Local[ ]Testnet/Rococo\ Gear\ Testnet\ 1/g' ../gear-2000-plain.json
+          sed --in-place 's/rococo_gear_local_testnet/rococo_gear_testnet_1/g' ../gear-2000-plain.json
+          ./gear-collator build-spec --chain ../gear-2000-plain.json --raw --disable-default-bootnode > ./gear-2000-raw.json
+          ./gear-collator export-genesis-state --chain ./gear-2000-raw.json > gear-2000-genesis
+          ./gear-collator export-genesis-wasm --chain ./gear-2000-raw.json > gear-wasm
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
