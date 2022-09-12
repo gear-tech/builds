@@ -12,6 +12,7 @@
         port_ws: 9944
         port_p2p: 30333
         telemetry: wss://telemetry.rs
+#        validator: true    ---> uncomment when you install as a gear partner
 
   tasks:
     - name: Create group
@@ -81,4 +82,3 @@
       ansible.builtin.file:
         path: /tmp/gear-node.service.j2
         state: absent
-       
