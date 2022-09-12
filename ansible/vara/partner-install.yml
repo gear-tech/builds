@@ -30,17 +30,17 @@
         append: yes
         state: present
 
- #   - name: Download tempalte
- #     become: yes
- #     ansible.builtin.get_url:
- #       url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/gear-node/gear-node.service.j2
- #       dest: /tmp/gear-node.service.j2
+    - name: Download tempalte
+      become: yes
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/gear-node/gear-partner-node.service.j2
+        dest: /tmp/gear-partner-node.service.j2
 
 
     - name: Copy SystemD config
       become: yes
       template:
-        src: /tmp/gear-node.service.j2
+        src: /tmp/gear-partner-node.service.j2
         dest: /etc/systemd/system/gear-vara.service
         owner: root
         group: root
@@ -78,8 +78,8 @@
       ansible.builtin.debug:
         var: ansible_facts.services["gear-vara.service"]
 
-#    - name: Remove template file
-#      ansible.builtin.file:
-#        path: /tmp/gear-node.service.j2
-#        state: absent
+    - name: Remove template file
+      ansible.builtin.file:
+        path: /tmp/gear-partner-node.service.j2
+        state: absent
        
