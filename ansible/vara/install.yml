@@ -1,34 +1,27 @@
 ---
 - name: Install Vara Node
-  hosts: all
+  hosts: localhost
+  vars_prompt:
+    - name:    "node_name"
+      prompt:  "name of your node"
   vars:
-    exec: gear-node
-    nodes:
-      - user: alice
-        node_name: vara-node-01
+    main_exec: gear-node
+    item:
+        user: alice
         port_http: 9933
         port_ws: 9944
         port_p2p: 30333
         telemetry: wss://telemetry.rs
 
-      - user: bob
-        node_name: vara-node-01
-        port_http: 9934
-        port_ws: 9945
-        port_p2p: 30334
-        telemetry: wss://telemetry.rs
-
   tasks:
     - name: Create group
       become: yes
-      loop: '{{ nodes }}'
       group:
         name: '{{ item.user }}'
         state: present
 
     - name: Create user
       become: yes
-      loop: '{{ nodes }}'
       user:
         name: '{{ item.user }}'
         groups: '{{ item.user }}'
@@ -36,22 +29,20 @@
         append: yes
         state: present
 
+    - name: Download tempalte
+      become: yes
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/gear-node/gear-node.service.j2
+        dest: /tmp/gear-node.service.j2
+
+
     - name: Copy SystemD config
       become: yes
-      loop: '{{ nodes }}'
       template:
-        src: ../gear-node/gear-node.service.j2
-        dest: /etc/systemd/system/vara-{{ item.user }}.service
+        src: /tmp/gear-node.service.j2
+        dest: /etc/systemd/system/gear-vara.service
         owner: root
         group: root
-
-    - name: Stop service
-      become: yes
-      loop: '{{ nodes }}'
-      systemd:
-        name: vara-{{ item.user }}
-        state: stopped
-        daemon_reload: yes
 
     - name: Download and unpack Gear node executable
       become: yes
@@ -63,11 +54,31 @@
         owner: root
         group: root
 
+    - name: Stop service
+      become: yes
+      systemd:
+        name: gear-vara
+        state: stopped
+        daemon_reload: yes
+
     - name: Start service
       become: yes
-      loop: '{{ nodes }}'
       systemd:
-        name: vara-{{ item.user }}
+        name: gear-vara
         state: started
         enabled: yes
         daemon_reload: yes
+
+    - name: Gathering Service Facts
+      service_facts:
+      tags: gear-vara
+
+    - name: Write gear-vara status
+      ansible.builtin.debug:
+        var: ansible_facts.services["gear-vara.service"]
+
+    - name: Remove template file
+      ansible.builtin.file:
+        path: /tmp/gear-node.service.j2
+        state: absent
+       
