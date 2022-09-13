@@ -7,7 +7,7 @@ Type=simple
 User={{ item.user }}
 Group={{ item.user }}
 
-ExecStart=/usr/local/bin/{{ main_exec }} --rpc-cors all
+ExecStart=/usr/local/bin/{{ executable }} --rpc-cors all
     {%- if node_name is defined %} --name "{{ node_name }}"{% endif %}
     {%- if item.port_p2p is defined %} --port {{ item.port_p2p }}{% endif %}
     {%- if item.port_http is defined %} --rpc-port {{ item.port_http }}{% endif %}

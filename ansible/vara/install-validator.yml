@@ -1,20 +1,41 @@
 ---
 - name: Install Vara Node
-  hosts: localhost
+  hosts: all
   vars_prompt:
-    - name:    "node_name"
-      prompt:  "Name of your node"
+    - name: node_name
+      prompt: Node name
+      private: no
+    - name: seed_phrase
+      prompt: Seed phrase
+      private: no
   vars:
-    main_exec: gear-node
+    executable: gear-node
     item:
-        user: vara
-        port_http: 9933
-        port_ws: 9944
-        port_p2p: 30333
-        telemetry: wss://telemetry.rs
-        validator: true
+      user: vara
+      port_http: 9933
+      port_ws: 9944
+      port_p2p: 30333
+      telemetry: wss://telemetry.rs
+      validator: true
 
   tasks:
+    - name: Count words in seed phrase
+      register: word_count
+      command:
+        argv:
+          - wc
+          - '-w'
+        stdin: '"{{ seed_phrase }}"'
+
+    - name: Validate 12-word seed phrase
+      command:
+        argv:
+          - '['
+          - '{{ word_count.stdout }}'
+          - '-eq'
+          - 12
+          - ']'
+
     - name: Create group
       become: yes
       group:
@@ -37,10 +58,23 @@
         dest: /tmp/vara-node.service.j2
         force: yes
 
+    - name: Fetch template
+      become: yes
+      fetch:
+        src: /tmp/vara-node.service.j2
+        dest: ./
+        flat: yes
+
+    - name: Remove template file
+      become: yes
+      file:
+        path: /tmp/vara-node.service.j2
+        state: absent
+
     - name: Copy SystemD config
       become: yes
       template:
-        src: /tmp/vara-node.service.j2
+        src: vara-node.service.j2
         dest: /etc/systemd/system/vara-node.service
         owner: root
         group: root
@@ -62,6 +96,36 @@
         state: stopped
         daemon_reload: yes
 
+    - name: Add Babe key to the keystore
+      become: yes
+      become_user: '{{ item.user }}'
+      command:
+        argv:
+          - /usr/local/bin/gear-node
+          - key
+          - insert
+          - --key-type
+          - babe
+          - --scheme
+          - sr25519
+          - --suri
+          - '{{ seed_phrase }}'
+
+    - name: Add Grandpa key to the keystore
+      become: yes
+      become_user: '{{ item.user }}'
+      command:
+        argv:
+          - /usr/local/bin/gear-node
+          - key
+          - insert
+          - --key-type
+          - gran
+          - --scheme
+          - ed25519
+          - --suri
+          - '{{ seed_phrase }}'
+
     - name: Start service
       become: yes
       systemd:
@@ -76,8 +140,3 @@
     - name: Write vara-node status
       debug:
         var: ansible_facts.services["vara-node.service"]
-
-    - name: Remove template file
-      file:
-        path: /tmp/vara-node.service.j2
-        state: absent
