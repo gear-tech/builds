@@ -3,11 +3,11 @@
   hosts: localhost
   vars_prompt:
     - name:    "node_name"
-      prompt:  "name of your node"
+      prompt:  "Name of your node"
   vars:
     main_exec: gear-node
     item:
-        user: alice
+        user: vara
         port_http: 9933
         port_ws: 9944
         port_p2p: 30333
@@ -30,18 +30,18 @@
         append: yes
         state: present
 
-    - name: Download tempalte
+    - name: Download template
       become: yes
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/gear-node/gear-partner-node.service.j2
-        dest: /tmp/gear-partner-node.service.j2
-
+      get_url:
+        url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/vara/vara-node.service.j2
+        dest: /tmp/vara-node.service.j2
+        force: yes
 
     - name: Copy SystemD config
       become: yes
       template:
-        src: /tmp/gear-partner-node.service.j2
-        dest: /etc/systemd/system/gear-vara.service
+        src: /tmp/vara-node.service.j2
+        dest: /etc/systemd/system/vara-node.service
         owner: root
         group: root
 
@@ -58,28 +58,26 @@
     - name: Stop service
       become: yes
       systemd:
-        name: gear-vara
+        name: vara-node
         state: stopped
         daemon_reload: yes
 
     - name: Start service
       become: yes
       systemd:
-        name: gear-vara
+        name: vara-node
         state: started
         enabled: yes
-        daemon_reload: yes
 
-    - name: Gathering Service Facts
+    - name: Gathering service facts
       service_facts:
-      tags: gear-vara
+      tags: vara-node
 
-    - name: Write gear-vara status
-      ansible.builtin.debug:
-        var: ansible_facts.services["gear-vara.service"]
+    - name: Write vara-node status
+      debug:
+        var: ansible_facts.services["vara-node.service"]
 
     - name: Remove template file
-      ansible.builtin.file:
-        path: /tmp/gear-partner-node.service.j2
+      file:
+        path: /tmp/vara-node.service.j2
         state: absent
-       
