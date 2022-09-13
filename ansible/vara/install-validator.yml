@@ -24,15 +24,15 @@
       command:
         argv:
           - wc
-          - '-w'
-        stdin: '"{{ seed_phrase }}"'
+          - -w
+        stdin: '{{ seed_phrase }}'
 
     - name: Validate 12-word seed phrase
       command:
         argv:
           - '['
           - '{{ word_count.stdout }}'
-          - '-eq'
+          - -eq
           - 12
           - ']'
 
