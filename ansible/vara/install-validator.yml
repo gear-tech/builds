@@ -1,0 +1,83 @@
+---
+- name: Install Vara Node
+  hosts: localhost
+  vars_prompt:
+    - name:    "node_name"
+      prompt:  "Name of your node"
+  vars:
+    main_exec: gear-node
+    item:
+        user: vara
+        port_http: 9933
+        port_ws: 9944
+        port_p2p: 30333
+        telemetry: wss://telemetry.rs
+        validator: true
+
+  tasks:
+    - name: Create group
+      become: yes
+      group:
+        name: '{{ item.user }}'
+        state: present
+
+    - name: Create user
+      become: yes
+      user:
+        name: '{{ item.user }}'
+        groups: '{{ item.user }}'
+        shell: /sbin/nologin
+        append: yes
+        state: present
+
+    - name: Download template
+      become: yes
+      get_url:
+        url: https://raw.githubusercontent.com/gear-tech/builds/master/ansible/vara/vara-node.service.j2
+        dest: /tmp/vara-node.service.j2
+        force: yes
+
+    - name: Copy SystemD config
+      become: yes
+      template:
+        src: /tmp/vara-node.service.j2
+        dest: /etc/systemd/system/vara-node.service
+        owner: root
+        group: root
+
+    - name: Download and unpack Gear node executable
+      become: yes
+      unarchive:
+        src: https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Stop service
+      become: yes
+      systemd:
+        name: vara-node
+        state: stopped
+        daemon_reload: yes
+
+    - name: Start service
+      become: yes
+      systemd:
+        name: vara-node
+        state: started
+        enabled: yes
+
+    - name: Gathering service facts
+      service_facts:
+      tags: vara-node
+
+    - name: Write vara-node status
+      debug:
+        var: ansible_facts.services["vara-node.service"]
+
+    - name: Remove template file
+      file:
+        path: /tmp/vara-node.service.j2
+        state: absent
