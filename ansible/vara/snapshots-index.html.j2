@@ -1,0 +1,22 @@
+<html>
+<head>
+    <title>Vara Node DB Snapshots</title>
+</head>
+
+<body>
+
+<h1>{{ ansible_date_time.date }}, {{ ansible_date_time.time }} (UTC)</h1>
+
+{% set i = 0 %}
+{% for item in nodes %}
+    <h2>{{ item.title }}</h2>
+    <ul>
+        <li>Best block: <b>#{{ (block_number.results[i].stdout | from_json).best_number }}</b></li>
+        <li>Finalized block: <b>#{{ (block_number.results[i].stdout | from_json).finalized_number }}</b></li>
+        <li><a href="{{ item.file_name }}.tar.xz">{{ item.file_name }}.tar.xz</a></li>
+    </ul>
+    {% set i = i + 1 %}
+{% endfor %}
+
+</body>
+</html>

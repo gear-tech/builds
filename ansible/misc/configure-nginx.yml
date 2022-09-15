@@ -1,0 +1,119 @@
+---
+- name: Configure Nginx
+  hosts: all
+  vars:
+    - email: hello@gear-tech.io
+
+  tasks:
+    - name: Amazon - Install extra
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      yum:
+        name: amazon-linux-extras
+        state: latest
+        update_cache: yes
+
+    - name: Amazon - Enable EPEL
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      command: amazon-linux-extras install epel -y
+
+    - name: Amazon - Install Nginx, Certbot et al.
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      yum:
+        name: [nginx, certbot, python-certbot-nginx]
+        state: latest
+        update_cache: yes
+
+    - name: Ubuntu - Install Nginx, Certbot et al.
+      when: ansible_facts['distribution'] == "Ubuntu"
+      become: yes
+      apt:
+        name: [nginx, certbot, python3-certbot-nginx]
+        state: latest
+        update_cache: yes
+
+    - name: Start Nginx
+      become: yes
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Amazon - Create WWW directory
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      file:
+        path: /var/www/{{ inventory_hostname }}/html
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Ubuntu - Create WWW directory
+      when: ansible_facts['distribution'] == "Ubuntu"
+      become: yes
+      file:
+        path: /var/www/{{ inventory_hostname }}/html
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Amazon - Copy index.html
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      copy:
+        remote_src: yes
+        src: /usr/share/nginx/html/index.html
+        dest: /var/www/{{ inventory_hostname }}/html/index.html
+
+    - name: Ubuntu - Copy index.html
+      when: ansible_facts['distribution'] == "Ubuntu"
+      become: yes
+      copy:
+        remote_src: yes
+        src: /var/www/html/index.nginx-debian.html
+        dest: /var/www/{{ inventory_hostname }}/html/index.html
+
+    - name: Amazon - Copy Nginx configuration
+      when: ansible_facts['distribution'] == "Amazon"
+      become: yes
+      template:
+        src: static-server-block.j2
+        dest: /etc/nginx/conf.d/{{ inventory_hostname }}.conf
+
+    - name: Ubuntu - Copy Nginx configuration
+      when: ansible_facts['distribution'] == "Ubuntu"
+      become: yes
+      template:
+        src: static-server-block.j2
+        dest: /etc/nginx/sites-available/{{ inventory_hostname }}
+
+    - name: Reload Nginx
+      become: yes
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Install a certificate
+      become: yes
+      command: >
+        certbot --nginx
+        -d {{ inventory_hostname }}
+        -m {{ email }}
+        --agree-tos --noninteractive --redirect
+
+    - name: Reload Nginx again
+      become: yes
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Set cron job for auto renewal
+      become: yes
+      cron:
+        name: Renew letsencrypt
+        special_time: monthly
+        job: /usr/bin/certbot renew

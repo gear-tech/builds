@@ -69,7 +69,7 @@
     - name: Copy Nginx configuration
       become: yes
       template:
-        src: server-block.j2
+        src: wss-server-block.j2
         dest: /etc/nginx/sites-available/{{ inventory_hostname }}
 
     - name: Enable Nginx configuration
