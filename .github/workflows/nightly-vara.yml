@@ -144,6 +144,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Delay 10s
+        run: sleep 10
+
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:

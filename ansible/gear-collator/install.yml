@@ -2,7 +2,7 @@
 - name: Install Gear Collator
   hosts: all
   vars:
-    exec: gear-collator
+    executable: gear-collator
     nodes:
       - user: alice
         collator: yes

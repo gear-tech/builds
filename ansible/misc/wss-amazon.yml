@@ -45,7 +45,7 @@
     - name: Copy Nginx configuration
       become: yes
       template:
-        src: server-block.j2
+        src: wss-server-block.j2
         dest: /etc/nginx/conf.d/{{ inventory_hostname }}.conf
 
     - name: Reload Nginx

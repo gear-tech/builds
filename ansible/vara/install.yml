@@ -2,17 +2,18 @@
 - name: Install Vara Node
   hosts: all
   vars:
-    exec: gear-node
+    executable: gear-node
     nodes:
       - user: alice
-        node_name: vara-node-01
+        node_name: vara-backup
         port_http: 9933
         port_ws: 9944
         port_p2p: 30333
         telemetry: wss://telemetry.rs
 
       - user: bob
-        node_name: vara-node-01
+        node_name: vara-backup-archive
+        archive: yes
         port_http: 9934
         port_ws: 9945
         port_p2p: 30334
@@ -71,3 +72,16 @@
         state: started
         enabled: yes
         daemon_reload: yes
+
+    - name: Stop logging
+      become: yes
+      register: rsyslog
+      systemd:
+        name: rsyslog
+        state: stopped
+        enabled: no
+
+    - name: Reboot
+      when: rsyslog is changed
+      become: yes
+      reboot:
