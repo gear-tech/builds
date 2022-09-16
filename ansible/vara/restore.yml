@@ -1,0 +1,69 @@
+---
+- name: Restore DB
+  hosts: all
+
+  vars:
+    nodes:
+      - user: alice
+        file_name: db
+      - user: bob
+        file_name: db-archive
+
+  tasks:
+    - name: Stop service
+      become: yes
+      loop: '{{ nodes }}'
+      systemd:
+        name: vara-{{ item.user }}
+        state: stopped
+
+    - name: Rename old directory
+      become: yes
+      loop: '{{ nodes }}'
+      ignore_errors: yes
+      command: >
+        mv
+        /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/db/full
+        /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/db/full-old
+
+    - name: Unpack DB
+      become: yes
+      loop: '{{ nodes }}'
+      unarchive:
+        src: https://db.vara.rs/{{ item.file_name }}.tar.xz
+        dest: /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/
+        remote_src: yes
+        mode: '0755'
+        owner: '{{ item.user }}'
+        group: '{{ item.user }}'
+
+    - name: Verify DB
+      become: yes
+      loop: '{{ nodes }}'
+      command:
+        chdir: /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/db
+        cmd: md5sum -c md5.txt
+
+    - name: Remove old directory
+      become: yes
+      loop: '{{ nodes }}'
+      ignore_errors: yes
+      file:
+        path: /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/db/full-old
+        state: absent
+
+    - name: Remove md5.txt
+      become: yes
+      ignore_errors: yes
+      loop: '{{ nodes }}'
+      file:
+        path: /home/{{ item.user }}/.local/share/gear-node/chains/vara_network/db/md5.txt
+        state: absent
+
+    - name: Start service
+      become: yes
+      loop: '{{ nodes }}'
+      systemd:
+        name: vara-{{ item.user }}
+        state: started
+        enabled: yes

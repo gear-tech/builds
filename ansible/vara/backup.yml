@@ -3,14 +3,13 @@
   hosts: all
 
   vars:
-      executable: gear-node
-      nodes:
-        - user: alice
-          title: Default DB
-          file_name: db
-        - user: bob
-          title: Archive DB
-          file_name: db-archive
+    nodes:
+      - user: alice
+        title: Default DB
+        file_name: db
+      - user: bob
+        title: Archive DB
+        file_name: db-archive
 
   tasks:
     - name: Stop service
@@ -43,6 +42,13 @@
       register: block_number
       shell:
         cmd: /usr/local/bin/gear-node chain-info
+
+    - name: Get stats of DB file
+      become: yes
+      loop: '{{ nodes }}'
+      register: db_stats
+      stat:
+        path: /var/www/{{ inventory_hostname }}/html/{{ item.file_name }}.tar.xz
 
     - name: Update index.html
       become: yes
