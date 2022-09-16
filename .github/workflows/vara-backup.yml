@@ -1,0 +1,42 @@
+name: Vara DB Backup
+
+on:
+  pull_request: # FIXME: Remove before merge!
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Backup DB
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          directory: ansible/vara
+          playbook: backup.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: -u ec2-user
+          inventory: db.vara.rs
+
+      - name: Verify DB
+        run: |
+          wget https://db.vara.rs/db.tar.xz
+          tar -xvf db.tar.xz
+          cd db
+          md5sum -c md5.txt
+          rm -rf db
+          rm db.tar.xz
+
+      - name: Verify archive DB
+        run: |
+          wget https://db.vara.rs/db-archive.tar.xz
+          tar -xvf db-archive.tar.xz
+          cd db
+          md5sum -c md5.txt
+          rm -rf db
+          rm db-archive.tar.xz
