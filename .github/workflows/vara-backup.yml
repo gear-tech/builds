@@ -29,6 +29,7 @@ jobs:
           tar -xvf db.tar.xz
           cd db
           md5sum -c md5.txt
+          cd ..
           rm -rf db
           rm db.tar.xz
 
@@ -38,5 +39,6 @@ jobs:
           tar -xvf db-archive.tar.xz
           cd db
           md5sum -c md5.txt
+          cd ..
           rm -rf db
           rm db-archive.tar.xz
