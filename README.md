@@ -61,7 +61,7 @@ If you access your server using SSH login and password instead of SSH key, you a
 
 Refer the [ansible/gear-node/install.yml](ansible/gear-node/install.yml) config and modify `vars` according to your setup:
 
-- `name` (default: `MY_SUPER_NODE`) is the node name that will be visible on https://telemetry.gear-tech.io/
+- `node_name` (default: `MY_SUPER_NODE`) is the node name that will be visible on https://telemetry.gear-tech.io/
 - `port_http` (default: `9933`) is the HTTP RPC server TCP port
 - `port_ws` (default: `9944`) is the WebSockets RPC server TCP port
 - `port_p2p` (default: `30333`) is the P2P protocol TCP port
