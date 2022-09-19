@@ -1,5 +1,5 @@
 ---
-- name: Install Vara Node
+- name: Install Backup Vara Nodes
   hosts: all
   vars:
     executable: gear-node
