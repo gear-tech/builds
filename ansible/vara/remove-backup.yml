@@ -3,7 +3,8 @@
   hosts: all
   vars:
     nodes:
-      - user: vara
+      - user: alice
+      - user: bob
 
   tasks:
     - name: Stop service

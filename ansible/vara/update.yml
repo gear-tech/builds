@@ -1,0 +1,28 @@
+---
+- name: Update Vara Node
+  hosts: all
+
+  tasks:
+    - name: Download and unpack Gear node executable
+      become: yes
+      unarchive:
+        src: https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Restart service
+      become: yes
+      systemd:
+        name: vara-node
+        state: restarted
+
+    - name: Gathering service facts
+      service_facts:
+      tags: vara-node
+
+    - name: Write vara-node status
+      debug:
+        var: ansible_facts.services["vara-node.service"]
