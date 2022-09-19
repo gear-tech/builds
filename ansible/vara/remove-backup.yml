@@ -1,5 +1,5 @@
 ---
-- name: Remove Vara Node
+- name: Remove Backup Vara Nodes
   hosts: all
   vars:
     nodes:

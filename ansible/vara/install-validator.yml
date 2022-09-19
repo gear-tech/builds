@@ -1,5 +1,5 @@
 ---
-- name: Install Vara Node
+- name: Install Vara Validator
   hosts: all
   vars_prompt:
     - name: node_name
@@ -16,7 +16,7 @@
       port_ws: 9944
       port_p2p: 30333
       telemetry: wss://telemetry.rs
-      validator: true
+      validator: yes
 
   tasks:
     - name: Count words in seed phrase
