@@ -7,7 +7,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-gear:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -69,51 +69,9 @@ jobs:
         with:
           path: artifact
 
-  build-polkadot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: gear-tech/polkadot
-          ref: polkagear3000-v0.9.26
-
-      - name: Setup WASM toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-
-      - name: Setup nightly WASM toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          target: wasm32-unknown-unknown
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v1
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: -rp polkadot
-
-      - name: Collect artifacts
-        run: |
-          mkdir -p artifact
-          cp -fv target/release/polkadot artifact/
-          cd artifact
-          strip polkadot || true
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          path: artifact
-
   upload:
     runs-on: ubuntu-latest
-    needs: [build-gear, build-polkadot]
+    needs: build
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
