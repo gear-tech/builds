@@ -93,6 +93,10 @@ jobs:
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
 
+      - name: Fix for `git rev-parse`
+        if: matrix.os == 'ubuntu-latest'
+        run: git config --global --add safe.directory `pwd`
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
