@@ -41,6 +41,9 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v1
 
+      - name: Fix for `git rev-parse`
+        run: git config --global --add safe.directory `pwd`
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
