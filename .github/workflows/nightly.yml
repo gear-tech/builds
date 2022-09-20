@@ -81,6 +81,11 @@ jobs:
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:

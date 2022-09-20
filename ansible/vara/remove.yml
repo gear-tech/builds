@@ -11,7 +11,7 @@
       loop: '{{ nodes }}'
       ignore_errors: yes
       systemd:
-        name: vara-{{ item.user }}
+        name: vara-node
         state: stopped
 
     - name: Delete user
@@ -33,7 +33,7 @@
       become: yes
       loop: '{{ nodes }}'
       file:
-        path: /etc/systemd/system/vara-{{ item.user }}.service
+        path: /etc/systemd/system/vara-node.service
         state: absent
 
     - name: Reload SystemD
