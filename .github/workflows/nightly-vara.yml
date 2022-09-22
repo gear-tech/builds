@@ -45,6 +45,9 @@ jobs:
           chmod +x cmake-3.24.0-linux-x86_64.sh
           ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
           rm cmake-3.24.0-linux-x86_64.sh
+          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
+          rm protoc-3.20.2-linux-x86_64.zip
 
       - name: Checkout
         uses: actions/checkout@v3
