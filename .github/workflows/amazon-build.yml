@@ -13,16 +13,11 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          yum update -y && yum install -y amazon-linux-extras bzip2 clang gcc git gzip make tar wget
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make protobuf tar wget
           clang --version
           gcc --version
           c++ --version
           git --version
-
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install CMake
         run: |
