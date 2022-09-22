@@ -40,11 +40,14 @@ jobs:
       - name: Configure Amazon Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar wget xz
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar unzip wget xz
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
           chmod +x cmake-3.24.0-linux-x86_64.sh
           ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
           rm cmake-3.24.0-linux-x86_64.sh
+          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
+          rm protoc-3.20.2-linux-x86_64.zip
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -92,6 +95,12 @@ jobs:
         run: |
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
+
+      - name: Install Protoc
+        if: matrix.os != 'ubuntu-latest'
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fix for `git rev-parse`
         if: matrix.os == 'ubuntu-latest'
