@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make protobuf protobuf-compiler tar wget
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar unzip wget
           clang --version
           gcc --version
           c++ --version
@@ -26,6 +26,11 @@ jobs:
           ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
           rm cmake-3.24.0-linux-x86_64.sh
           cmake --version
+
+      - name: Install protoc
+        run: |
+          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+          sudo unzip protoc-3.20.2-linux-x86_64.zip -d /usr
 
       - name: Checkout
         uses: actions/checkout@v3
