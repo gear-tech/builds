@@ -21,42 +21,50 @@ jobs:
             os: ubuntu-latest
             docker: amazonlinux:latest
             name: vara-nightly-linux-x86_64.tar.xz
+            file_name: ${{ name }}.tar.xz
 
           - target: x86_64-apple-darwin
             branch: vara-stage-1
             os: macOS-latest
             name: vara-nightly-macos-x86_64.tar.gz
+            file_name: ${{ name }}.tar.gz
 
           - target: aarch64-apple-darwin
             branch: vara-stage-1
             os: macOS-latest
             name: vara-nightly-macos-m.tar.gz
+            file_name: ${{ name }}.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: vara-stage-1
             os: windows-latest
             name: vara-nightly-windows-x86_64.zip
+            file_name: ${{ name }}.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
             os: ubuntu-latest
             docker: amazonlinux:latest
             name: gear-nightly-linux-x86_64.tar.xz
+            file_name: ${{ name }}.tar.xz
 
           - target: x86_64-apple-darwin
             branch: master
             os: macOS-latest
             name: gear-nightly-macos-x86_64.tar.gz
+            file_name: ${{ name }}.tar.gz
 
           - target: aarch64-apple-darwin
             branch: master
             os: macOS-latest
             name: gear-nightly-macos-m.tar.gz
+            file_name: ${{ name }}.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: master
             os: windows-latest
             name: gear-nightly-windows-x86_64.zip
+            file_name: ${{ name }}.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
@@ -142,29 +150,34 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear-node
+          du -h ../../../${{ matrix.file_name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          tar czvf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
+          tar czvf ../../../${{ matrix.file_name }} gear-node
+          du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node.exe
-          7z a ../../../${{ matrix.name }} gear-node.exe
+          gear-node.exe --version > ../../../${{ matrix.file_name }}-version.txt
+          7z a ../../../${{ matrix.file_name }} gear-node.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ matrix.name }}
+          path: |
+            ${{ matrix.file_name }}
+            ${{ matrix.name }}-version.txt
 
   deploy:
     name: Deploy binaries
