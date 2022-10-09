@@ -1,4 +1,4 @@
 .DS_Store
 .ansible_*
-atrifact/
+artifact/
 target/
