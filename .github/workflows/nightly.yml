@@ -156,7 +156,7 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
+          ./gear-node --version > ../../../${{ matrix.name }}-version.txt || true
           tar czvf ../../../${{ matrix.file_name }} gear-node
           du -h ../../../${{ matrix.file_name }}
 
@@ -165,13 +165,14 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node.exe
-          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.file_name }}-version.txt"
+          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
           7z a ../../../${{ matrix.file_name }} gear-node.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
+          if-no-files-found: ignore
           path: |
             ${{ matrix.file_name }}
             ${{ matrix.name }}-version.txt
