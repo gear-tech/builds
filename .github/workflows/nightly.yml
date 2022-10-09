@@ -201,6 +201,9 @@ jobs:
           wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
 
+      - name: Copy Ansible playbooks
+        run: cp -rvf ansible artifact/
+
       - name: Cache
         uses: Swatinem/rust-cache@v1
 

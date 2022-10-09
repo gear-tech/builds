@@ -10,12 +10,19 @@ Packages include:
 
   Source code: https://github.com/gear-tech/gear/tree/master/node
 
-## Nightly builds
+## Vara node nightly builds
 
-- Windows x64: https://builds.gear.rs/gear-nightly-windows-x86_64.zip
-- macOS M1: https://builds.gear.rs/gear-nightly-macos-m1.tar.gz
-- macOS Intel x64: https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz
-- Linux x64: https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz
+- Linux x64: https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/vara-nightly-macos-m1.tar.gz
+- macOS Intel x64: https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz
+- Windows x64: https://get.gear.rs/vara-nightly-windows-x86_64.zip
+
+## Gear node nightly builds
+
+- Linux x64: https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-nightly-macos-m1.tar.gz
+- macOS Intel x64: https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz
+- Windows x64: https://get.gear.rs/gear-nightly-windows-x86_64.zip
 
 # Ansible scripts
 
