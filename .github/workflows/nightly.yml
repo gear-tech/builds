@@ -3,7 +3,7 @@ name: Nightly
 on:
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch: # No params
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,31 +17,76 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
+            branch: vara-stage-1
             os: ubuntu-latest
-            name: gear-nightly-linux-x86_64.tar.xz
+            docker: amazonlinux:latest
+            name: vara-nightly-linux-x86_64
+            file_name: vara-nightly-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
+            branch: vara-stage-1
             os: macOS-latest
-            name: gear-nightly-macos-x86_64.tar.gz
+            name: vara-nightly-macos-x86_64
+            file_name: vara-nightly-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
+            branch: vara-stage-1
             os: macOS-latest
-            name: gear-nightly-macos-m1.tar.gz
+            name: vara-nightly-macos-m
+            file_name: vara-nightly-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
+            branch: vara-stage-1
             os: windows-latest
-            name: gear-nightly-windows-x86_64.zip
+            name: vara-nightly-windows-x86_64
+            file_name: vara-nightly-windows-x86_64.zip
+
+          - target: x86_64-unknown-linux-gnu
+            branch: master
+            os: ubuntu-latest
+            docker: amazonlinux:latest
+            name: gear-nightly-linux-x86_64
+            file_name: gear-nightly-linux-x86_64.tar.xz
+
+          - target: x86_64-apple-darwin
+            branch: master
+            os: macOS-latest
+            name: gear-nightly-macos-x86_64
+            file_name: gear-nightly-macos-x86_64.tar.gz
+
+          - target: aarch64-apple-darwin
+            branch: master
+            os: macOS-latest
+            name: gear-nightly-macos-m
+            file_name: gear-nightly-macos-m.tar.gz
+
+          - target: x86_64-pc-windows-msvc
+            branch: master
+            os: windows-latest
+            name: gear-nightly-windows-x86_64
+            file_name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
+      - name: Configure Amazon Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar unzip wget xz
+          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
+          chmod +x cmake-3.24.0-linux-x86_64.sh
+          ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
+          rm cmake-3.24.0-linux-x86_64.sh
+          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
+          rm protoc-3.20.2-linux-x86_64.zip
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v1
+          ref: ${{ matrix.branch }}
 
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
@@ -82,9 +127,14 @@ jobs:
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
 
       - name: Install Protoc
+        if: matrix.os != 'ubuntu-latest'
         uses: arduino/setup-protoc@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix for `git rev-parse`
+        if: matrix.os == 'ubuntu-latest'
+        run: git config --global --add safe.directory `pwd`
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -97,29 +147,35 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear-node
+          du -h ../../../${{ matrix.file_name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          tar czvf ../../../${{ matrix.name }} gear-node
-          du -h ../../../${{ matrix.name }}
+          ./gear-node --version > ../../../${{ matrix.name }}-version.txt || true
+          tar czvf ../../../${{ matrix.file_name }} gear-node
+          du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node.exe
-          7z a ../../../${{ matrix.name }} gear-node.exe
+          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
+          7z a ../../../${{ matrix.file_name }} gear-node.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ matrix.name }}
+          if-no-files-found: ignore
+          path: |
+            ${{ matrix.file_name }}
+            ${{ matrix.name }}-version.txt
 
   deploy:
     name: Deploy binaries
@@ -127,6 +183,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
@@ -134,17 +193,32 @@ jobs:
         run: |
           cd artifact
           ls -la
-          wget -nc https://builds.gear.rs/gear-nightly-windows-x86_64.zip && true
-          wget -nc https://builds.gear.rs/gear-nightly-macos-m1.tar.gz && true
-          wget -nc https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+
+      - name: Copy Ansible playbooks
+        run: cp -rvf ansible artifact/
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Render index.html
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: artifact
-          cname: builds.gear.rs
+          cname: get.gear.rs
           force_orphan: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
@@ -152,6 +226,10 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
