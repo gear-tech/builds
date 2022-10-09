@@ -20,51 +20,51 @@ jobs:
             branch: vara-stage-1
             os: ubuntu-latest
             docker: amazonlinux:latest
-            name: vara-nightly-linux-x86_64.tar.xz
-            file_name: ${{ name }}.tar.xz
+            name: vara-nightly-linux-x86_64
+            file_name: ${{ matrix.name }}.tar.xz
 
           - target: x86_64-apple-darwin
             branch: vara-stage-1
             os: macOS-latest
-            name: vara-nightly-macos-x86_64.tar.gz
-            file_name: ${{ name }}.tar.gz
+            name: vara-nightly-macos-x86_64
+            file_name: ${{ matrix.name }}.tar.gz
 
           - target: aarch64-apple-darwin
             branch: vara-stage-1
             os: macOS-latest
-            name: vara-nightly-macos-m.tar.gz
-            file_name: ${{ name }}.tar.gz
+            name: vara-nightly-macos-m
+            file_name: ${{ matrix.name }}.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: vara-stage-1
             os: windows-latest
-            name: vara-nightly-windows-x86_64.zip
-            file_name: ${{ name }}.zip
+            name: vara-nightly-windows-x86_64
+            file_name: ${{ matrix.name }}.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
             os: ubuntu-latest
             docker: amazonlinux:latest
-            name: gear-nightly-linux-x86_64.tar.xz
-            file_name: ${{ name }}.tar.xz
+            name: gear-nightly-linux-x86_64
+            file_name: ${{ matrix.name }}.tar.xz
 
           - target: x86_64-apple-darwin
             branch: master
             os: macOS-latest
-            name: gear-nightly-macos-x86_64.tar.gz
-            file_name: ${{ name }}.tar.gz
+            name: gear-nightly-macos-x86_64
+            file_name: ${{ matrix.name }}.tar.gz
 
           - target: aarch64-apple-darwin
             branch: master
             os: macOS-latest
-            name: gear-nightly-macos-m.tar.gz
-            file_name: ${{ name }}.tar.gz
+            name: gear-nightly-macos-m
+            file_name: ${{ matrix.name }}.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: master
             os: windows-latest
-            name: gear-nightly-windows-x86_64.zip
-            file_name: ${{ name }}.zip
+            name: gear-nightly-windows-x86_64
+            file_name: ${{ matrix.name }}.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
