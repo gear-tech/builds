@@ -165,7 +165,7 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node.exe
-          gear-node.exe --version > ../../../${{ matrix.file_name }}-version.txt
+          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.file_name }}-version.txt"
           7z a ../../../${{ matrix.file_name }} gear-node.exe
 
       - name: Upload artifacts
