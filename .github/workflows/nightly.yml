@@ -142,7 +142,7 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/production
           strip gear-node || true
-          XZ_OPT=-9 tar --sort='name' -cvJf ../../../${{ matrix.name }} gear-node
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }} gear-node
           du -h ../../../${{ matrix.name }}
 
       - name: macOS artifacts
@@ -172,6 +172,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
@@ -179,17 +182,14 @@ jobs:
         run: |
           cd artifact
           ls -la
-          wget -nc https://builds.gear.rs/vara-nightly-windows-x86_64.zip && true
-          wget -nc https://builds.gear.rs/vara-nightly-macos-m.tar.gz && true
-          wget -nc https://builds.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://builds.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://builds.gear.rs/gear-nightly-windows-x86_64.zip && true
-          wget -nc https://builds.gear.rs/gear-nightly-macos-m.tar.gz && true
-          wget -nc https://builds.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://builds.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
-
-      - name: Checkout
-        uses: actions/checkout@v3
+          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
 
       - name: Cache
         uses: Swatinem/rust-cache@v1
@@ -212,6 +212,10 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
