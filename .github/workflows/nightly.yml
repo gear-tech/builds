@@ -88,9 +88,6 @@ jobs:
           repository: gear-tech/gear
           ref: ${{ matrix.branch }}
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v1
-
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
