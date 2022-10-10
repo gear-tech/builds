@@ -227,10 +227,10 @@ jobs:
         run: |
           sleep 60
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m1.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
