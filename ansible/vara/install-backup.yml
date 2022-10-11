@@ -57,7 +57,7 @@
     - name: Download and unpack Gear node executable
       become: yes
       unarchive:
-        src: https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz
+        src: https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'
