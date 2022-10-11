@@ -140,33 +140,33 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-node --profile production --target ${{ matrix.target }}
+          args: -p gear-cli --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear-node
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          ./gear-node --version > ../../../${{ matrix.name }}-version.txt || true
-          tar czvf ../../../${{ matrix.file_name }} gear-node
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt || true
+          tar czvf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node.exe
-          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
-          7z a ../../../${{ matrix.file_name }} gear-node.exe
+          strip gear.exe
+          .\gear.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
+          7z a ../../../${{ matrix.file_name }} gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'

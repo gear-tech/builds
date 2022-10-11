@@ -44,7 +44,7 @@
     - name: Delete Gear node executable
       become: yes
       file:
-        path: /usr/local/bin/gear-node
+        path: /usr/local/bin/gear
         state: absent
 
     - name: Reboot

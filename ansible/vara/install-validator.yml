@@ -9,7 +9,7 @@
       prompt: Seed phrase
       private: no
   vars:
-    executable: gear-node
+    executable: gear
     item:
       user: vara
       port_http: 9933
@@ -101,7 +101,7 @@
       become_user: '{{ item.user }}'
       command:
         argv:
-          - /usr/local/bin/gear-node
+          - /usr/local/bin/gear
           - key
           - insert
           - --key-type
@@ -116,7 +116,7 @@
       become_user: '{{ item.user }}'
       command:
         argv:
-          - /usr/local/bin/gear-node
+          - /usr/local/bin/gear
           - key
           - insert
           - --key-type

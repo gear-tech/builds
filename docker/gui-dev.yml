@@ -3,7 +3,7 @@ version: '3'
 services:
   node:
     image: ghcr.io/gear-tech/node
-    command: gear-node --dev --tmp -l0 --unsafe-ws-external --unsafe-rpc-external --rpc-methods Unsafe --rpc-cors all
+    command: gear --dev --tmp -l0 --unsafe-ws-external --unsafe-rpc-external --rpc-methods Unsafe --rpc-cors all
     expose:
       - '9165'
       - '9933'

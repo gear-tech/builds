@@ -37,4 +37,4 @@ RUN git clone https://github.com/gear-tech/gear.git
 WORKDIR /root/gear
 ENV CARGO_UNSTABLE_SPARSE_REGISTRY=true
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
-RUN cargo build -rp gear-node
+RUN cargo build -rp gear-cli

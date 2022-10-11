@@ -108,30 +108,30 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-node --profile production --no-default-features --features=vara-native,lazy-pages --target ${{ matrix.target }}
+          args: -p gear-cli --profile production --no-default-features --features=vara-native,lazy-pages --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }} gear-node
+          strip gear || true
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }} gear
           du -h ../../../${{ matrix.name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          tar czvf ../../../${{ matrix.name }} gear-node
+          strip gear || true
+          tar czvf ../../../${{ matrix.name }} gear
           du -h ../../../${{ matrix.name }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node.exe
-          7z a ../../../${{ matrix.name }} gear-node.exe
+          strip gear.exe
+          7z a ../../../${{ matrix.name }} gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
