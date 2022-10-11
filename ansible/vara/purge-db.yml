@@ -15,7 +15,7 @@
     - name: Purge chain DB
       become: yes
       become_user: '{{ item.user }}'
-      command: /usr/local/bin/gear-node purge-chain -y
+      command: /usr/local/bin/gear purge-chain -y
 
     - name: Start service
       become: yes

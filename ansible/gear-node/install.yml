@@ -2,7 +2,7 @@
 - name: Install Gear Node
   hosts: all
   vars:
-    executable: gear-node
+    executable: gear
     item:
       user: gear
       node_name: MY_SUPER_NODE

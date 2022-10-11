@@ -6,7 +6,7 @@ Prebuilt Gear binaries.
 
 Packages include:
 
-- `gear-node`[`.exe`]
+- `gear`[`.exe`]
 
   Source code: https://github.com/gear-tech/gear/tree/master/node
 

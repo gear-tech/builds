@@ -18,6 +18,7 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             branch: vara-stage-1
+            crate: gear-node
             os: ubuntu-latest
             docker: amazonlinux:latest
             name: vara-nightly-linux-x86_64
@@ -25,24 +26,28 @@ jobs:
 
           - target: x86_64-apple-darwin
             branch: vara-stage-1
+            crate: gear-node
             os: macOS-latest
             name: vara-nightly-macos-x86_64
             file_name: vara-nightly-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
             branch: vara-stage-1
+            crate: gear-node
             os: macOS-latest
             name: vara-nightly-macos-m
             file_name: vara-nightly-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: vara-stage-1
+            crate: gear-node
             os: windows-latest
             name: vara-nightly-windows-x86_64
             file_name: vara-nightly-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
+            crate: gear-cli
             os: ubuntu-latest
             docker: amazonlinux:latest
             name: gear-nightly-linux-x86_64
@@ -50,18 +55,21 @@ jobs:
 
           - target: x86_64-apple-darwin
             branch: master
+            crate: gear-cli
             os: macOS-latest
             name: gear-nightly-macos-x86_64
             file_name: gear-nightly-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
             branch: master
+            crate: gear-cli
             os: macOS-latest
             name: gear-nightly-macos-m
             file_name: gear-nightly-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
             branch: master
+            crate: gear-cli
             os: windows-latest
             name: gear-nightly-windows-x86_64
             file_name: gear-nightly-windows-x86_64.zip
@@ -140,33 +148,36 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-node --profile production --target ${{ matrix.target }}
+          args: -p ${{ matrix.crate }} --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          ./gear-node --version > ../../../${{ matrix.name }}-version.txt
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear-node
+          mv gear-node gear || true
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node || true
-          ./gear-node --version > ../../../${{ matrix.name }}-version.txt || true
-          tar czvf ../../../${{ matrix.file_name }} gear-node
+          mv gear-node gear || true
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt || true
+          tar czvf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear-node.exe
-          .\gear-node.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
-          7z a ../../../${{ matrix.file_name }} gear-node.exe
+          rename gear-node.exe gear.exe >nul 2>&1
+          strip gear.exe
+          .\gear.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
+          7z a ../../../${{ matrix.file_name }} gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'

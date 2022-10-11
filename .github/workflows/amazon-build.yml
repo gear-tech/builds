@@ -55,4 +55,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-node --profile production
+          args: -p gear-cli --profile production

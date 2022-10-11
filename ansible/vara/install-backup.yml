@@ -2,7 +2,7 @@
 - name: Install Backup Vara Nodes
   hosts: all
   vars:
-    executable: gear-node
+    executable: gear
     nodes:
       - user: alice
         node_name: vara-backup
