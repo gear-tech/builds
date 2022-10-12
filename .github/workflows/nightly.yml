@@ -174,7 +174,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          rename gear-node.exe gear.exe >nul 2>&1
+          Rename-Item -Path "gear-node.exe" -NewName "gear.exe" -ErrorAction SilentlyContinue
           strip gear.exe
           .\gear.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
           7z a ../../../${{ matrix.file_name }} gear.exe
