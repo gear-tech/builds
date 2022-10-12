@@ -176,8 +176,8 @@ jobs:
           cd target/${{ matrix.target }}/production
           Rename-Item -Path "gear-node.exe" -NewName "gear.exe" -ErrorAction SilentlyContinue
           strip gear.exe
-          .\gear.exe --version | Out-File -FilePath "../../../${{ matrix.name }}-version.txt"
-          7z a ../../../${{ matrix.file_name }} gear.exe
+          .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
+          7z a "..\..\..\${{ matrix.file_name }}" gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
