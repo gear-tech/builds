@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::offset::Utc;
 use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
 
@@ -13,16 +14,34 @@ const BINARIES: [&str; 8] = [
     "gear-nightly-windows-x86_64.zip",
 ];
 
-fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, u64> {
+fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
     let delimiters = ['-', '.'];
-    BINARIES
-        .map(|file| {
-            let file_path = dir.as_ref().join(file);
-            let size_mb = fs::metadata(file_path).map(|m| m.len()).unwrap_or(0) / 1048576;
-            let key = file.split_terminator(&delimiters).take(4).collect::<Vec<_>>().join("-");
-            (key, size_mb)
-        })
-        .into()
+    let mut info = HashMap::new();
+    for file in BINARIES {
+        // Carculate file size
+        let file_path = dir.as_ref().join(file);
+        let size_mb = fs::metadata(file_path).map(|m| m.len()).unwrap_or(0) / 1048576;
+        let base_name = file
+            .split_terminator(&delimiters)
+            .take(4)
+            .collect::<Vec<_>>()
+            .join("-");
+        info.insert(format!("{base_name}-size"), size_mb.to_string());
+
+        // Get version
+        let version_name = format!("{base_name}-version");
+        if let Ok(version) = fs::read_to_string(dir.as_ref().join(format!("{version_name}.txt"))) {
+            let version = version.trim();
+            if !version.is_empty() {
+                info.insert(version_name, format!(" ({})", version.trim()));
+            }
+        }
+    }
+    info.insert(
+        "now".to_string(),
+        Utc::now().format("%Y-%m-%d %H:%M UTC").to_string(),
+    );
+    info
 }
 
 fn main() -> Result<()> {
