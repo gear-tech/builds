@@ -1,0 +1,57 @@
+name: Republish
+
+on: workflow_dispatch
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  republish:
+    name: Republish artifacts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create artifact directory
+        run: mkdir -p artifact
+
+      - name: Download old artifacts
+        run: |
+          cd artifact
+          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64-version.txt && true
+
+      - name: Copy Ansible playbooks
+        run: cp -rvf ansible artifact/
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Render index.html
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: artifact
+          cname: get.gear.rs
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
