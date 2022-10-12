@@ -8,6 +8,7 @@ env:
 jobs:
   republish:
     name: Republish artifacts
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
