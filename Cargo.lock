@@ -155,6 +155,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "gear-publish"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "handlebars",
+]
+
+[[package]]
 name = "generic-array"
 version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -317,15 +326,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94e2ef8dbfc347b10c094890f778ee2e36ca9bb4262e86dc99cd217e35f3470b"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "publish"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "chrono",
- "handlebars",
 ]
 
 [[package]]
