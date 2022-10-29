@@ -3,11 +3,12 @@ use chrono::offset::Utc;
 use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
 
-const BINARIES: [&str; 8] = [
+const BINARIES: [&str; 9] = [
     "vara-nightly-linux-x86_64.tar.xz",
     "vara-nightly-macos-m.tar.gz",
     "vara-nightly-macos-x86_64.tar.gz",
     "vara-nightly-windows-x86_64.zip",
+    "varas1-nightly-linux-x86_64.tar.xz",
     "gear-nightly-linux-x86_64.tar.xz",
     "gear-nightly-macos-m.tar.gz",
     "gear-nightly-macos-x86_64.tar.gz",
