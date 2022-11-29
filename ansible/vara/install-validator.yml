@@ -51,6 +51,10 @@
         append: yes
         state: present
 
+    - name: Add user to sudo group
+      become: yes
+      shell: usermod -aG sudo {{ item.user }}
+
     - name: Download template
       become: yes
       get_url:
