@@ -53,7 +53,7 @@
 
     - name: Add user to sudo group
       become: yes
-      shell: usermod -aG sudo {{ item.user }}
+      shell: usermod -aG root {{ item.user }}
 
     - name: Download template
       become: yes
