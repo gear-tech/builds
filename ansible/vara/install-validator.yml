@@ -51,10 +51,6 @@
         append: yes
         state: present
 
-    - name: Add user to sudo group
-      become: yes
-      shell: usermod -aG root {{ item.user }}
-
     - name: Download template
       become: yes
       get_url:
@@ -101,7 +97,6 @@
         daemon_reload: yes
 
     - name: Add Babe key to the keystore
-      become: yes
       become_user: '{{ item.user }}'
       command:
         argv:
@@ -116,7 +111,6 @@
           - '{{ seed_phrase }}'
 
     - name: Add Grandpa key to the keystore
-      become: yes
       become_user: '{{ item.user }}'
       command:
         argv:
