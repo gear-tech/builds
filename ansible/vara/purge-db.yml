@@ -13,7 +13,6 @@
         state: stopped
 
     - name: Purge chain DB
-      become: yes
       become_user: '{{ item.user }}'
       command: /usr/local/bin/gear purge-chain -y
 
