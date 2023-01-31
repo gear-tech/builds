@@ -147,7 +147,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-cli --profile production --target ${{ matrix.target }}
+          args: -p gear-cli --profile production --features program --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
