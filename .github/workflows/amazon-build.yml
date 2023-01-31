@@ -46,7 +46,7 @@ jobs:
           target: wasm32-unknown-unknown
 
       - name: Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
 
       - name: Fix for `git rev-parse`
         run: git config --global --add safe.directory `pwd`
