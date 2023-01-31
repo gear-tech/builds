@@ -223,7 +223,7 @@ jobs:
         run: cp -rvf ansible artifact/
 
       - name: Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
 
       - name: Render index.html
         uses: actions-rs/cargo@v1
