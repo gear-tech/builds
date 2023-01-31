@@ -6,6 +6,7 @@
     <title>Gear Builds</title>
     <meta name="description" content="Gear and Vara node nightly builds." />
     <meta name="keywords" content="Gear, Vara, node, nighly, build, binary, executable" />
+    <link rel="preload" href="/bulma.min.css" as="style" />
     <link rel="stylesheet" href="/bulma.min.css" />
 </head>
 
@@ -23,32 +24,32 @@
 <div class="container">
     <div class="content">
         <div class="box">
-            <h1>{{ now }}</h1>
+            <h1>{{now}}</h1>
 
             <h2>Gear Node Nightly Builds</h2>
             <ul>
-                <li>Linux x64<b>{{gear-nightly-linux-x86_64-version}}</b>: <a href="/gear-nightly-linux-x86_64.tar.xz">gear-nightly-linux-x86_64.tar.xz</a> ({{ gear-nightly-linux-x86_64-size }} Mbytes)</li>
-                <li>macOS M-series (ARM)<b>{{gear-nightly-macos-m-version}}</b>: <a href="/gear-nightly-macos-m.tar.gz">gear-nightly-macos-m.tar.gz</a> ({{ gear-nightly-macos-m-size }} Mbytes)</li>
-                <li>macOS Intel x64<b>{{gear-nightly-macos-x86_64-version}}</b>: <a href="/gear-nightly-macos-x86_64.tar.gz">gear-nightly-macos-x86_64.tar.gz</a> ({{ gear-nightly-macos-x86_64-size }} Mbytes)</li>
-                <li>Windows x64<b>{{gear-nightly-windows-x86_64-version}}</b>: <a href="/gear-nightly-windows-x86_64.zip">gear-nightly-windows-x86_64.zip</a> ({{ gear-nightly-windows-x86_64-size }} Mbytes)</li>
+                <li>Linux x64<b>{{gear-nightly-linux-x86_64-version}}</b>: <a href="/gear-nightly-linux-x86_64.tar.xz">gear-nightly-linux-x86_64.tar.xz</a> ({{gear-nightly-linux-x86_64-size}} Mbytes)</li>
+                <li>macOS M-series (ARM)<b>{{gear-nightly-macos-m-version}}</b>: <a href="/gear-nightly-macos-m.tar.gz">gear-nightly-macos-m.tar.gz</a> ({{gear-nightly-macos-m-size}} Mbytes)</li>
+                <li>macOS Intel x64<b>{{gear-nightly-macos-x86_64-version}}</b>: <a href="/gear-nightly-macos-x86_64.tar.gz">gear-nightly-macos-x86_64.tar.gz</a> ({{gear-nightly-macos-x86_64-size}} Mbytes)</li>
+                <li>Windows x64<b>{{gear-nightly-windows-x86_64-version}}</b>: <a href="/gear-nightly-windows-x86_64.zip">gear-nightly-windows-x86_64.zip</a> ({{gear-nightly-windows-x86_64-size}} Mbytes)</li>
             </ul>
 
             <h2>Vara Node Stage-2 Nightly Builds</h2>
             <ul>
-                <li>Linux x64<b>{{ vara-nightly-linux-x86_64-version }}</b>: <a href="/vara-nightly-linux-x86_64.tar.xz">vara-nightly-linux-x86_64.tar.xz</a> ({{ vara-nightly-linux-x86_64-size }} Mbytes)</li>
-                <li>macOS M-series (ARM)<b>{{ vara-nightly-macos-m-version }}</b>:</b> <a href="/vara-nightly-macos-m.tar.gz">vara-nightly-macos-m.tar.gz</a> ({{ vara-nightly-macos-m-size }} Mbytes)</li>
-                <li>macOS Intel x64<b>{{ vara-nightly-macos-x86_64-version }}</b>: <a href="/vara-nightly-macos-x86_64.tar.gz">vara-nightly-macos-x86_64.tar.gz</a> ({{ vara-nightly-macos-x86_64-size }} Mbytes)</li>
-                <li>Windows x64<b>{{ vara-nightly-windows-x86_64-version }}</b>: <a href="/vara-nightly-windows-x86_64.zip">vara-nightly-windows-x86_64.zip</a> ({{ vara-nightly-windows-x86_64-size }} Mbytes)</li>
+                <li>Linux x64<b>{{vara-nightly-linux-x86_64-version}}</b>: <a href="/vara-nightly-linux-x86_64.tar.xz">vara-nightly-linux-x86_64.tar.xz</a> ({{vara-nightly-linux-x86_64-size}} Mbytes)</li>
+                <li>macOS M-series (ARM)<b>{{vara-nightly-macos-m-version}}</b>:</b> <a href="/vara-nightly-macos-m.tar.gz">vara-nightly-macos-m.tar.gz</a> ({{vara-nightly-macos-m-size}} Mbytes)</li>
+                <li>macOS Intel x64<b>{{vara-nightly-macos-x86_64-version}}</b>: <a href="/vara-nightly-macos-x86_64.tar.gz">vara-nightly-macos-x86_64.tar.gz</a> ({{vara-nightly-macos-x86_64-size}} Mbytes)</li>
+                <li>Windows x64<b>{{vara-nightly-windows-x86_64-version}}</b>: <a href="/vara-nightly-windows-x86_64.zip">vara-nightly-windows-x86_64.zip</a> ({{vara-nightly-windows-x86_64-size}} Mbytes)</li>
             </ul>
 
             <h2>Vara Node Stage-1 Nightly Builds</h2>
             <ul>
-                <li>Linux x64<b>{{ varas1-nightly-linux-x86_64-version }}</b>: <a href="/varas1-nightly-linux-x86_64.tar.xz">varas1-nightly-linux-x86_64.tar.xz</a> ({{ varas1-nightly-linux-x86_64-size }} Mbytes)</li>
+                <li>Linux x64<b>{{varas1-nightly-linux-x86_64-version}}</b>: <a href="/varas1-nightly-linux-x86_64.tar.xz">varas1-nightly-linux-x86_64.tar.xz</a> ({{varas1-nightly-linux-x86_64-size}} Mbytes)</li>
             </ul>
-            
+
             <h2>Gear Stable Builds</h2>
             <ul>
-                <li>Linux x64<b>{{ gear-stable-linux-x86_64-version }}</b>: <a href="https://github.com/gear-tech/gear/releases/download/gear-stable/gear-stable.tar.gz">gear-stable-linux-x86_64.tar.xz</a> ({{ gear-stable-linux-x86_64-size }} Mbytes)</li>
+                <li>Linux x64<b>{{gear-stable-linux-x86_64-version}}</b>: <a href="https://github.com/gear-tech/gear/releases/download/gear-stable/gear-stable.tar.gz">gear-stable-linux-x86_64.tar.xz</a></li>
             </ul>
         </div>
     </div>

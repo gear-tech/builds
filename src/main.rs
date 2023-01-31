@@ -54,7 +54,7 @@ fn main() -> Result<()> {
     handlebars.register_template_string("index", include_str!("index.hbs"))?;
 
     let info = collect_info(&out_dir);
-    fs::write(&index_html, handlebars.render("index", &info)?)?;
+    fs::write(index_html, handlebars.render("index", &info)?)?;
 
     Ok(())
 }

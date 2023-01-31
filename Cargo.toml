@@ -4,6 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.65"
-chrono = "0.4.22"
-handlebars = "4.3.5"
+anyhow = "1.0.68"
+chrono = "0.4.23"
+handlebars = "4.3.6"
