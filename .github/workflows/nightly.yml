@@ -91,6 +91,7 @@ jobs:
       # TODO: Remove
       - name: Show `build.rs`
         run: |
+          git config --global --add safe.directory `pwd`
           git rev-parse HEAD
           cat program/build.rs
           exit 1
