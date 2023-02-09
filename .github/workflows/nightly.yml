@@ -16,37 +16,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            branch: vara-stage-2
-            os: ubuntu-latest
-            docker: amazonlinux:latest
-            name: vara-nightly-linux-x86_64
-            file_name: vara-nightly-linux-x86_64.tar.xz
+          # - target: x86_64-unknown-linux-gnu
+          #   branch: vara-stage-2
+          #   os: ubuntu-latest
+          #   docker: amazonlinux:latest
+          #   name: vara-nightly-linux-x86_64
+          #   file_name: vara-nightly-linux-x86_64.tar.xz
 
-          - target: x86_64-apple-darwin
-            branch: vara-stage-2
-            os: macOS-latest
-            name: vara-nightly-macos-x86_64
-            file_name: vara-nightly-macos-x86_64.tar.gz
+          # - target: x86_64-apple-darwin
+          #   branch: vara-stage-2
+          #   os: macOS-latest
+          #   name: vara-nightly-macos-x86_64
+          #   file_name: vara-nightly-macos-x86_64.tar.gz
 
-          - target: aarch64-apple-darwin
-            branch: vara-stage-2
-            os: macOS-latest
-            name: vara-nightly-macos-m
-            file_name: vara-nightly-macos-m.tar.gz
+          # - target: aarch64-apple-darwin
+          #   branch: vara-stage-2
+          #   os: macOS-latest
+          #   name: vara-nightly-macos-m
+          #   file_name: vara-nightly-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            branch: vara-stage-2
-            os: windows-latest
-            name: vara-nightly-windows-x86_64
-            file_name: vara-nightly-windows-x86_64.zip
-
-          - target: x86_64-unknown-linux-gnu
-            branch: vara-stage-1
-            os: ubuntu-latest
-            docker: amazonlinux:latest
-            name: varas1-nightly-linux-x86_64
-            file_name: varas1-nightly-linux-x86_64.tar.xz
+          # - target: x86_64-pc-windows-msvc
+          #   branch: vara-stage-2
+          #   os: windows-latest
+          #   name: vara-nightly-windows-x86_64
+          #   file_name: vara-nightly-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
@@ -55,23 +48,23 @@ jobs:
             name: gear-nightly-linux-x86_64
             file_name: gear-nightly-linux-x86_64.tar.xz
 
-          - target: x86_64-apple-darwin
-            branch: master
-            os: macOS-latest
-            name: gear-nightly-macos-x86_64
-            file_name: gear-nightly-macos-x86_64.tar.gz
+          # - target: x86_64-apple-darwin
+          #   branch: master
+          #   os: macOS-latest
+          #   name: gear-nightly-macos-x86_64
+          #   file_name: gear-nightly-macos-x86_64.tar.gz
 
-          - target: aarch64-apple-darwin
-            branch: master
-            os: macOS-latest
-            name: gear-nightly-macos-m
-            file_name: gear-nightly-macos-m.tar.gz
+          # - target: aarch64-apple-darwin
+          #   branch: master
+          #   os: macOS-latest
+          #   name: gear-nightly-macos-m
+          #   file_name: gear-nightly-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            branch: master
-            os: windows-latest
-            name: gear-nightly-windows-x86_64
-            file_name: gear-nightly-windows-x86_64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   branch: master
+          #   os: windows-latest
+          #   name: gear-nightly-windows-x86_64
+          #   file_name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
@@ -94,6 +87,13 @@ jobs:
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.branch }}
+
+      # TODO: Remove
+      - name: Show `build.rs`
+        run: |
+          git rev-parse HEAD
+          cat program/build.rs
+          exit 1
 
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
@@ -147,7 +147,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-cli --profile production --features program --target ${{ matrix.target }}
+          args: -p gear-cli --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -184,70 +184,68 @@ jobs:
             ${{ matrix.file_name }}
             ${{ matrix.name }}-version.txt
 
-  deploy:
-    name: Deploy binaries
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # deploy:
+  #   name: Deploy binaries
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name != 'pull_request'
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v3
 
-      - name: Backup the old version
-        run: |
-          cd artifact
-          ls -la
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/varas1-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/varas1-nightly-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/gear-nightly-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/gear-nightly-macos-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
-          wget -nc https://get.gear.rs/gear-nightly-windows-x86_64-version.txt && true
+  #     - name: Backup the old version
+  #       run: |
+  #         cd artifact
+  #         ls -la
+  #         wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
+  #         wget -nc https://get.gear.rs/vara-nightly-linux-x86_64-version.txt && true
+  #         wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
+  #         wget -nc https://get.gear.rs/vara-nightly-macos-m-version.txt && true
+  #         wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
+  #         wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
+  #         wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
+  #         wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
+  #         wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
+  #         wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
+  #         wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
+  #         wget -nc https://get.gear.rs/gear-nightly-macos-m-version.txt && true
+  #         wget -nc https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && true
+  #         wget -nc https://get.gear.rs/gear-nightly-macos-x86_64-version.txt && true
+  #         wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
+  #         wget -nc https://get.gear.rs/gear-nightly-windows-x86_64-version.txt && true
 
-      - name: Copy Ansible playbooks
-        run: cp -rvf ansible artifact/
+  #     - name: Copy Ansible playbooks
+  #       run: cp -rvf ansible artifact/
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
+  #     - name: Cache
+  #       uses: Swatinem/rust-cache@v2
 
-      - name: Render index.html
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
+  #     - name: Render index.html
+  #       uses: actions-rs/cargo@v1
+  #       with:
+  #         command: run
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: artifact
-          cname: get.gear.rs
-          force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+  #     - name: Deploy
+  #       uses: peaceiris/actions-gh-pages@v3
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: artifact
+  #         cname: get.gear.rs
+  #         force_orphan: true
+  #         user_name: 'github-actions[bot]'
+  #         user_email: 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Smoke test
-        run: |
-          sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
+  #     - name: Smoke test
+  #       run: |
+  #         sleep 60
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m.tar.gz?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
+  #         wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
