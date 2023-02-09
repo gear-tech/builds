@@ -88,14 +88,6 @@ jobs:
           repository: gear-tech/gear
           ref: ${{ matrix.branch }}
 
-      # TODO: Remove
-      - name: Show `build.rs`
-        run: |
-          git config --global --add safe.directory `pwd`
-          git rev-parse HEAD
-          cat program/build.rs
-          exit 1
-
       - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
@@ -143,6 +135,12 @@ jobs:
       - name: Fix for `git rev-parse`
         if: matrix.os == 'ubuntu-latest'
         run: git config --global --add safe.directory `pwd`
+
+      # TODO: Remove
+      - name: Show `build.rs`
+        run: |
+          git rev-parse HEAD
+          cat program/build.rs
 
       - name: Build
         uses: actions-rs/cargo@v1
