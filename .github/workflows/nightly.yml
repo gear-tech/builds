@@ -146,12 +146,15 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-cli --release --target ${{ matrix.target }}
+          args: >
+            -p gear-cli --profile production
+            --no-default-features -F gear-native -F vara-native -F lazy-pages
+            --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear || true
           ./gear --version > ../../../${{ matrix.name }}-version.txt
           XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
@@ -160,7 +163,7 @@ jobs:
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear || true
           ./gear --version > ../../../${{ matrix.name }}-version.txt || true
           tar czvf ../../../${{ matrix.file_name }} gear
@@ -169,7 +172,7 @@ jobs:
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
-          cd target/${{ matrix.target }}/release
+          cd target/${{ matrix.target }}/production
           strip gear.exe
           .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
           7z a "..\..\..\${{ matrix.file_name }}" gear.exe
