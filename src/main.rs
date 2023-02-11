@@ -3,12 +3,11 @@ use chrono::offset::Utc;
 use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
 
-const BINARIES: [&str; 9] = [
+const BINARIES: &[&str] = &[
     "vara-nightly-linux-x86_64.tar.xz",
     "vara-nightly-macos-m.tar.gz",
     "vara-nightly-macos-x86_64.tar.gz",
     "vara-nightly-windows-x86_64.zip",
-    "varas1-nightly-linux-x86_64.tar.xz",
     "gear-nightly-linux-x86_64.tar.xz",
     "gear-nightly-macos-m.tar.gz",
     "gear-nightly-macos-x86_64.tar.gz",
@@ -18,7 +17,7 @@ const BINARIES: [&str; 9] = [
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
     let delimiters = ['-', '.'];
     let mut info = HashMap::new();
-    for file in BINARIES {
+    for &file in BINARIES {
         // Carculate file size
         let file_path = dir.as_ref().join(file);
         let size_mb = fs::metadata(file_path).map(|m| m.len()).unwrap_or(0) / 1048576;

@@ -42,13 +42,6 @@ jobs:
             file_name: vara-nightly-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
-            branch: vara-stage-1
-            os: ubuntu-latest
-            docker: amazonlinux:latest
-            name: varas1-nightly-linux-x86_64
-            file_name: varas1-nightly-linux-x86_64.tar.xz
-
-          - target: x86_64-unknown-linux-gnu
             branch: master
             os: ubuntu-latest
             docker: amazonlinux:latest
@@ -147,7 +140,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p gear-cli --profile production --features program --target ${{ matrix.target }}
+          args: >
+            -p gear-cli --profile production
+            --no-default-features -F gear-native -F vara-native -F lazy-pages
+            --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -208,8 +204,6 @@ jobs:
           wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
           wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
           wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/varas1-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/varas1-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
