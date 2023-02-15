@@ -14,7 +14,7 @@
 
     - name: Purge chain DB
       become_user: '{{ item.user }}'
-      command: /usr/local/bin/gear purge-chain -y
+      command: /usr/local/bin/gear purge-chain --chain vara -y
 
     - name: Start service
       become: yes
@@ -25,7 +25,6 @@
 
     - name: Gathering service facts
       service_facts:
-      tags: vara-node
 
     - name: Write vara-node status
       debug:

@@ -41,7 +41,7 @@
       become_user: '{{ item.user }}'
       register: block_number
       shell:
-        cmd: /usr/local/bin/gear chain-info
+        cmd: /usr/local/bin/gear chain-info --chain vara
 
     - name: Get stats of DB file
       become: yes
