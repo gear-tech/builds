@@ -24,10 +24,15 @@ fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
         info.insert(format!("{base_key}-size"), size_mb.to_string());
 
         // Get version
-        if let Ok(version) = fs::read_to_string(dir.as_ref().join(format!("{base_name}-version.txt"))) {
+        if let Ok(version) =
+            fs::read_to_string(dir.as_ref().join(format!("{base_name}-version.txt")))
+        {
             let version = version.trim();
             if !version.is_empty() {
-                info.insert(format!("{base_key}-version"), format!(" ({})", version.trim()));
+                info.insert(
+                    format!("{base_key}-version"),
+                    format!(" ({})", version.trim()),
+                );
             }
         }
     }
