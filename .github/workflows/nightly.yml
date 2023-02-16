@@ -17,29 +17,29 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            branch: vara-stage-2
+            branch: v0.1-pre
             os: ubuntu-latest
             docker: amazonlinux:latest
-            name: vara-nightly-linux-x86_64
-            file_name: vara-nightly-linux-x86_64.tar.xz
+            name: gear-v0.1-pre-linux-x86_64
+            file_name: gear-v0.1-pre-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
-            branch: vara-stage-2
+            branch: v0.1-pre
             os: macOS-latest
-            name: vara-nightly-macos-x86_64
-            file_name: vara-nightly-macos-x86_64.tar.gz
+            name: gear-v0.1-pre-macos-x86_64
+            file_name: gear-v0.1-pre-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
-            branch: vara-stage-2
+            branch: v0.1-pre
             os: macOS-latest
-            name: vara-nightly-macos-m
-            file_name: vara-nightly-macos-m.tar.gz
+            name: gear-v0.1-pre-macos-m
+            file_name: gear-v0.1-pre-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
-            branch: vara-stage-2
+            branch: v0.1-pre
             os: windows-latest
-            name: vara-nightly-windows-x86_64
-            file_name: vara-nightly-windows-x86_64.zip
+            name: gear-v0.1-pre-windows-x86_64
+            file_name: gear-v0.1-pre-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
@@ -196,14 +196,14 @@ jobs:
         run: |
           cd artifact
           ls -la
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
@@ -237,10 +237,10 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-windows-x86_64.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-m.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-macos-x86_64.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/vara-nightly-linux-x86_64.tar.xz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-m.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-linux-x86_64.tar.xz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"

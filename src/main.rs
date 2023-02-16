@@ -3,37 +3,31 @@ use chrono::offset::Utc;
 use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
 
-const BINARIES: &[&str] = &[
-    "vara-nightly-linux-x86_64.tar.xz",
-    "vara-nightly-macos-m.tar.gz",
-    "vara-nightly-macos-x86_64.tar.gz",
-    "vara-nightly-windows-x86_64.zip",
-    "gear-nightly-linux-x86_64.tar.xz",
-    "gear-nightly-macos-m.tar.gz",
-    "gear-nightly-macos-x86_64.tar.gz",
-    "gear-nightly-windows-x86_64.zip",
+const BINARIES: &[(&str, &str)] = &[
+    ("gear-v0.1-pre-linux-x86_64", "tar.xz"),
+    ("gear-v0.1-pre-macos-m", "tar.gz"),
+    ("gear-v0.1-pre-macos-x86_64", "tar.gz"),
+    ("gear-v0.1-pre-windows-x86_64", "zip"),
+    ("gear-nightly-linux-x86_64", "tar.xz"),
+    ("gear-nightly-macos-m", "tar.gz"),
+    ("gear-nightly-macos-x86_64", "tar.gz"),
+    ("gear-nightly-windows-x86_64", "zip"),
 ];
 
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
-    let delimiters = ['-', '.'];
     let mut info = HashMap::new();
-    for &file in BINARIES {
-        // Carculate file size
-        let file_path = dir.as_ref().join(file);
-        let size_mb = fs::metadata(file_path).map(|m| m.len()).unwrap_or(0) / 1048576;
-        let base_name = file
-            .split_terminator(&delimiters)
-            .take(4)
-            .collect::<Vec<_>>()
-            .join("-");
-        info.insert(format!("{base_name}-size"), size_mb.to_string());
+    for &(base_name, ext) in BINARIES {
+        // Calculate file size
+        let file_path = dir.as_ref().join(format!("{base_name}.{ext}"));
+        let size_mb = fs::metadata(&file_path).map(|m| m.len()).unwrap_or(0) / 1048576;
+        let base_key = base_name.replace('.', "-");
+        info.insert(format!("{base_key}-size"), size_mb.to_string());
 
         // Get version
-        let version_name = format!("{base_name}-version");
-        if let Ok(version) = fs::read_to_string(dir.as_ref().join(format!("{version_name}.txt"))) {
+        if let Ok(version) = fs::read_to_string(dir.as_ref().join(format!("{base_name}-version.txt"))) {
             let version = version.trim();
             if !version.is_empty() {
-                info.insert(version_name, format!(" ({})", version.trim()));
+                info.insert(format!("{base_key}-version"), format!(" ({})", version.trim()));
             }
         }
     }
