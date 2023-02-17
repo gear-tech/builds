@@ -35,11 +35,11 @@ jobs:
             name: gear-v0.1-pre-macos-m
             file_name: gear-v0.1-pre-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            branch: v0.1-pre
-            os: windows-latest
-            name: gear-v0.1-pre-windows-x86_64
-            file_name: gear-v0.1-pre-windows-x86_64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   branch: v0.1-pre
+          #   os: windows-latest
+          #   name: gear-v0.1-pre-windows-x86_64
+          #   file_name: gear-v0.1-pre-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
@@ -60,11 +60,11 @@ jobs:
             name: gear-nightly-macos-m
             file_name: gear-nightly-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            branch: master
-            os: windows-latest
-            name: gear-nightly-windows-x86_64
-            file_name: gear-nightly-windows-x86_64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   branch: master
+          #   os: windows-latest
+          #   name: gear-nightly-windows-x86_64
+          #   file_name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
@@ -237,11 +237,9 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-x86_64.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-linux-x86_64.tar.xz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-linux-x86_64.tar.xz?raw=true"
