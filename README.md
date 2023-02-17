@@ -10,12 +10,12 @@ Packages include:
 
   Source code: https://github.com/gear-tech/gear/tree/master/node
 
-## Vara node nightly builds
+## Gear node v0.1-pre builds
 
-- Linux x64: https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/vara-nightly-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/vara-nightly-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz
+- macOS Intel x64: https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1-pre-windows-x86_64.zip
 
 ## Gear node nightly builds
 
@@ -26,7 +26,7 @@ Packages include:
 
 # Ansible scripts
 
-You can deploy Gear node using Ansible scripts.
+You can deploy the Gear node using Ansible scripts.
 
 ## Install prerequisites
 

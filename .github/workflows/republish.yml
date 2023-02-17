@@ -19,14 +19,14 @@ jobs:
       - name: Download old artifacts
         run: |
           cd artifact
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/vara-nightly-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/vara-nightly-macos-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64.zip && true
-          wget -nc https://get.gear.rs/vara-nightly-windows-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
