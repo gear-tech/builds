@@ -35,12 +35,6 @@ jobs:
             name: gear-v0.1-pre-macos-m
             file_name: gear-v0.1-pre-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            branch: v0.1-pre
-            os: windows-latest
-            name: gear-v0.1-pre-windows-x86_64
-            file_name: gear-v0.1-pre-windows-x86_64.zip
-
           - target: x86_64-unknown-linux-gnu
             branch: master
             os: ubuntu-latest
@@ -202,8 +196,6 @@ jobs:
           wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m-version.txt && true
           wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz && true
           wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64.zip && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
@@ -237,7 +229,6 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-x86_64.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-linux-x86_64.tar.xz?raw=true"
