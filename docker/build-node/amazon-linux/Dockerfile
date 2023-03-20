@@ -9,7 +9,7 @@ FROM amazonlinux:latest
 WORKDIR /root
 
 # Install deps
-RUN yum update -y && yum install -y amazon-linux-extras clang gcc git gzip make tar wget
+RUN yum update -y && yum install -y clang gcc git gzip make tar wget
 RUN clang --version
 RUN gcc --version
 RUN c++ --version
