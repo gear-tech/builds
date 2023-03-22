@@ -4,9 +4,10 @@ use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
 
 const BINARIES: &[(&str, &str)] = &[
-    ("gear-v0.1-pre-linux-x86_64", "tar.xz"),
-    ("gear-v0.1-pre-macos-m", "tar.gz"),
-    ("gear-v0.1-pre-macos-x86_64", "tar.gz"),
+    ("gear-v0.1.1-linux-x86_64", "tar.xz"),
+    ("gear-v0.1.1-macos-m", "tar.gz"),
+    ("gear-v0.1.1-macos-x86_64", "tar.gz"),
+    ("gear-v0.1.1-windows-x86_64", "zip"),
     ("gear-nightly-linux-x86_64", "tar.xz"),
     ("gear-nightly-macos-m", "tar.gz"),
     ("gear-nightly-macos-x86_64", "tar.gz"),

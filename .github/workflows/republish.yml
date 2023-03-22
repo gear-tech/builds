@@ -19,12 +19,14 @@ jobs:
       - name: Download old artifacts
         run: |
           cd artifact
-          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true

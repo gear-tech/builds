@@ -17,23 +17,29 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            branch: v0.1-pre
+            branch: v0.1.1
             os: ubuntu-latest
             docker: amazonlinux:2
-            name: gear-v0.1-pre-linux-x86_64
-            file_name: gear-v0.1-pre-linux-x86_64.tar.xz
+            name: gear-v0.1.1-linux-x86_64
+            file_name: gear-v0.1.1-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
-            branch: v0.1-pre
+            branch: v0.1.1
             os: macOS-latest
-            name: gear-v0.1-pre-macos-x86_64
-            file_name: gear-v0.1-pre-macos-x86_64.tar.gz
+            name: gear-v0.1.1-macos-x86_64
+            file_name: gear-v0.1.1-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
-            branch: v0.1-pre
+            branch: v0.1.1
             os: macOS-latest
-            name: gear-v0.1-pre-macos-m
-            file_name: gear-v0.1-pre-macos-m.tar.gz
+            name: gear-v0.1.1-macos-m
+            file_name: gear-v0.1.1-macos-m.tar.gz
+
+          - target: x86_64-pc-windows-msvc
+            branch: v0.1.1
+            os: windows-latest
+            name: gear-v0.1.1-windows-x86_64
+            file_name: gear-v0.1.1-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             branch: master
@@ -190,12 +196,14 @@ jobs:
         run: |
           cd artifact
           ls -la
-          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-linux-x86_64-version.txt && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-m-version.txt && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz && true
-          wget -nc https://get.gear.rs/gear-v0.1-pre-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-nightly-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-macos-m.tar.gz && true
@@ -229,9 +237,10 @@ jobs:
       - name: Smoke test
         run: |
           sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-m.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-macos-x86_64.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1-pre-linux-x86_64.tar.xz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1.1-windows-x86_64.zip?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1.1-macos-m.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1.1-macos-x86_64.tar.gz?raw=true"
+          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-v0.1.1-linux-x86_64.tar.xz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-windows-x86_64.zip?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-m.tar.gz?raw=true"
           wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-macos-x86_64.tar.gz?raw=true"
