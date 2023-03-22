@@ -19,7 +19,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             branch: v0.1-pre
             os: ubuntu-latest
-            docker: amazonlinux:latest
+            docker: amazonlinux:2
             name: gear-v0.1-pre-linux-x86_64
             file_name: gear-v0.1-pre-linux-x86_64.tar.xz
 
@@ -38,7 +38,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             branch: master
             os: ubuntu-latest
-            docker: amazonlinux:latest
+            docker: amazonlinux:2
             name: gear-nightly-linux-x86_64
             file_name: gear-nightly-linux-x86_64.tar.xz
 

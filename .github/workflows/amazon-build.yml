@@ -9,7 +9,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: amazonlinux:latest
+    container: amazonlinux:2
     steps:
       - name: Install dependencies
         run: |

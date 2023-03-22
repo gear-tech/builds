@@ -4,7 +4,7 @@
 #     docker build --platform linux/amd64 .
 #
 
-FROM amazonlinux:latest
+FROM amazonlinux:2
 
 WORKDIR /root
 
