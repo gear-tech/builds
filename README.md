@@ -10,11 +10,12 @@ Packages include:
 
   Source code: https://github.com/gear-tech/gear/tree/master/node
 
-## Gear node v0.1-pre builds
+## Gear node v0.1.1 builds
 
-- Linux x64: https://get.gear.rs/gear-v0.1-pre-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-v0.1-pre-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-v0.1-pre-macos-x86_64.tar.gz
+- Linux x64: https://get.gear.rs/gear-v0.1.1-linux-x86_64.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.1-macos-m.tar.gz
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.1-macos-x86_64.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.1-windows-x86_64.zip
 
 ## Gear node nightly builds
 
