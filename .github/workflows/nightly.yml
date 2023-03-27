@@ -17,29 +17,29 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            ref: v0.1.2
+            ref: v0.1.3
             os: ubuntu-latest
             docker: amazonlinux:2
-            name: gear-v0.1.2-linux-x86_64
-            file_name: gear-v0.1.2-linux-x86_64.tar.xz
+            name: gear-v0.1.3-linux-x86_64
+            file_name: gear-v0.1.3-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
-            ref: v0.1.2
+            ref: v0.1.3
             os: macOS-latest
-            name: gear-v0.1.2-macos-x86_64
-            file_name: gear-v0.1.2-macos-x86_64.tar.gz
+            name: gear-v0.1.3-macos-x86_64
+            file_name: gear-v0.1.3-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
-            ref: v0.1.2
+            ref: v0.1.3
             os: macOS-latest
-            name: gear-v0.1.2-macos-m
-            file_name: gear-v0.1.2-macos-m.tar.gz
+            name: gear-v0.1.3-macos-m
+            file_name: gear-v0.1.3-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
-            ref: v0.1.2
+            ref: v0.1.3
             os: windows-latest
-            name: gear-v0.1.2-windows-x86_64
-            file_name: gear-v0.1.2-windows-x86_64.zip
+            name: gear-v0.1.3-windows-x86_64
+            file_name: gear-v0.1.3-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             ref: master
