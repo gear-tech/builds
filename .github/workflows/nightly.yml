@@ -88,16 +88,10 @@ jobs:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
-      - name: Setup stable toolchain for specified target
+      - name: Setup toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
-
-      - name: Setup nightly toolchain for specified target
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
           target: ${{ matrix.target }}
 
       - name: Setup WASM toolchain
@@ -123,7 +117,7 @@ jobs:
       - name: 'Linux: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'ubuntu-latest' }}
         run: |
-          rm -rvf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
+          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
           ln -vs $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
 
       - name: 'macOS: Pin to the specific nightly toolchain'
@@ -147,13 +141,6 @@ jobs:
       - name: Fix for `git rev-parse`
         if: matrix.os == 'ubuntu-latest'
         run: git config --global --add safe.directory `pwd`
-
-      - name: Show Rust version
-        run: |
-          rustc --version
-          rustc +nightly --version
-          cargo --version
-          cargo +nightly --version
 
       - name: Build
         uses: actions-rs/cargo@v1
