@@ -123,7 +123,7 @@ jobs:
       - name: 'macOS: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'macOS-latest' }}
         run: |
-          rm -rvf $HOME/.rustup/toolchains/nightly-x86_64-apple-darwin
+          rm -rf $HOME/.rustup/toolchains/nightly-x86_64-apple-darwin
           ln -vs $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-x86_64-apple-darwin $HOME/.rustup/toolchains/x86_64-apple-darwin
 
       - name: 'Windows: Pin to the specific nightly toolchain'
