@@ -94,17 +94,23 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      # - name: Setup WASM toolchain
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     toolchain: stable
-      #     target: wasm32-unknown-unknown
+      - name: Setup WASM toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
 
       - name: Setup nightly WASM toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           target: wasm32-unknown-unknown
+
+      - name: Show toolchains
+        if: matrix.os != 'windows-latest'
+        run: |
+          ls -la $HOME/.rustup/toolchains
+          echo $RUSTUP_HOME
 
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
@@ -137,9 +143,12 @@ jobs:
         run: git config --global --add safe.directory `pwd`
 
       - name: Show Rust version
+        if: matrix.os != 'windows-latest'
         run: |
+          which rustc
           rustc --version
           rustc +nightly --version
+          which cargo
           cargo --version
           cargo +nightly --version
 
