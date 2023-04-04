@@ -103,6 +103,8 @@
           - /usr/local/bin/gear
           - key
           - insert
+          - --chain
+          - vara
           - --key-type
           - babe
           - --scheme
@@ -117,10 +119,44 @@
           - /usr/local/bin/gear
           - key
           - insert
+          - --chain
+          - vara
           - --key-type
           - gran
           - --scheme
           - ed25519
+          - --suri
+          - '{{ seed_phrase }}'
+
+    - name: Add Imonline key to the keystore
+      become_user: '{{ item.user }}'
+      command:
+        argv:
+          - /usr/local/bin/gear
+          - key
+          - insert
+          - --chain
+          - vara
+          - --key-type
+          - imon
+          - --scheme
+          - sr25519
+          - --suri
+          - '{{ seed_phrase }}'
+
+    - name: Add AuthorityDiscovery key to the keystore
+      become_user: '{{ item.user }}'
+      command:
+        argv:
+          - /usr/local/bin/gear
+          - key
+          - insert
+          - --chain
+          - vara
+          - --key-type
+          - audi
+          - --scheme
+          - sr25519
           - --suri
           - '{{ seed_phrase }}'
 
