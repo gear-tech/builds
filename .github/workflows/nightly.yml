@@ -94,11 +94,11 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - name: Setup WASM toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
+      # - name: Setup WASM toolchain
+      #   uses: actions-rs/toolchain@v1
+      #   with:
+      #     toolchain: stable
+      #     target: wasm32-unknown-unknown
 
       - name: Setup nightly WASM toolchain
         uses: actions-rs/toolchain@v1
@@ -135,6 +135,13 @@ jobs:
       - name: Fix for `git rev-parse`
         if: matrix.os == 'ubuntu-latest'
         run: git config --global --add safe.directory `pwd`
+
+      - name: Show Rust version
+        run: |
+          rustc --version
+          rustc +nightly --version
+          cargo --version
+          cargo +nightly --version
 
       - name: Build
         uses: actions-rs/cargo@v1
