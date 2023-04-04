@@ -88,10 +88,16 @@ jobs:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
-      - name: Setup toolchain for specified target
+      - name: Setup stable toolchain for specified target
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Setup nightly toolchain for specified target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
           target: ${{ matrix.target }}
 
       - name: Setup WASM toolchain
@@ -106,12 +112,6 @@ jobs:
           toolchain: nightly
           target: wasm32-unknown-unknown
 
-      - name: Show toolchains
-        if: matrix.os != 'windows-latest'
-        run: |
-          ls -la $HOME/.rustup/toolchains
-          echo $RUSTUP_HOME
-
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
         uses: actions-rs/toolchain@v1
@@ -120,11 +120,17 @@ jobs:
           target: wasm32-unknown-unknown
           components: llvm-tools-preview
 
-      - name: 'macOS/Linux: Pin to the specific nightly toolchain'
-        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os != 'windows-latest' }}
+      - name: 'Linux: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'ubuntu-latest' }}
         run: |
           rm -rvf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
           ln -vs $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
+
+      - name: 'macOS: Pin to the specific nightly toolchain'
+        if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'macOS-latest' }}
+        run: |
+          rm -rvf $HOME/.rustup/toolchains/nightly-x86_64-apple-darwin
+          ln -vs $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-x86_64-apple-darwin $HOME/.rustup/toolchains/x86_64-apple-darwin
 
       - name: 'Windows: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
@@ -143,12 +149,9 @@ jobs:
         run: git config --global --add safe.directory `pwd`
 
       - name: Show Rust version
-        if: matrix.os != 'windows-latest'
         run: |
-          which rustc
           rustc --version
           rustc +nightly --version
-          which cargo
           cargo --version
           cargo +nightly --version
 
