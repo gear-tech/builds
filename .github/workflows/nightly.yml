@@ -117,8 +117,8 @@ jobs:
       - name: 'macOS/Linux: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os != 'windows-latest' }}
         run: |
-          rm -rf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
-          ln -s $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
+          rm -rvf $HOME/.rustup/toolchains/nightly-${{ matrix.target }}
+          ln -vs $HOME/.rustup/toolchains/nightly-$NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }} $HOME/.rustup/toolchains/${{ matrix.target }}
 
       - name: 'Windows: Pin to the specific nightly toolchain'
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' && matrix.os == 'windows-latest' }}
@@ -142,7 +142,6 @@ jobs:
           command: build
           args: >
             -p gear-cli --profile production
-            --no-default-features -F gear-native -F vara-native -F lazy-pages
             --target ${{ matrix.target }}
 
       - name: Linux artifacts
