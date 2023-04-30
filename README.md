@@ -17,6 +17,13 @@ Packages include:
 - macOS Intel x64: https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz
 - Windows x64: https://get.gear.rs/gear-nightly-windows-x86_64.zip
 
+## Gear node v0.1.4 builds
+
+- Linux x64: https://get.gear.rs/gear-v0.1.4-linux-x86_64.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.4-macos-m.tar.gz
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.4-macos-x86_64.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.4-windows-x86_64.zip
+
 ## Gear node v0.1.3 builds
 
 - Linux x64: https://get.gear.rs/gear-v0.1.3-linux-x86_64.tar.xz
