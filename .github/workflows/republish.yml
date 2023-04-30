@@ -27,6 +27,14 @@ jobs:
           wget -nc https://get.gear.rs/gear-nightly-macos-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-nightly-windows-x86_64.zip && true
           wget -nc https://get.gear.rs/gear-nightly-windows-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-v0.1.4-windows-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-v0.1.3-linux-x86_64.tar.xz && true
           wget -nc https://get.gear.rs/gear-v0.1.3-linux-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-v0.1.3-macos-m.tar.gz && true
