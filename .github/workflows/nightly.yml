@@ -241,6 +241,14 @@ jobs:
           wget -nc https://get.gear.rs/gear-v0.1.1-macos-x86_64-version.txt && true
           wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64.zip && true
           wget -nc https://get.gear.rs/gear-v0.1.1-windows-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-stable-env-linux-x86_64.tar.xz && true
+          wget -nc https://get.gear.rs/gear-stable-env-linux-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-stable-env-macos-m.tar.gz && true
+          wget -nc https://get.gear.rs/gear-stable-env-macos-m-version.txt && true
+          wget -nc https://get.gear.rs/gear-stable-env-macos-x86_64.tar.gz && true
+          wget -nc https://get.gear.rs/gear-stable-env-macos-x86_64-version.txt && true
+          wget -nc https://get.gear.rs/gear-stable-env-windows-x86_64.zip && true
+          wget -nc https://get.gear.rs/gear-stable-env-windows-x86_64-version.txt && true
 
       - name: Copy Ansible playbooks
         run: cp -rvf ansible artifact/
