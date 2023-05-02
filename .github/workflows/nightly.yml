@@ -17,29 +17,29 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            ref: '663e38a61ee7af2097d6b114c853b5df68c8fe09'
+            ref: v0.1.4
             os: ubuntu-latest
             docker: amazonlinux:2
-            name: gear-stable-env-linux-x86_64
-            file_name: gear-stable-env-linux-x86_64.tar.xz
+            name: gear-v0.1.4-linux-x86_64
+            file_name: gear-v0.1.4-linux-x86_64.tar.xz
 
           - target: x86_64-apple-darwin
-            ref: '663e38a61ee7af2097d6b114c853b5df68c8fe09'
+            ref: v0.1.4
             os: macOS-latest
-            name: gear-stable-env-macos-x86_64
-            file_name: gear-stable-env-macos-x86_64.tar.gz
+            name: gear-v0.1.4-macos-x86_64
+            file_name: gear-v0.1.4-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
-            ref: '663e38a61ee7af2097d6b114c853b5df68c8fe09'
+            ref: v0.1.4
             os: macOS-latest
-            name: gear-stable-env-macos-m
-            file_name: gear-stable-env-macos-m.tar.gz
+            name: gear-v0.1.4-macos-m
+            file_name: gear-v0.1.4-macos-m.tar.gz
 
           - target: x86_64-pc-windows-msvc
-            ref: '663e38a61ee7af2097d6b114c853b5df68c8fe09'
+            ref: v0.1.4
             os: windows-latest
-            name: gear-stable-env-windows-x86_64
-            file_name: gear-stable-env-windows-x86_64.zip
+            name: gear-v0.1.4-windows-x86_64
+            file_name: gear-v0.1.4-windows-x86_64.zip
 
           - target: x86_64-unknown-linux-gnu
             ref: master
