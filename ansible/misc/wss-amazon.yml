@@ -1,16 +1,19 @@
 ---
+# ansible-playbook wss-amazon.yml -i my.host, -u ec2-user
 - name: Configure WSS
   hosts: all
-  vars:
-    - email: hello@gear-tech.io
 
   tasks:
-    - name: Install epel repository
+    - name: Install extra
       become: yes
       yum:
-        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        name: amazon-linux-extras
         state: latest
         update_cache: yes
+
+    - name: Enable EPEL
+      become: yes
+      command: amazon-linux-extras install epel -y
 
     - name: Install Nginx, Certbot et al.
       become: yes
@@ -59,7 +62,7 @@
       command: >
         certbot --nginx
         -d {{ inventory_hostname }}
-        -m {{ email }}
+        --register-unsafely-without-email
         --agree-tos --noninteractive --redirect
 
     - name: Reload Nginx again
