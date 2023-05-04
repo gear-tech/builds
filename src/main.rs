@@ -24,10 +24,10 @@ const BINARIES: &[(&str, &str)] = &[
     ("gear-v0.1.1-macos-m", "tar.gz"),
     ("gear-v0.1.1-macos-x86_64", "tar.gz"),
     ("gear-v0.1.1-windows-x86_64", "zip"),
-    ("gear-stable-env-linux-x86_64", "tar.xz"),
-    ("gear-stable-env-macos-m", "tar.gz"),
-    ("gear-stable-env-macos-x86_64", "tar.gz"),
-    ("gear-stable-env-windows-x86_64", "zip"),
+    ("vara-testnet-linux-x86_64", "tar.xz"),
+    ("vara-testnet-macos-m", "tar.gz"),
+    ("vara-testnet-macos-x86_64", "tar.gz"),
+    ("vara-testnet-windows-x86_64", "zip"),
 ];
 
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
