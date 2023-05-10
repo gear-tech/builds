@@ -96,7 +96,7 @@ jobs:
       - name: Setup nightly WASM toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
-          targets: ${{ matrix.target }}, wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown
 
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
@@ -128,7 +128,6 @@ jobs:
         run: |
           rustup toolchain list
           rustup target list --installed
-          rustup target list --installed --toolchain nightly
 
       - name: Install Protoc
         if: matrix.os != 'ubuntu-latest'
