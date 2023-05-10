@@ -89,29 +89,26 @@ jobs:
           ref: ${{ matrix.ref }}
 
       - name: Setup toolchain for specified target
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
 
       - name: Setup WASM toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown
 
       - name: Setup nightly WASM toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
-          target: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown
 
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly-${{ env.NIGHTLY_TOOLCHAIN_VERSION }}
-          target: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown
           components: llvm-tools-preview
 
       - name: 'Linux: Pin to the specific nightly toolchain'
@@ -143,12 +140,9 @@ jobs:
         run: git config --global --add safe.directory `pwd`
 
       - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            -p gear-cli --profile production
-            --target ${{ matrix.target }}
+        run: >
+          cargo build -p gear-cli --profile production
+          --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -257,9 +251,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Render index.html
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
+        run: cargo run
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

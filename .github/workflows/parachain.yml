@@ -21,15 +21,13 @@ jobs:
           path: gear
 
       - name: Setup WASM toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           target: wasm32-unknown-unknown
 
       - name: Setup nightly WASM toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
           target: wasm32-unknown-unknown
 
       - name: Cache
@@ -39,10 +37,9 @@ jobs:
             gear -> target
 
       - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --manifest-path gear/Cargo.toml -rp gear-collator --no-default-features --features rococo-gear-native
+        run: >
+          cargo build --manifest-path gear/Cargo.toml -rp gear-collator
+          --no-default-features --features rococo-gear-native
 
       - name: Collect artifacts
         run: |
