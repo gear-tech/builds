@@ -16,18 +16,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            ref: v0.1.5
-            os: ubuntu-latest
-            docker: amazonlinux:2
-            name: gear-v0.1.5-linux-x86_64
-            file_name: gear-v0.1.5-linux-x86_64.tar.xz
+          # - target: x86_64-unknown-linux-gnu
+          #   ref: v0.1.5
+          #   os: ubuntu-latest
+          #   docker: amazonlinux:2
+          #   name: gear-v0.1.5-linux-x86_64
+          #   file_name: gear-v0.1.5-linux-x86_64.tar.xz
 
-          - target: x86_64-apple-darwin
-            ref: v0.1.5
-            os: macOS-latest
-            name: gear-v0.1.5-macos-x86_64
-            file_name: gear-v0.1.5-macos-x86_64.tar.gz
+          # - target: x86_64-apple-darwin
+          #   ref: v0.1.5
+          #   os: macOS-latest
+          #   name: gear-v0.1.5-macos-x86_64
+          #   file_name: gear-v0.1.5-macos-x86_64.tar.gz
 
           - target: aarch64-apple-darwin
             ref: v0.1.5
@@ -35,36 +35,36 @@ jobs:
             name: gear-v0.1.5-macos-m
             file_name: gear-v0.1.5-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            ref: v0.1.5
-            os: windows-latest
-            name: gear-v0.1.5-windows-x86_64
-            file_name: gear-v0.1.5-windows-x86_64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   ref: v0.1.5
+          #   os: windows-latest
+          #   name: gear-v0.1.5-windows-x86_64
+          #   file_name: gear-v0.1.5-windows-x86_64.zip
 
-          - target: x86_64-unknown-linux-gnu
-            ref: master
-            os: ubuntu-latest
-            docker: amazonlinux:2
-            name: gear-nightly-linux-x86_64
-            file_name: gear-nightly-linux-x86_64.tar.xz
+          # - target: x86_64-unknown-linux-gnu
+          #   ref: master
+          #   os: ubuntu-latest
+          #   docker: amazonlinux:2
+          #   name: gear-nightly-linux-x86_64
+          #   file_name: gear-nightly-linux-x86_64.tar.xz
 
-          - target: x86_64-apple-darwin
-            ref: master
-            os: macOS-latest
-            name: gear-nightly-macos-x86_64
-            file_name: gear-nightly-macos-x86_64.tar.gz
+          # - target: x86_64-apple-darwin
+          #   ref: master
+          #   os: macOS-latest
+          #   name: gear-nightly-macos-x86_64
+          #   file_name: gear-nightly-macos-x86_64.tar.gz
 
-          - target: aarch64-apple-darwin
-            ref: master
-            os: macOS-latest
-            name: gear-nightly-macos-m
-            file_name: gear-nightly-macos-m.tar.gz
+          # - target: aarch64-apple-darwin
+          #   ref: master
+          #   os: macOS-latest
+          #   name: gear-nightly-macos-m
+          #   file_name: gear-nightly-macos-m.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            ref: master
-            os: windows-latest
-            name: gear-nightly-windows-x86_64
-            file_name: gear-nightly-windows-x86_64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   ref: master
+          #   os: windows-latest
+          #   name: gear-nightly-windows-x86_64
+          #   file_name: gear-nightly-windows-x86_64.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
@@ -88,15 +88,21 @@ jobs:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
+      - name: Setup nightly Wasm toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: wasm32-unknown-unknown
+
       - name: Setup toolchain for specified target and Wasm
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}, wasm32-unknown-unknown
 
-      - name: Setup nightly WASM toolchain
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          targets: wasm32-unknown-unknown
+      # TODO: Remove
+      - name: List toolchains and targets
+        run: |
+          rustup toolchain list
+          rustup target list --installed
 
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
