@@ -93,17 +93,6 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Setup toolchain for specified target and Wasm
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}, wasm32-unknown-unknown
-
-      # TODO: Remove
-      - name: List toolchains and targets
-        run: |
-          rustup toolchain list
-          rustup target list --installed
-
       - name: Install a specific nightly toolchain
         if: ${{ env.NIGHTLY_TOOLCHAIN_VERSION != '' }}
         uses: dtolnay/rust-toolchain@master
@@ -129,6 +118,11 @@ jobs:
         run: |
           Remove-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-${{ matrix.target }}" -Force -Recurse
           Copy-Item -Path "C:\Users\runneradmin\.rustup\toolchains\nightly-$env:NIGHTLY_TOOLCHAIN_VERSION-${{ matrix.target }}" -Destination "C:\Users\runneradmin\.rustup\toolchains\${{ matrix.target }}" -Recurse
+
+      - name: Setup stable toolchain for specified target and Wasm
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}, wasm32-unknown-unknown
 
       - name: List toolchains and targets
         run: |
