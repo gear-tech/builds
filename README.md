@@ -12,35 +12,35 @@ Packages include:
 
 ## Gear node nightly builds
 
-- Linux x64: https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-nightly-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/gear-nightly-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-nightly-aarch64-apple-darwin
+- macOS Intel x64: https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.gz
+- Windows x64: https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip
 
 ## Gear node v0.1.4 builds
 
-- Linux x64: https://get.gear.rs/gear-v0.1.4-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.4-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-v0.1.4-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/gear-v0.1.4-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-v0.1.4-x86_64-unknown-linux-gnu.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.4-aarch64-apple-darwin
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.4-x86_64-apple-darwin.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.4-x86_64-pc-windows-msvc.zip
 
 ## Gear node v0.1.3 builds
 
-- Linux x64: https://get.gear.rs/gear-v0.1.3-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.3-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-v0.1.3-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/gear-v0.1.3-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-v0.1.3-x86_64-unknown-linux-gnu.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.3-aarch64-apple-darwin
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.3-x86_64-apple-darwin.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.3-x86_64-pc-windows-msvc.zip
 
 ## Gear node v0.1.2 builds
 
-- Linux x64: https://get.gear.rs/gear-v0.1.2-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.2-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-v0.1.2-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/gear-v0.1.2-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-v0.1.2-x86_64-unknown-linux-gnu.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.2-aarch64-apple-darwin
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.2-x86_64-apple-darwin.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.2-x86_64-pc-windows-msvc.zip
 
 ## Gear node v0.1.1 builds
 
-- Linux x64: https://get.gear.rs/gear-v0.1.1-linux-x86_64.tar.xz
-- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.1-macos-m.tar.gz
-- macOS Intel x64: https://get.gear.rs/gear-v0.1.1-macos-x86_64.tar.gz
-- Windows x64: https://get.gear.rs/gear-v0.1.1-windows-x86_64.zip
+- Linux x64: https://get.gear.rs/gear-v0.1.1-x86_64-unknown-linux-gnu.tar.xz
+- macOS M-series (ARM): https://get.gear.rs/gear-v0.1.1-aarch64-apple-darwin
+- macOS Intel x64: https://get.gear.rs/gear-v0.1.1-x86_64-apple-darwin.tar.gz
+- Windows x64: https://get.gear.rs/gear-v0.1.1-x86_64-pc-windows-msvc.zip
