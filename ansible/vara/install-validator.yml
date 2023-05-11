@@ -82,7 +82,7 @@
     - name: Download and unpack Gear node executable
       become: yes
       unarchive:
-        src: https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz
+        src: https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'
