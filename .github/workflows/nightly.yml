@@ -159,7 +159,7 @@ jobs:
           cd target/${{ matrix.target }}/production
           strip gear || true
           ./gear --version > ../../../${{ matrix.name }}-version.txt || true
-          tar czvf ../../../${{ matrix.file_name }} gear
+          tar -cvJf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
