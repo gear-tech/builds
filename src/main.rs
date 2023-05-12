@@ -5,12 +5,12 @@ use std::{collections::HashMap, env, fs, path::Path};
 
 const BINARIES: &[(&str, &str)] = &[
     ("gear-nightly-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-nightly-aarch64-apple-darwin", "tar.gz"),
-    ("gear-nightly-x86_64-apple-darwin", "tar.gz"),
+    ("gear-nightly-aarch64-apple-darwin", "tar.xz"),
+    ("gear-nightly-x86_64-apple-darwin", "tar.xz"),
     ("gear-nightly-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.5-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-v0.1.5-aarch64-apple-darwin", "tar.gz"),
-    ("gear-v0.1.5-x86_64-apple-darwin", "tar.gz"),
+    ("gear-v0.1.5-aarch64-apple-darwin", "tar.xz"),
+    ("gear-v0.1.5-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.5-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.4-x86_64-unknown-linux-gnu", "tar.xz"),
     ("gear-v0.1.4-aarch64-apple-darwin", "tar.gz"),

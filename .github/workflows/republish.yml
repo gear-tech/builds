@@ -21,17 +21,17 @@ jobs:
           cd artifact
           wget -nc https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz || true
           wget -nc https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.gz || true
+          wget -nc https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.xz || true
           wget -nc https://get.gear.rs/gear-nightly-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.gz || true
+          wget -nc https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz || true
           wget -nc https://get.gear.rs/gear-nightly-x86_64-apple-darwin-version.txt || true
           wget -nc https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip || true
           wget -nc https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc-version.txt || true
           wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu.tar.xz || true
           wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin.tar.gz || true
+          wget -nc https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin.tar.xz || true
           wget -nc https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin.tar.gz || true
+          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin.tar.xz || true
           wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin-version.txt || true
           wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-pc-windows-msvc.zip || true
           wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-pc-windows-msvc-version.txt || true
@@ -77,12 +77,12 @@ jobs:
           wget -nc https://get.gear.rs/vara-testnet-x86_64-pc-windows-msvc-version.txt || true
           # Support legacy packages for backward compatibility
           cp -v gear-nightly-x86_64-unknown-linux-gnu.tar.xz gear-nightly-linux-x86_64.tar.xz || true
-          cp -v gear-nightly-aarch64-apple-darwin.tar.gz gear-nightly-macos-m.tar.gz || true
-          cp -v gear-nightly-x86_64-apple-darwin.tar.gz gear-nightly-macos-x86_64.tar.gz || true
+          cp -v gear-nightly-aarch64-apple-darwin.tar.xz gear-nightly-macos-m.tar.xz || true
+          cp -v gear-nightly-x86_64-apple-darwin.tar.xz gear-nightly-macos-x86_64.tar.xz || true
           cp -v gear-nightly-x86_64-pc-windows-msvc.zip gear-nightly-windows-x86_64.zip || true
           cp -v vara-testnet-x86_64-unknown-linux-gnu.tar.xz vara-testnet-linux-x86_64.tar.xz || true
-          cp -v vara-testnet-aarch64-apple-darwin.tar.gz vara-testnet-macos-m.tar.gz || true
-          cp -v vara-testnet-x86_64-apple-darwin.tar.gz vara-testnet-macos-x86_64.tar.gz || true
+          cp -v vara-testnet-aarch64-apple-darwin.tar.xz vara-testnet-macos-m.tar.xz || true
+          cp -v vara-testnet-x86_64-apple-darwin.tar.xz vara-testnet-macos-x86_64.tar.xz || true
           cp -v vara-testnet-x86_64-pc-windows-msvc.zip vara-testnet-windows-x86_64.zip || true
 
       - name: Copy Ansible playbooks
