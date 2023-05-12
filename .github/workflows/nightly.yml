@@ -27,13 +27,13 @@ jobs:
             ref: v0.1.5
             os: macOS-latest
             name: gear-v0.1.5-x86_64-apple-darwin
-            file_name: gear-v0.1.5-x86_64-apple-darwin.tar.gz
+            file_name: gear-v0.1.5-x86_64-apple-darwin.tar.xz
 
           - target: aarch64-apple-darwin
             ref: v0.1.5
             os: macOS-latest
             name: gear-v0.1.5-aarch64-apple-darwin
-            file_name: gear-v0.1.5-aarch64-apple-darwin.tar.gz
+            file_name: gear-v0.1.5-aarch64-apple-darwin.tar.xz
 
           - target: x86_64-pc-windows-msvc
             ref: v0.1.5
@@ -52,13 +52,13 @@ jobs:
             ref: master
             os: macOS-latest
             name: gear-nightly-x86_64-apple-darwin
-            file_name: gear-nightly-x86_64-apple-darwin.tar.gz
+            file_name: gear-nightly-x86_64-apple-darwin.tar.xz
 
           - target: aarch64-apple-darwin
             ref: master
             os: macOS-latest
             name: gear-nightly-aarch64-apple-darwin
-            file_name: gear-nightly-aarch64-apple-darwin.tar.gz
+            file_name: gear-nightly-aarch64-apple-darwin.tar.xz
 
           - target: x86_64-pc-windows-msvc
             ref: master
@@ -159,7 +159,7 @@ jobs:
           cd target/${{ matrix.target }}/production
           strip gear || true
           ./gear --version > ../../../${{ matrix.name }}-version.txt || true
-          tar czvf ../../../${{ matrix.file_name }} gear
+          tar -cvJf ../../../${{ matrix.file_name }} gear
           du -h ../../../${{ matrix.file_name }}
 
       - name: Windows artifacts
