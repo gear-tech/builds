@@ -84,6 +84,8 @@ jobs:
           cp -v vara-testnet-aarch64-apple-darwin.tar.xz vara-testnet-macos-m.tar.xz || true
           cp -v vara-testnet-x86_64-apple-darwin.tar.xz vara-testnet-macos-x86_64.tar.xz || true
           cp -v vara-testnet-x86_64-pc-windows-msvc.zip vara-testnet-windows-x86_64.zip || true
+          # Download install script from master
+          wget -nc https://github.com/gear-tech/gear/raw/master/scripts/install.sh || true
 
       - name: Copy Ansible playbooks
         run: cp -rvf ansible artifact/
