@@ -32,14 +32,14 @@ const BINARIES: &[(&str, &str)] = &[
     ("vara-testnet-aarch64-apple-darwin", "tar.xz"),
     ("vara-testnet-x86_64-apple-darwin", "tar.xz"),
     ("vara-testnet-x86_64-pc-windows-msvc", "zip"),
-    ("vara-testnet-1.1-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("vara-testnet-1.1-aarch64-apple-darwin", "tar.xz"),
-    ("vara-testnet-1.1-x86_64-apple-darwin", "tar.xz"),
-    ("vara-testnet-1.1-x86_64-pc-windows-msvc", "zip"),
-    ("vara-testnet-1.0-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("vara-testnet-1.0-aarch64-apple-darwin", "tar.xz"),
-    ("vara-testnet-1.0-x86_64-apple-darwin", "tar.xz"),
-    ("vara-testnet-1.0-x86_64-pc-windows-msvc", "zip"),
+    ("vara-testnet-v1.1-x86_64-unknown-linux-gnu", "tar.xz"),
+    ("vara-testnet-v1.1-aarch64-apple-darwin", "tar.xz"),
+    ("vara-testnet-v1.1-x86_64-apple-darwin", "tar.xz"),
+    ("vara-testnet-v1.1-x86_64-pc-windows-msvc", "zip"),
+    ("vara-testnet-v1.0-x86_64-unknown-linux-gnu", "tar.xz"),
+    ("vara-testnet-v1.0-aarch64-apple-darwin", "tar.xz"),
+    ("vara-testnet-v1.0-x86_64-apple-darwin", "tar.xz"),
+    ("vara-testnet-v1.0-x86_64-pc-windows-msvc", "zip"),
 ];
 
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
