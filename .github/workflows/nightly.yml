@@ -17,54 +17,29 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            ref: '78dfa07ed34df6cf76f09d6c34834b5bd74e352d'
+            ref: master
             os: ubuntu-latest
             docker: amazonlinux:2
-            name: vara-testnet-v1.1-x86_64-unknown-linux-gnu
-            file_name: vara-testnet-v1.1-x86_64-unknown-linux-gnu.tar.xz
+            name: gear-nightly-x86_64-unknown-linux-gnu
+            file_name: gear-nightly-x86_64-unknown-linux-gnu.tar.xz
 
           - target: x86_64-apple-darwin
-            ref: '78dfa07ed34df6cf76f09d6c34834b5bd74e352d'
+            ref: master
             os: macOS-latest
-            name: vara-testnet-v1.1-x86_64-apple-darwin
-            file_name: vara-testnet-v1.1-x86_64-apple-darwin.tar.xz
+            name: gear-nightly-x86_64-apple-darwin
+            file_name: gear-nightly-x86_64-apple-darwin.tar.xz
 
           - target: aarch64-apple-darwin
-            ref: '78dfa07ed34df6cf76f09d6c34834b5bd74e352d'
+            ref: master
             os: macOS-latest
-            name: vara-testnet-v1.1-aarch64-apple-darwin
-            file_name: vara-testnet-v1.1-aarch64-apple-darwin.tar.xz
+            name: gear-nightly-aarch64-apple-darwin
+            file_name: gear-nightly-aarch64-apple-darwin.tar.xz
 
           - target: x86_64-pc-windows-msvc
-            ref: '78dfa07ed34df6cf76f09d6c34834b5bd74e352d'
+            ref: master
             os: windows-latest
-            name: vara-testnet-v1.1-x86_64-pc-windows-msvc
-            file_name: vara-testnet-v1.1-x86_64-pc-windows-msvc.zip
-
-          - target: x86_64-unknown-linux-gnu
-            ref: v0.1.4
-            os: ubuntu-latest
-            docker: amazonlinux:2
-            name: gear-v0.1.4-x86_64-unknown-linux-gnu
-            file_name: gear-v0.1.4-x86_64-unknown-linux-gnu.tar.xz
-
-          - target: x86_64-apple-darwin
-            ref: v0.1.4
-            os: macOS-latest
-            name: gear-v0.1.4-x86_64-apple-darwin
-            file_name: gear-v0.1.4-x86_64-apple-darwin.tar.xz
-
-          - target: aarch64-apple-darwin
-            ref: v0.1.4
-            os: macOS-latest
-            name: vara-testnet-1.1-aarch64-apple-darwin
-            file_name: gear-v0.1.4-aarch64-apple-darwin.tar.xz
-
-          - target: x86_64-pc-windows-msvc
-            ref: v0.1.4
-            os: windows-latest
-            name: gear-v0.1.4-x86_64-pc-windows-msvc
-            file_name: gear-v0.1.4-x86_64-pc-windows-msvc.zip
+            name: gear-nightly-x86_64-pc-windows-msvc
+            file_name: gear-nightly-x86_64-pc-windows-msvc.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
