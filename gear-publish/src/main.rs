@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::offset::Utc;
 use handlebars::Handlebars;
 use std::{collections::HashMap, env, fs, path::Path};
@@ -13,25 +13,33 @@ const BINARIES: &[(&str, &str)] = &[
     ("gear-v0.1.5-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.5-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.4-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-v0.1.4-aarch64-apple-darwin", "tar.gz"),
-    ("gear-v0.1.4-x86_64-apple-darwin", "tar.gz"),
+    ("gear-v0.1.4-aarch64-apple-darwin", "tar.xz"),
+    ("gear-v0.1.4-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.4-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.3-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-v0.1.3-aarch64-apple-darwin", "tar.gz"),
-    ("gear-v0.1.3-x86_64-apple-darwin", "tar.gz"),
+    ("gear-v0.1.3-aarch64-apple-darwin", "tar.xz"),
+    ("gear-v0.1.3-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.3-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.2-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-v0.1.2-aarch64-apple-darwin", "tar.gz"),
-    ("gear-v0.1.2-x86_64-apple-darwin", "tar.gz"),
+    ("gear-v0.1.2-aarch64-apple-darwin", "tar.xz"),
+    ("gear-v0.1.2-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.2-x86_64-pc-windows-msvc", "zip"),
     ("gear-v0.1.1-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("gear-v0.1.1-aarch64-apple-darwin", "tar.gz"),
-    ("gear-v0.1.1-x86_64-apple-darwin", "tar.gz"),
+    ("gear-v0.1.1-aarch64-apple-darwin", "tar.xz"),
+    ("gear-v0.1.1-x86_64-apple-darwin", "tar.xz"),
     ("gear-v0.1.1-x86_64-pc-windows-msvc", "zip"),
     ("vara-testnet-x86_64-unknown-linux-gnu", "tar.xz"),
-    ("vara-testnet-aarch64-apple-darwin", "tar.gz"),
-    ("vara-testnet-x86_64-apple-darwin", "tar.gz"),
+    ("vara-testnet-aarch64-apple-darwin", "tar.xz"),
+    ("vara-testnet-x86_64-apple-darwin", "tar.xz"),
     ("vara-testnet-x86_64-pc-windows-msvc", "zip"),
+    ("vara-testnet-1.1-x86_64-unknown-linux-gnu", "tar.xz"),
+    ("vara-testnet-1.1-aarch64-apple-darwin", "tar.xz"),
+    ("vara-testnet-1.1-x86_64-apple-darwin", "tar.xz"),
+    ("vara-testnet-1.1-x86_64-pc-windows-msvc", "zip"),
+    ("vara-testnet-1.0-x86_64-unknown-linux-gnu", "tar.xz"),
+    ("vara-testnet-1.0-aarch64-apple-darwin", "tar.xz"),
+    ("vara-testnet-1.0-x86_64-apple-darwin", "tar.xz"),
+    ("vara-testnet-1.0-x86_64-pc-windows-msvc", "zip"),
 ];
 
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
@@ -64,15 +72,20 @@ fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
 }
 
 fn main() -> Result<()> {
-    let out_dir = env::current_dir()?.join("artifact");
-    fs::create_dir_all(&out_dir)?;
+    let out_dir = env::args()
+        .skip(1)
+        .next()
+        .map(|arg| Ok(arg.into()))
+        .unwrap_or_else(|| env::current_dir())?;
 
     let index_html = out_dir.join("index.html");
     let mut handlebars = Handlebars::new();
-    handlebars.register_template_string("index", include_str!("index.hbs"))?;
+    handlebars
+        .register_template_string("index", include_str!("index.hbs"))?;
 
     let info = collect_info(&out_dir);
-    fs::write(index_html, handlebars.render("index", &info)?)?;
+    fs::write(index_html, handlebars.render("index", &info)?)
+        .context("Unable to write `index.html`")?;
 
     Ok(())
 }

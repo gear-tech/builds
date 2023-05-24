@@ -1,7 +1,6 @@
 .DS_Store
 .ansible_*
 artifact/**/*.html
-artifact/**/*.tar.gz
 artifact/**/*.tar.xz
 artifact/**/*.txt
 artifact/**/*.zip
