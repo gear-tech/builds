@@ -51,3 +51,17 @@ Packages include:
 - macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.1-aarch64-apple-darwin.tar.xz>
 - macOS Intel x64: <https://get.gear.rs/gear-v0.1.1-x86_64-apple-darwin.tar.xz>
 - Windows x64: <https://get.gear.rs/gear-v0.1.1-x86_64-pc-windows-msvc.zip>
+
+# Gear node install script
+
+Install the latest release:
+
+```bash
+curl -sSf https://get.gear.rs/install.sh | sh
+```
+
+Install a specific version (e.g. v0.1.4):
+
+```bash
+curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v0.1.4
+```
