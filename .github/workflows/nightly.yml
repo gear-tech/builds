@@ -17,31 +17,6 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            ref: v0.1.5
-            os: ubuntu-latest
-            docker: amazonlinux:2
-            name: gear-v0.1.5-x86_64-unknown-linux-gnu
-            file_name: gear-v0.1.5-x86_64-unknown-linux-gnu.tar.xz
-
-          - target: x86_64-apple-darwin
-            ref: v0.1.5
-            os: macOS-latest
-            name: gear-v0.1.5-x86_64-apple-darwin
-            file_name: gear-v0.1.5-x86_64-apple-darwin.tar.xz
-
-          - target: aarch64-apple-darwin
-            ref: v0.1.5
-            os: macOS-latest
-            name: gear-v0.1.5-aarch64-apple-darwin
-            file_name: gear-v0.1.5-aarch64-apple-darwin.tar.xz
-
-          - target: x86_64-pc-windows-msvc
-            ref: v0.1.5
-            os: windows-latest
-            name: gear-v0.1.5-x86_64-pc-windows-msvc
-            file_name: gear-v0.1.5-x86_64-pc-windows-msvc.zip
-
-          - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
             docker: amazonlinux:2
@@ -139,36 +114,41 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: git config --global --add safe.directory `pwd`
 
-      - name: Build
-        run: >
-          cargo build -p gear-cli --profile production
-          --target ${{ matrix.target }}
+      # FIXME: Remove before release
+      - name: Test packages
+        run:
+          wget -nc https://get.gear.rs/${{ matrix.file_name }} || true
 
-      - name: Linux artifacts
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd target/${{ matrix.target }}/production
-          strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-version.txt
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
-          du -h ../../../${{ matrix.file_name }}
+      # - name: Build
+      #   run: >
+      #     cargo build -p gear-cli --profile production
+      #     --target ${{ matrix.target }}
 
-      - name: macOS artifacts
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd target/${{ matrix.target }}/production
-          strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-version.txt || true
-          tar -cvJf ../../../${{ matrix.file_name }} gear
-          du -h ../../../${{ matrix.file_name }}
+      # - name: Linux artifacts
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/production
+      #     strip gear || true
+      #     ./gear --version > ../../../${{ matrix.name }}-version.txt
+      #     XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
+      #     du -h ../../../${{ matrix.file_name }}
 
-      - name: Windows artifacts
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd target/${{ matrix.target }}/production
-          strip gear.exe
-          .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
-          7z a "..\..\..\${{ matrix.file_name }}" gear.exe
+      # - name: macOS artifacts
+      #   if: matrix.os == 'macos-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/production
+      #     strip gear || true
+      #     ./gear --version > ../../../${{ matrix.name }}-version.txt || true
+      #     tar -cvJf ../../../${{ matrix.file_name }} gear
+      #     du -h ../../../${{ matrix.file_name }}
+
+      # - name: Windows artifacts
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     cd target/${{ matrix.target }}/production
+      #     strip gear.exe
+      #     .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
+      #     7z a "..\..\..\${{ matrix.file_name }}" gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
@@ -191,99 +171,16 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
-      - name: Backup the old version
+      - name: List artifacts
         run: |
-          cd artifact
-          ls -la
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-nightly-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-v0.1.5-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-v0.1.4-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-v0.1.3-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-v0.1.2-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/gear-v0.1.1-x86_64-pc-windows-msvc-version.txt || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-unknown-linux-gnu.tar.xz || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-unknown-linux-gnu-version.txt || true
-          wget -nc https://get.gear.rs/vara-testnet-aarch64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/vara-testnet-aarch64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-apple-darwin.tar.gz || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-apple-darwin-version.txt || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-pc-windows-msvc.zip || true
-          wget -nc https://get.gear.rs/vara-testnet-x86_64-pc-windows-msvc-version.txt || true
-          # Support legacy packages for backward compatibility
-          cp -v gear-nightly-x86_64-unknown-linux-gnu.tar.xz gear-nightly-linux-x86_64.tar.xz || true
-          cp -v gear-nightly-aarch64-apple-darwin.tar.gz gear-nightly-macos-m.tar.gz || true
-          cp -v gear-nightly-x86_64-apple-darwin.tar.gz gear-nightly-macos-x86_64.tar.gz || true
-          cp -v gear-nightly-x86_64-pc-windows-msvc.zip gear-nightly-windows-x86_64.zip || true
-          cp -v vara-testnet-x86_64-unknown-linux-gnu.tar.xz vara-testnet-linux-x86_64.tar.xz || true
-          cp -v vara-testnet-aarch64-apple-darwin.tar.gz vara-testnet-macos-m.tar.gz || true
-          cp -v vara-testnet-x86_64-apple-darwin.tar.gz vara-testnet-macos-x86_64.tar.gz || true
-          cp -v vara-testnet-x86_64-pc-windows-msvc.zip vara-testnet-windows-x86_64.zip || true
-
-      - name: Copy Ansible playbooks
-        run: cp -rvf ansible artifact/
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Render index.html
-        run: cargo run
+          pwd
+          ls -la artifact
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: dawidd6/action-ansible-playbook@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: artifact
-          cname: get.gear.rs
-          force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Smoke test
-        run: |
-          sleep 60
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-x86_64-pc-windows-msvc.zip?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-aarch64-apple-darwin.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-x86_64-apple-darwin.tar.gz?raw=true"
-          wget -q --spider "https://github.com/gear-tech/builds/blob/gh-pages/gear-nightly-x86_64-unknown-linux-gnu.tar.xz?raw=true"
+          directory: ansible/builds
+          playbook: upload.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: -u ubuntu
+          inventory: get.gear.rs

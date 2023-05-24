@@ -1,0 +1,29 @@
+# Run
+#     ansible-playbook upload.yml -i get.gear.rs, -u ubuntu
+#
+---
+- name: Upload builds to server
+  hosts: all
+  vars:
+    user: builds
+
+  tasks:
+    - name: Copy packages
+      become: yes
+      synchronize:
+        src: ../../artifact/
+        dest: /var/www/{{ user }}/
+
+    - name: Copy publisher's source files
+      become: yes
+      synchronize:
+        src: ../../gear-publish
+        dest: /home/{{ user }}/
+        rsync_opts:
+          - "--exclude=target"
+
+    - name: Publish
+      become: yes
+      command: >
+        cargo r --manifest-path /home/{{ user }}/gear-publish/Cargo.toml
+        -- /var/www/{{ user }}
