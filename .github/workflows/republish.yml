@@ -19,6 +19,9 @@ jobs:
       - name: Copy Ansible playbooks
         run: cp -rvf ansible artifact/
 
+      - name: Download install script
+        run: cd artifact && wget https://github.com/gear-tech/gear/raw/master/scripts/install.sh
+
       - name: Deploy
         uses: dawidd6/action-ansible-playbook@v2
         with:
