@@ -114,41 +114,36 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: git config --global --add safe.directory `pwd`
 
-      # FIXME: Remove before release
-      - name: Test packages
-        run:
-          wget -nc https://get.gear.rs/${{ matrix.file_name }} || true
+      - name: Build
+        run: >
+          cargo build -p gear-cli --profile production
+          --target ${{ matrix.target }}
 
-      # - name: Build
-      #   run: >
-      #     cargo build -p gear-cli --profile production
-      #     --target ${{ matrix.target }}
+      - name: Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
+          du -h ../../../${{ matrix.file_name }}
 
-      # - name: Linux artifacts
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     cd target/${{ matrix.target }}/production
-      #     strip gear || true
-      #     ./gear --version > ../../../${{ matrix.name }}-version.txt
-      #     XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
-      #     du -h ../../../${{ matrix.file_name }}
+      - name: macOS artifacts
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear || true
+          ./gear --version > ../../../${{ matrix.name }}-version.txt || true
+          tar -cvJf ../../../${{ matrix.file_name }} gear
+          du -h ../../../${{ matrix.file_name }}
 
-      # - name: macOS artifacts
-      #   if: matrix.os == 'macos-latest'
-      #   run: |
-      #     cd target/${{ matrix.target }}/production
-      #     strip gear || true
-      #     ./gear --version > ../../../${{ matrix.name }}-version.txt || true
-      #     tar -cvJf ../../../${{ matrix.file_name }} gear
-      #     du -h ../../../${{ matrix.file_name }}
-
-      # - name: Windows artifacts
-      #   if: matrix.os == 'windows-latest'
-      #   run: |
-      #     cd target/${{ matrix.target }}/production
-      #     strip gear.exe
-      #     .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
-      #     7z a "..\..\..\${{ matrix.file_name }}" gear.exe
+      - name: Windows artifacts
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/production
+          strip gear.exe
+          .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
+          7z a "..\..\..\${{ matrix.file_name }}" gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
