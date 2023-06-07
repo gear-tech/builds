@@ -116,7 +116,7 @@ jobs:
 
       - name: Build
         run: >
-          cargo build -p gear-cli --profile production
+          cargo build -p gear-cli -F cli --profile production
           --target ${{ matrix.target }}
 
       - name: Linux artifacts
