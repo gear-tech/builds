@@ -17,6 +17,13 @@ Packages include:
 - macOS Intel x64: <https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz>
 - Windows x64: <https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip>
 
+## Gear node v0.1.6 builds
+
+- Linux x64: <https://get.gear.rs/gear-v0.1.6-x86_64-unknown-linux-gnu.tar.xz>
+- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.6-aarch64-apple-darwin.tar.xz>
+- macOS Intel x64: <https://get.gear.rs/gear-v0.1.6-x86_64-apple-darwin.tar.xz>
+- Windows x64: <https://get.gear.rs/gear-v0.1.6-x86_64-pc-windows-msvc.zip>
+
 ## Gear node v0.1.5 builds
 
 - Linux x64: <https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu.tar.xz>
