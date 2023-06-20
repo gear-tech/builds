@@ -64,7 +64,7 @@ jobs:
           ref: ${{ matrix.ref }}
 
       - name: Setup toolchain on Linux
-        if: matrix.os != 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Add macOS ARM target
