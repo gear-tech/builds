@@ -16,18 +16,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - target: x86_64-unknown-linux-gnu
-          #   ref: master
-          #   os: ubuntu-latest
-          #   docker: amazonlinux:2
-          #   name: gear-nightly-x86_64-unknown-linux-gnu
-          #   file_name: gear-nightly-x86_64-unknown-linux-gnu.tar.xz
+          - target: x86_64-unknown-linux-gnu
+            ref: master
+            os: ubuntu-latest
+            docker: amazonlinux:2
+            name: gear-nightly-x86_64-unknown-linux-gnu
+            file_name: gear-nightly-x86_64-unknown-linux-gnu.tar.xz
 
-          # - target: x86_64-apple-darwin
-          #   ref: master
-          #   os: macOS-latest
-          #   name: gear-nightly-x86_64-apple-darwin
-          #   file_name: gear-nightly-x86_64-apple-darwin.tar.xz
+          - target: x86_64-apple-darwin
+            ref: master
+            os: macOS-latest
+            name: gear-nightly-x86_64-apple-darwin
+            file_name: gear-nightly-x86_64-apple-darwin.tar.xz
 
           - target: aarch64-apple-darwin
             ref: master
@@ -35,11 +35,11 @@ jobs:
             name: gear-nightly-aarch64-apple-darwin
             file_name: gear-nightly-aarch64-apple-darwin.tar.xz
 
-          # - target: x86_64-pc-windows-msvc
-          #   ref: master
-          #   os: windows-latest
-          #   name: gear-nightly-x86_64-pc-windows-msvc
-          #   file_name: gear-nightly-x86_64-pc-windows-msvc.zip
+          - target: x86_64-pc-windows-msvc
+            ref: master
+            os: windows-latest
+            name: gear-nightly-x86_64-pc-windows-msvc
+            file_name: gear-nightly-x86_64-pc-windows-msvc.zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
@@ -62,16 +62,6 @@ jobs:
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
-
-      # - name: Setup nightly toolchain for specified target and Wasm
-      #   uses: dtolnay/rust-toolchain@nightly
-      #   with:
-      #     targets: ${{ matrix.target }}, wasm32-unknown-unknown
-
-      # - name: Setup stable toolchain for specified target and Wasm
-      #   uses: dtolnay/rust-toolchain@stable
-      #   with:
-      #     targets: ${{ matrix.target }}, wasm32-unknown-unknown
 
       - name: Add macOS ARM target
         if: matrix.target == 'aarch64-apple-darwin'
