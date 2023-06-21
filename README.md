@@ -4,11 +4,13 @@
 
 Prebuilt Gear binaries.
 
+⚓ <https://get.gear.rs>
+
 Packages include:
 
 - `gear`[`.exe`]
 
-  Source code: <https://github.com/gear-tech/gear/tree/master/node>
+  Source code: <https://github.com/gear-tech/gear/tree/master/node/cli>
 
 ## Gear node nightly builds
 
@@ -17,49 +19,20 @@ Packages include:
 - macOS Intel x64: <https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz>
 - Windows x64: <https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip>
 
-## Gear node v0.1.6 builds
+## Gear node release builds
 
-- Linux x64: <https://get.gear.rs/gear-v0.1.6-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.6-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.6-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.6-x86_64-pc-windows-msvc.zip>
+Find them at <https://get.gear.rs>.
 
-## Gear node v0.1.5 builds
+# Installation using Homebrew (macOS)
 
-- Linux x64: <https://get.gear.rs/gear-v0.1.5-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.5-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.5-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.5-x86_64-pc-windows-msvc.zip>
+```bash
+brew tap gear-tech/gear
+brew install gear         # Latest release
+brew install gear@nightly # Latest nightly
+brew install gear@0.1.6   # Specific version
+```
 
-## Gear node v0.1.4 builds
-
-- Linux x64: <https://get.gear.rs/gear-v0.1.4-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.4-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.4-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.4-x86_64-pc-windows-msvc.zip>
-
-## Gear node v0.1.3 builds
-
-- Linux x64: <https://get.gear.rs/gear-v0.1.3-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.3-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.3-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.3-x86_64-pc-windows-msvc.zip>
-
-## Gear node v0.1.2 builds
-
-- Linux x64: <https://get.gear.rs/gear-v0.1.2-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.2-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.2-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.2-x86_64-pc-windows-msvc.zip>
-
-## Gear node v0.1.1 builds
-
-- Linux x64: <https://get.gear.rs/gear-v0.1.1-x86_64-unknown-linux-gnu.tar.xz>
-- macOS M-series (ARM): <https://get.gear.rs/gear-v0.1.1-aarch64-apple-darwin.tar.xz>
-- macOS Intel x64: <https://get.gear.rs/gear-v0.1.1-x86_64-apple-darwin.tar.xz>
-- Windows x64: <https://get.gear.rs/gear-v0.1.1-x86_64-pc-windows-msvc.zip>
-
-# Gear node install script
+# Gear node install script (Linux, macOS)
 
 Install the latest release:
 
@@ -70,5 +43,5 @@ curl -sSf https://get.gear.rs/install.sh | sh
 Install a specific version (e.g. v0.1.4):
 
 ```bash
-curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v0.1.4
+curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v0.1.6
 ```
