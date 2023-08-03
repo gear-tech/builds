@@ -78,7 +78,7 @@ jobs:
 
       - name: Install Protoc
         if: matrix.os != 'ubuntu-latest'
-        uses: arduino/setup-protoc@v1
+        uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
