@@ -56,6 +56,10 @@ const BINARIES: &[(&str, &str)] = &[
     ("vara-testnet-v1.0-aarch64-apple-darwin", "tar.xz"),
     ("vara-testnet-v1.0-x86_64-apple-darwin", "tar.xz"),
     ("vara-testnet-v1.0-x86_64-pc-windows-msvc", "zip"),
+    ("vara-debug-x86_64-unknown-linux-gnu", "tar.xz"),
+    ("vara-debug-aarch64-apple-darwin", "tar.xz"),
+    ("vara-debug-x86_64-apple-darwin", "tar.xz"),
+    ("vara-debug-x86_64-pc-windows-msvc", "zip"),
 ];
 
 fn collect_info(dir: impl AsRef<Path>) -> HashMap<String, String> {
