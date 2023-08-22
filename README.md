@@ -40,7 +40,7 @@ Install the latest release:
 curl -sSf https://get.gear.rs/install.sh | sh
 ```
 
-Install a specific version (e.g. v0.1.4):
+Install a specific version (e.g. v0.1.6):
 
 ```bash
 curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v0.1.6
