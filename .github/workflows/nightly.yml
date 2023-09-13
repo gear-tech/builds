@@ -21,32 +21,38 @@ jobs:
             os: ubuntu-latest
             docker: amazonlinux:2
             name: gear-nightly-x86_64-unknown-linux-gnu
-            file_name: gear-nightly-x86_64-unknown-linux-gnu.tar.xz
+            file_ext: tar.xz
+
+          - target: aarch64-unknown-linux-musl
+            ref: master
+            os: ubuntu-latest
+            name: gear-nightly-x86_64-unknown-linux-gnu
+            file_ext: tar.xz
 
           - target: x86_64-apple-darwin
             ref: master
             os: macOS-latest
             name: gear-nightly-x86_64-apple-darwin
-            file_name: gear-nightly-x86_64-apple-darwin.tar.xz
+            file_ext: tar.xz
 
           - target: aarch64-apple-darwin
             ref: master
             os: macOS-latest
             name: gear-nightly-aarch64-apple-darwin
-            file_name: gear-nightly-aarch64-apple-darwin.tar.xz
+            file_ext: tar.xz
 
           - target: x86_64-pc-windows-msvc
             ref: master
             os: windows-latest
             name: gear-nightly-x86_64-pc-windows-msvc
-            file_name: gear-nightly-x86_64-pc-windows-msvc.zip
+            file_ext: zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
       - name: Configure Amazon Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.target != 'aarch64-unknown-linux-musl'
         run: |
           yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
@@ -62,6 +68,11 @@ jobs:
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: builds
 
       - name: Setup toolchain on Linux
         if: matrix.os == 'ubuntu-latest'
@@ -87,18 +98,30 @@ jobs:
         run: git config --global --add safe.directory `pwd`
 
       - name: Build
+        if: matrix.target != 'aarch64-unknown-linux-musl'
         run: >
           cargo build -p gear-cli -F cli --profile production
           --target ${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.target == 'aarch64-unknown-linux-musl'
+        uses: taiki-e/install-action@cross
+
+      - name: Build for Linux on ARM
+        if: matrix.target == 'aarch64-unknown-linux-musl'
+        run: |
+          cp builds/gear.diff ./
+          git apply gear.diff
+          cross build -p gear-cli -F cli --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-version.txt
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.file_name }} gear
-          du -h ../../../${{ matrix.file_name }}
+          ./gear --version > ../../../${{ matrix.name }}-version.txt || true
+          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }}.${{ matrix.file_ext }} gear
+          du -h ../../../${{ matrix.name }}.${{ matrix.file_ext }}
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
@@ -106,8 +129,8 @@ jobs:
           cd target/${{ matrix.target }}/production
           strip gear || true
           ./gear --version > ../../../${{ matrix.name }}-version.txt || true
-          tar -cvJf ../../../${{ matrix.file_name }} gear
-          du -h ../../../${{ matrix.file_name }}
+          tar -cvJf ../../../${{ matrix.name }}.${{ matrix.file_ext }} gear
+          du -h ../../../${{ matrix.name }}.${{ matrix.file_ext }}
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
@@ -115,7 +138,7 @@ jobs:
           cd target/${{ matrix.target }}/production
           strip gear.exe
           .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-version.txt"
-          7z a "..\..\..\${{ matrix.file_name }}" gear.exe
+          7z a "..\..\..\${{ matrix.name }}.${{ matrix.file_ext }}" gear.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
@@ -123,7 +146,7 @@ jobs:
         with:
           if-no-files-found: ignore
           path: |
-            ${{ matrix.file_name }}
+            ${{ matrix.name }}.${{ matrix.file_ext }}
             ${{ matrix.name }}-version.txt
 
   deploy:
