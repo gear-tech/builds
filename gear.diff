@@ -1,0 +1,27 @@
+diff --git a/Cross.toml b/Cross.toml
+new file mode 100644
+index 00000000..f5c1c54b
+--- /dev/null
++++ b/Cross.toml
+@@ -0,0 +1,4 @@
++[build]
++pre-build = [
++    "apt update && apt install -y protobuf-compiler",
++]
+diff --git a/lazy-pages/src/sys/unix.rs b/lazy-pages/src/sys/unix.rs
+index 90b08abd..923e8d00 100644
+--- a/lazy-pages/src/sys/unix.rs
++++ b/lazy-pages/src/sys/unix.rs
+@@ -47,6 +47,12 @@ cfg_if! {
+             // Use second bit from err reg. See https://git.io/JEQn3
+             Some(error_code & 0b10 == 0b10)
+         }
++    } else if #[cfg(all(target_os = "linux", target_arch = "aarch64"))] {
++        unsafe fn ucontext_get_write(ucontext: *mut nix::libc::ucontext_t) -> Option<bool> {
++            let error_reg = nix::libc::LOG_ERR as usize;
++            let error_code = (*ucontext).uc_mcontext.regs[error_reg];
++            Some(error_code & 0b10 == 0b10)
++        }
+     } else if #[cfg(all(target_os = "macos", target_arch = "x86_64"))] {
+         unsafe fn ucontext_get_write(ucontext: *mut nix::libc::ucontext_t) -> Option<bool> {
+             // See https://wiki.osdev.org/Exceptions
