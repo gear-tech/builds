@@ -19,7 +19,6 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
-            docker: amazonlinux:2
             name: gear-nightly
             file_ext: tar.xz
 
@@ -48,21 +47,8 @@ jobs:
             file_ext: zip
 
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
-      - name: Configure Amazon Linux
-        if: matrix.os == 'ubuntu-latest' && matrix.target != 'aarch64-unknown-linux-musl'
-        run: |
-          yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz
-          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
-          chmod +x cmake-3.24.0-linux-x86_64.sh
-          ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
-          rm cmake-3.24.0-linux-x86_64.sh
-          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
-          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
-          rm protoc-3.20.2-linux-x86_64.zip
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -88,7 +74,6 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
-        if: matrix.os != 'ubuntu-latest'
         uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
