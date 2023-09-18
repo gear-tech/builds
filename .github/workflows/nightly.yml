@@ -85,7 +85,7 @@ jobs:
       - name: Build
         if: matrix.target != 'aarch64-unknown-linux-musl'
         run: >
-          cargo build -p gear-cli -F cli --profile production
+          cargo build -p gear-cli -F dev,cli --profile production
           --target ${{ matrix.target }}
 
       - name: Install cross
