@@ -1,8 +1,6 @@
-name: Nightly
+name: Key Finder
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
   workflow_dispatch:
 
 env:
@@ -10,37 +8,27 @@ env:
 
 jobs:
   build:
-    name: Build release binaries
+    name: Build `gear-key-finder` binaries
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            ref: master
-            os: ubuntu-latest
-            name: gear-nightly
-            file_ext: tar.xz
-
-          - target: aarch64-unknown-linux-musl
-            ref: master
+          - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
             name: gear-nightly
             file_ext: tar.xz
 
           - target: x86_64-apple-darwin
-            ref: master
             os: macOS-latest
             name: gear-nightly
             file_ext: tar.xz
 
           - target: aarch64-apple-darwin
-            ref: master
             os: macOS-latest
             name: gear-nightly
             file_ext: tar.xz
 
           - target: x86_64-pc-windows-msvc
-            ref: master
             os: windows-latest
             name: gear-nightly
             file_ext: zip
@@ -52,12 +40,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: gear-tech/gear
-          ref: ${{ matrix.ref }}
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          path: builds
 
       - name: Setup toolchain on Linux
         if: matrix.os == 'ubuntu-latest'
@@ -72,66 +54,38 @@ jobs:
           rustup toolchain list
           rustup target list --installed
 
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v2
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Fix for `git rev-parse`
-        if: matrix.os == 'ubuntu-latest'
-        run: git config --global --add safe.directory `pwd`
-
       - name: Build
-        if: matrix.target != 'aarch64-unknown-linux-musl'
         run: >
-          cargo build -p gear-cli -F dev,cli --profile production
+          cargo build -p gear-key-finder --profile production
           --target ${{ matrix.target }}
-
-      - name: Install cross
-        if: matrix.target == 'aarch64-unknown-linux-musl'
-        uses: taiki-e/install-action@cross
-
-      - name: Build for Linux on ARM
-        if: matrix.target == 'aarch64-unknown-linux-musl'
-        run: |
-          cp builds/gear.diff ./
-          git apply gear.diff
-          cross build -p gear-cli -F cli --profile production --target ${{ matrix.target }}
 
       - name: Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-${{ matrix.target }}-version.txt || true
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }} gear
-          du -h ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
+          XZ_OPT=-9 tar -cvJf ../../../gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }} gear-key-finder
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-${{ matrix.target }}-version.txt || true
-          tar -cvJf ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }} gear
-          du -h ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
+          tar -cvJf ../../../gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }} gear-key-finder
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
           strip gear.exe
-          .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-${{ matrix.target }}-version.txt"
-          7z a "..\..\..\${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}" gear.exe
+          7z a "..\..\..\gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}" gear-key-finder.exe
 
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
           if-no-files-found: ignore
-          path: |
-            ${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
-            ${{ matrix.name }}-${{ matrix.target }}-version.txt
+          path: gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}
 
   deploy:
     name: Deploy binaries
