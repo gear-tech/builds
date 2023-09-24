@@ -45,6 +45,8 @@ jobs:
       - name: Setup toolchain on Linux
         if: matrix.os == 'ubuntu-latest'
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Add macOS ARM target
         if: matrix.target == 'aarch64-apple-darwin'
@@ -92,7 +94,6 @@ jobs:
     name: Deploy binaries
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
