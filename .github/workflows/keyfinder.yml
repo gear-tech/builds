@@ -53,6 +53,10 @@ jobs:
         if: matrix.target == 'aarch64-apple-darwin'
         run: sed -i '' 's/"wasm32-unknown-unknown"/"aarch64-apple-darwin", "wasm32-unknown-unknown"/g' rust-toolchain.toml
 
+      - name: Add MUSL target
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sed -i '' 's/"wasm32-unknown-unknown"/"x86_64-unknown-linux-musl", "wasm32-unknown-unknown"/g' rust-toolchain.toml
+
       - name: List toolchains and targets
         run: |
           rustup toolchain list
@@ -67,21 +71,21 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear || true
+          strip gear-key-finder || true
           XZ_OPT=-9 tar -cvJf ../../../gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }} gear-key-finder
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear || true
+          strip gear-key-finder || true
           tar -cvJf ../../../gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }} gear-key-finder
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear.exe
+          strip gear-key-finder.exe
           7z a "..\..\..\gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}" gear-key-finder.exe
 
       - name: Upload artifacts
