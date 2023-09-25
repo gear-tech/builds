@@ -43,12 +43,6 @@ jobs:
         with:
           repository: gear-tech/gear
 
-      - name: Setup toolchain on Linux
-        if: matrix.os == 'ubuntu-latest'
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
       - name: Add macOS ARM target
         if: matrix.target == 'aarch64-apple-darwin'
         run: sed -i '' 's/"wasm32-unknown-unknown"/"aarch64-apple-darwin", "wasm32-unknown-unknown"/g' rust-toolchain.toml
