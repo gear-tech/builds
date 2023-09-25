@@ -89,7 +89,6 @@ jobs:
           7z a "..\..\..\gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}" gear-key-finder.exe
 
       - name: Upload artifacts
-        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
           if-no-files-found: ignore
