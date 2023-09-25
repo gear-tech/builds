@@ -2,7 +2,6 @@ name: Key Finder
 
 on:
   workflow_dispatch:
-  pull_request: # TODO: Remove after debug
 
 env:
   CARGO_TERM_COLOR: always
