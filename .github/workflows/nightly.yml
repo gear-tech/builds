@@ -61,7 +61,7 @@ jobs:
           wget https://sh.rustup.rs/rustup-init.sh
           chmod +x rustup-init.sh
           ./rustup-init.sh -y
-          echo "/root/.cargo/bin:$PATH" >> $GITHUB_PATH
+          source "$HOME/.cargo/env"
           rustup default stable
           cargo --version
           rustc --version
