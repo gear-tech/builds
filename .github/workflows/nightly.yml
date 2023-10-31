@@ -54,12 +54,12 @@ jobs:
         if: matrix.docker == 'ubuntu:14.04'
         run: |
           apt update -y && apt upgrade -y
-          apt install -y build-essential cmake git unzip wget
+          apt install -y build-essential cmake curl git unzip wget
           wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
 
-      - name: Checkout
+      - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
