@@ -18,7 +18,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
-            docker: ubuntu:14.04
+            docker: ubuntu:16.04
             name: gear-nightly
             file_ext: tar.xz
 
@@ -51,7 +51,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Configure Ubuntu Linux
-        if: matrix.docker == 'ubuntu:14.04'
+        if: matrix.docker == 'ubuntu:16.04'
         run: |
           apt update -y && apt upgrade -y
           apt install -y build-essential cmake curl git unzip wget
@@ -84,7 +84,7 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
-        if: matrix.docker != 'ubuntu:14.04'
+        if: matrix.docker != 'ubuntu:16.04'
         uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
