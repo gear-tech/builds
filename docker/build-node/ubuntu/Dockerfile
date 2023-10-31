@@ -4,23 +4,19 @@
 #     docker build .
 #
 
-FROM --platform=linux/amd64 amazonlinux:2
+FROM --platform=linux/amd64 ubuntu:14.04
 
 WORKDIR /root
 
 # Install deps
-RUN yum update -y && yum install -y clang gcc git gzip make tar wget
-RUN clang --version
-RUN gcc --version
-RUN c++ --version
-RUN git --version
+RUN apt update -y && apt upgrade -y
+RUN apt install -y build-essential cmake git unzip wget
 
-# Install CMake v3
-RUN wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
-RUN chmod +x cmake-3.24.0-linux-x86_64.sh
-RUN ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
-RUN rm cmake-3.24.0-linux-x86_64.sh
-RUN cmake --version
+# Install protoc v3
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+RUN unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
+RUN rm protoc-3.20.2-linux-x86_64.zip
+RUN protoc --version
 
 # Install Rust and toolchains
 RUN  wget https://sh.rustup.rs/rustup-init.sh
@@ -37,4 +33,5 @@ RUN git clone https://github.com/gear-tech/gear.git
 WORKDIR /root/gear
 ENV CARGO_UNSTABLE_SPARSE_REGISTRY=true
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+RUN cargo fetch
 RUN cargo build -rp gear-cli
