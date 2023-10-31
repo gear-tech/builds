@@ -18,7 +18,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
-            docker: ubuntu:16.04
+            docker: ubuntu:14.04
             name: gear-nightly
             file_ext: tar.xz
 
@@ -51,13 +51,21 @@ jobs:
     continue-on-error: true
     steps:
       - name: Configure Ubuntu Linux
-        if: matrix.docker == 'ubuntu:16.04'
+        if: matrix.docker == 'ubuntu:14.04'
         run: |
           apt update -y && apt upgrade -y
           apt install -y build-essential cmake curl git unzip wget
           wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
+          wget https://sh.rustup.rs/rustup-init.sh
+          chmod +x rustup-init.sh
+          ./rustup-init.sh -y
+          echo "/root/.cargo/bin:$PATH" >> $GITHUB_PATH
+          rustup default stable
+          cargo --version
+          rustc --version
+          rustup update nightly && rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v3
@@ -71,7 +79,7 @@ jobs:
           path: builds
 
       - name: Setup toolchain on Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.docker != 'ubuntu:14.04'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Add macOS ARM target
@@ -84,7 +92,7 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
-        if: matrix.docker != 'ubuntu:16.04'
+        if: matrix.docker != 'ubuntu:14.04'
         uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
