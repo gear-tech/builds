@@ -22,29 +22,29 @@ jobs:
             name: gear-nightly
             file_ext: tar.xz
 
-          - target: aarch64-unknown-linux-musl
-            ref: master
-            os: ubuntu-latest
-            name: gear-nightly
-            file_ext: tar.xz
+          # - target: aarch64-unknown-linux-musl
+          #   ref: master
+          #   os: ubuntu-latest
+          #   name: gear-nightly
+          #   file_ext: tar.xz
 
-          - target: x86_64-apple-darwin
-            ref: master
-            os: macOS-latest
-            name: gear-nightly
-            file_ext: tar.xz
+          # - target: x86_64-apple-darwin
+          #   ref: master
+          #   os: macOS-latest
+          #   name: gear-nightly
+          #   file_ext: tar.xz
 
-          - target: aarch64-apple-darwin
-            ref: master
-            os: macOS-latest
-            name: gear-nightly
-            file_ext: tar.xz
+          # - target: aarch64-apple-darwin
+          #   ref: master
+          #   os: macOS-latest
+          #   name: gear-nightly
+          #   file_ext: tar.xz
 
-          - target: x86_64-pc-windows-msvc
-            ref: master
-            os: windows-latest
-            name: gear-nightly
-            file_ext: zip
+          # - target: x86_64-pc-windows-msvc
+          #   ref: master
+          #   os: windows-latest
+          #   name: gear-nightly
+          #   file_ext: zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
