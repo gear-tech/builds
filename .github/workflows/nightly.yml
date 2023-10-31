@@ -18,6 +18,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
+            docker: ubuntu:18.04
             name: gear-nightly
             file_ext: tar.xz
 
@@ -46,16 +47,26 @@ jobs:
             file_ext: zip
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Configure Ubuntu Linux
+        if: matrix.docker == 'ubuntu:18.04'
+        run: |
+          apt update -y && apt upgrade -y
+          apt install -y build-essential clang cmake curl git unzip wget
+          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
+          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
+          rm protoc-3.20.2-linux-x86_64.zip
+
+      - name: Checkout `gear-tech/gear`
+        uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           path: builds
 
@@ -73,6 +84,7 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
+        if: matrix.docker != 'ubuntu:18.04'
         uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
