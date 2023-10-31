@@ -79,7 +79,7 @@ jobs:
           path: builds
 
       - name: Setup toolchain on Linux
-        if: matrix.os == 'ubuntu-latest' && matrix.docker != 'ubuntu:18.04'
+        if: matrix.os == 'ubuntu-latest'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Add macOS ARM target
