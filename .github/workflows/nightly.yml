@@ -60,13 +60,13 @@ jobs:
           rm protoc-3.20.2-linux-x86_64.zip
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           path: builds
 
