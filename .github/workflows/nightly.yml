@@ -54,18 +54,10 @@ jobs:
         if: matrix.docker == 'ubuntu:18.04'
         run: |
           apt update -y && apt upgrade -y
-          apt install -y build-essential cmake curl git unzip wget
+          apt install -y build-essential clang cmake curl git unzip wget
           wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
-          # wget https://sh.rustup.rs/rustup-init.sh
-          # chmod +x rustup-init.sh
-          # ./rustup-init.sh -y
-          # source "$HOME/.cargo/env"
-          # rustup default stable
-          # cargo --version
-          # rustc --version
-          # rustup update nightly && rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v3
