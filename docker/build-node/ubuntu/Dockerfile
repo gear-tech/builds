@@ -10,7 +10,7 @@ WORKDIR /root
 
 # Install deps
 RUN apt update -y && apt upgrade -y
-RUN apt install -y build-essential cmake git unzip wget
+RUN apt install -y build-essential clang cmake git unzip wget
 
 # Install protoc v3
 RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip

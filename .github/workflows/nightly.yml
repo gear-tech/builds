@@ -18,7 +18,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             ref: master
             os: ubuntu-latest
-            docker: ubuntu:18.04
+            docker: amazonlinux:2
             name: gear-nightly
             file_ext: tar.xz
 
@@ -50,23 +50,41 @@ jobs:
     container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
-      - name: Configure Ubuntu Linux
-        if: matrix.docker == 'ubuntu:18.04'
+      - name: Configure Amazon Linux
+        if: matrix.docker == 'amazonlinux:2'
         run: |
-          apt update -y && apt upgrade -y
-          apt install -y build-essential clang cmake curl git unzip wget
+          yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz
+          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
+          chmod +x cmake-3.24.0-linux-x86_64.sh
+          ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
+          rm cmake-3.24.0-linux-x86_64.sh
           wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
 
+      - name: Checkout `gear-tech/gear` on old Linux
+        if: matrix.docker == 'amazonlinux:2'
+        uses: actions/checkout@v3 # Using v3 as v4's Node.js doesn't work on Amazon Linux 2
+        with:
+          repository: gear-tech/gear
+          ref: ${{ matrix.ref }}
+
+      - name: Checkout on old Linux
+        if: matrix.docker == 'amazonlinux:2'
+        uses: actions/checkout@v3 # Using v3 as v4's Node.js doesn't work on Amazon Linux 2
+        with:
+          path: builds
+
       - name: Checkout `gear-tech/gear`
-        uses: actions/checkout@v3
+        if: matrix.docker != 'amazonlinux:2'
+        uses: actions/checkout@v4
         with:
           repository: gear-tech/gear
           ref: ${{ matrix.ref }}
 
       - name: Checkout
-        uses: actions/checkout@v3
+        if: matrix.docker != 'amazonlinux:2'
+        uses: actions/checkout@v4
         with:
           path: builds
 
