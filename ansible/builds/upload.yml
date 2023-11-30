@@ -22,15 +22,8 @@
         rsync_opts:
           - "--exclude=target"
 
-    - name: Update Rust
-      become: yes
-      apt:
-        name: [cargo, rustc]
-        state: latest
-        update_cache: yes
-
     - name: Publish
       become: yes
       command: >
-        cargo r --manifest-path /home/{{ user }}/gear-publish/Cargo.toml
+        /opt/rust/cargo/bin/cargo r --manifest-path /home/{{ user }}/gear-publish/Cargo.toml
         -- /var/www/{{ user }}
