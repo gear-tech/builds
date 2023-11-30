@@ -25,5 +25,5 @@
     - name: Publish
       become: yes
       command: >
-        cargo r --manifest-path /home/{{ user }}/gear-publish/Cargo.toml
+        /opt/rust/cargo/bin/cargo r --manifest-path /home/{{ user }}/gear-publish/Cargo.toml
         -- /var/www/{{ user }}
