@@ -82,7 +82,7 @@ jobs:
           7z a "..\..\..\gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}" gear-key-finder.exe
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: ignore
           path: gear-key-finder-${{ matrix.target }}.${{ matrix.file_ext }}
