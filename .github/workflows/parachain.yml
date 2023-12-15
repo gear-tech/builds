@@ -62,7 +62,7 @@ jobs:
           ./gear-collator export-genesis-wasm --chain ./gear-2000-raw.json > gear-wasm
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: artifact
 
