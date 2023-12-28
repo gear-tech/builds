@@ -62,7 +62,7 @@ jobs:
           ./gear-collator export-genesis-wasm --chain ./gear-2000-raw.json > gear-wasm
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: artifact
 
@@ -71,7 +71,7 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
 
       - name: Delete previous release
         uses: dev-drprasad/delete-tag-and-release@v1.0.1
