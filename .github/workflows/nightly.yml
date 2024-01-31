@@ -103,7 +103,7 @@ jobs:
 
       - name: Install Protoc
         if: matrix.docker != 'ubuntu:18.04'
-        uses: arduino/setup-protoc@v2
+        uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
