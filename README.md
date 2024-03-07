@@ -29,7 +29,7 @@ Find them at <https://get.gear.rs>.
 brew tap gear-tech/gear
 brew install gear         # Latest release
 brew install gear@nightly # Latest nightly
-brew install gear@0.1.6   # Specific version
+brew install gear@1.0.0   # Specific version
 ```
 
 # Gear node install script (Linux, macOS)
@@ -40,8 +40,8 @@ Install the latest release:
 curl -sSf https://get.gear.rs/install.sh | sh
 ```
 
-Install a specific version (e.g. v0.1.6):
+Install a specific version (e.g. v1.0.0):
 
 ```bash
-curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v0.1.6
+curl -sSf https://get.gear.rs/install.sh | sh -s -- --tag v1.0.0
 ```

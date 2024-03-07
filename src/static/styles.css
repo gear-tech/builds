@@ -1,0 +1,46 @@
+body {
+    background-color: #1b1b1d;
+    color: #c9d1d9;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-size: 16px;
+}
+.header, .footer {
+    color: #c9d1d9;
+    text-align: center;
+    border-bottom: 1px solid #2e2e2e;
+    padding-bottom: 12px;
+    margin: 0 auto 24px auto;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 8px;
+}
+.footer {
+    border-top: 1px solid #2e2e2e;
+    font-size: 12px;
+    padding: 16px 0;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 0;
+}
+.builds {
+    margin-bottom: 24px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+li {
+    margin-bottom: 8px;
+}
+a {
+    color: #00ffa0;
+    text-decoration: none;
+}
+a:hover {
+    color: #00ffa0;
+    text-decoration: underline;
+}

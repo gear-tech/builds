@@ -4,52 +4,58 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Tag to use for the build. Example: v1.0.0. *Null = master'
+        required: false
+        default: ''
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: eu-central-1
+  AWS_BUCKET: gear-builds
 
 jobs:
   build:
-    name: Build release binaries
+    name: Build binaries
     strategy:
       fail-fast: false
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            ref: master
             os: ubuntu-latest
             docker: amazonlinux:2
-            name: gear-nightly
             file_ext: tar.xz
 
           - target: aarch64-unknown-linux-musl
-            ref: master
             os: ubuntu-latest
-            name: gear-nightly
             file_ext: tar.xz
 
           - target: x86_64-apple-darwin
-            ref: master
             os: macOS-latest
-            name: gear-nightly
             file_ext: tar.xz
 
           - target: aarch64-apple-darwin
-            ref: master
             os: macOS-latest
-            name: gear-nightly
             file_ext: tar.xz
 
           - target: x86_64-pc-windows-msvc
-            ref: master
             os: windows-latest
-            name: gear-nightly
             file_ext: zip
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.docker }}
     continue-on-error: true
     steps:
+      - name: Set artifact name
+        run: echo "ARTIFACT_NAME=gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+
       - name: Configure Amazon Linux
         if: matrix.docker == 'amazonlinux:2'
         run: |
@@ -62,29 +68,14 @@ jobs:
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
 
-      - name: Checkout `gear-tech/gear` on old Linux
-        if: matrix.docker == 'amazonlinux:2'
-        uses: actions/checkout@v3 # Using v3 as v4's Node.js doesn't work on Amazon Linux 2
-        with:
-          repository: gear-tech/gear
-          ref: ${{ matrix.ref }}
-
-      - name: Checkout on old Linux
-        if: matrix.docker == 'amazonlinux:2'
-        uses: actions/checkout@v3 # Using v3 as v4's Node.js doesn't work on Amazon Linux 2
-        with:
-          path: builds
-
       - name: Checkout `gear-tech/gear`
-        if: matrix.docker != 'amazonlinux:2'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           repository: gear-tech/gear
-          ref: ${{ matrix.ref }}
+          ref: ${{ github.event.inputs.release_version || 'master' }}
 
-      - name: Checkout
-        if: matrix.docker != 'amazonlinux:2'
-        uses: actions/checkout@v4
+      - name: Checkout `gear-tech/builds`
+        uses: actions/checkout@v3
         with:
           path: builds
 
@@ -102,7 +93,6 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
-        if: matrix.docker != 'ubuntu:18.04'
         uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -113,9 +103,7 @@ jobs:
 
       - name: Build
         if: matrix.target != 'aarch64-unknown-linux-musl'
-        run: >
-          cargo build -p gear-cli -F cli --profile production
-          --target ${{ matrix.target }}
+        run: cargo build -p gear-cli -F cli --profile production --target ${{ matrix.target }}
 
       - name: Install cross
         if: matrix.target == 'aarch64-unknown-linux-musl'
@@ -132,59 +120,112 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-${{ matrix.target }}-version.txt || true
-          XZ_OPT=-9 tar -cvJf ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }} gear
-          du -h ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
+          XZ_OPT=-9 tar -cvJf ../../../${{ env.ARTIFACT_NAME }} gear
 
       - name: macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear || true
-          ./gear --version > ../../../${{ matrix.name }}-${{ matrix.target }}-version.txt || true
-          tar -cvJf ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }} gear
-          du -h ../../../${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
+          tar -cvJf ../../../${{ env.ARTIFACT_NAME }} gear
 
       - name: Windows artifacts
         if: matrix.os == 'windows-latest'
+        env:
+          ARTIFACT_NAME: gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}
         run: |
           cd target/${{ matrix.target }}/production
-          strip gear.exe
-          .\gear.exe --version | Out-File -FilePath "..\..\..\${{ matrix.name }}-${{ matrix.target }}-version.txt"
-          7z a "..\..\..\${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}" gear.exe
+          7z a "..\..\..\${{ env.ARTIFACT_NAME }}" gear.exe
 
       - name: Upload artifacts
-        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
+        env:
+          ARTIFACT_NAME: gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}
         with:
           if-no-files-found: ignore
-          path: |
-            ${{ matrix.name }}-${{ matrix.target }}.${{ matrix.file_ext }}
-            ${{ matrix.name }}-${{ matrix.target }}-version.txt
+          path: ${{ env.ARTIFACT_NAME }}
 
-  deploy:
-    name: Deploy binaries
+  publish:
+    name: Publish artifacts
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout `gear-tech/builds`
+        uses: actions/checkout@v3
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
       - name: List artifacts
-        run: |
-          pwd
-          ls -la artifact
+        run: ls -la artifact/
 
-      - name: Deploy
-        uses: dawidd6/action-ansible-playbook@v2
+      - name: AWS login
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          directory: ansible/builds
-          playbook: upload.yml
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          options: -u ubuntu
-          inventory: get.gear.rs
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Delete old nightly artifacts
+        if: github.event.inputs.release_version == ''
+        run: |
+          aws s3 rm s3://${{ env.AWS_BUCKET }}/ --recursive --exclude "*" --include "gear-nightly*"
+
+      - name: Publish artifacts
+        run: |
+          aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*"
+
+      - name: Generate index page
+        run: |
+          echo "<!DOCTYPE html>
+          <html lang='en'>
+          <head>
+              <meta charset='UTF-8'>
+              <title>Gear Builds</title>
+              <link rel="stylesheet" href="static/styles.css">
+              <link rel="icon" href="static/favicon.ico">
+          </head>
+          <body>
+              <div class='container'>
+                  <div class='header'>
+                      <h1>Gear Builds</h1>
+                  </div>
+                  <div class='builds'>
+                      <h3 id='gear-nightly'>Nightly Builds - <a href='#gear-nightly'>$(date -u +'%d.%m.%Y %H:%M:%S UTC')</a></h3> 
+                      <ul>" > src/index.html
+
+          artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep gear-n)
+          for artifact in $artifacts; do
+              filename=$(basename "$artifact")
+              filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
+              filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
+              echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB)</li>"
+          done >> src/index.html
+          echo "           </ul>
+                  </div>" >> src/index.html
+
+          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'gear-v' | sed -E 's/gear-v([0-9.]+)-.*/\1/' | sort -ur)
+          for version in $release_versions; do
+              echo "        <div class='builds'>
+                      <h3 id='gear-v$version'>Release Builds - <a href='#gear-v$version'>v$version</a></h3>
+                      <ul>"
+              artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "gear-v$version")
+              for artifact in $artifacts; do
+                  filename=$(basename "$artifact")
+                  filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
+                  filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
+                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB)</li>"
+          done >> src/index.html
+              echo "           </ul>
+                  </div>"
+          done >> src/index.html
+
+          echo "    </div>
+              <div class='footer'>
+                  &copy; 2024 Gear Technologies, Inc. All Rights Reserved.
+              </div>
+          </body>
+          </html>" >> src/index.html
+
+      - name: Publish index page
+        run: |
+          aws s3 sync ./src/ s3://${{ env.AWS_BUCKET }}/
