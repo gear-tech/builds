@@ -1,9 +1,0 @@
-[package]
-name = "gear-publish"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-anyhow = "1.0"
-chrono = "0.4"
-handlebars = "4.3"
