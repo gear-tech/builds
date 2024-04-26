@@ -11,7 +11,7 @@ body {
     padding-bottom: 12px;
     margin: 0 auto 24px auto;
     width: 100%;
-    max-width: 480px;
+    max-width: 800px;
     margin-bottom: 8px;
 }
 .footer {
@@ -24,7 +24,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 480px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 16px 0;
 }

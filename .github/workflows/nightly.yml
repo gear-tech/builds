@@ -9,6 +9,11 @@ on:
         description: 'Tag to use for the build. Example: v1.0.0. *Null = master'
         required: false
         default: ''
+      latest:
+        description: 'Tag as latest ?'
+        type: boolean
+        required: false
+        default: false
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -67,6 +72,9 @@ jobs:
           wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
           unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
           rm protoc-3.20.2-linux-x86_64.zip
+          wget https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+          unzip awscli-exe-linux-x86_64.zip
+          ./aws/install
 
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v3
@@ -144,6 +152,25 @@ jobs:
           if-no-files-found: ignore
           path: ${{ env.ARTIFACT_NAME }}
 
+      - name: Update latest symlink for release artifacts (Linux/macOS)
+        if: >
+          github.event.inputs.release_version != '' &&
+          github.event.inputs.latest == 'true' &&
+          runner.os != 'Windows'
+        run: |
+          latest_artifact=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, 'gear-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text)
+          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key gear-latest-${{ matrix.target }}.${{ matrix.file_ext }} --website-redirect-location /$latest_artifact
+
+      - name: Update latest symlink for release artifacts (Windows)
+        if: >
+          github.event.inputs.release_version != '' &&
+          github.event.inputs.latest == 'true' &&
+          runner.os == 'Windows'
+        run: |
+          $latest_artifact = aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, 'gear-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text
+          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "gear-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
+        shell: pwsh
+
   publish:
     name: Publish artifacts
     needs: build
@@ -190,7 +217,7 @@ jobs:
                       <h1>Gear Builds</h1>
                   </div>
                   <div class='builds'>
-                      <h3 id='gear-nightly'>Nightly Builds - <a href='#gear-nightly'>$(date -u +'%d.%m.%Y %H:%M:%S UTC')</a></h3> 
+                      <h3 id='gear-nightly'>Nightly Builds<a href='#gear-nightly'></a></h3> 
                       <ul>" > src/index.html
 
           artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep gear-n)
@@ -198,7 +225,8 @@ jobs:
               filename=$(basename "$artifact")
               filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
               filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-              echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB)</li>"
+              last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
+              echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
           done >> src/index.html
           echo "           </ul>
                   </div>" >> src/index.html
@@ -213,7 +241,8 @@ jobs:
                   filename=$(basename "$artifact")
                   filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
                   filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB)</li>"
+                  last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
+                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
           done >> src/index.html
               echo "           </ul>
                   </div>"
