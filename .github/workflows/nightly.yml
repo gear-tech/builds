@@ -35,7 +35,7 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            docker: amazonlinux:2
+            docker: amazonlinux:2023
             file_ext: tar.xz
 
           - target: aarch64-unknown-linux-musl
@@ -62,7 +62,7 @@ jobs:
         run: echo "ARTIFACT_NAME=gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
 
       - name: Configure Amazon Linux
-        if: matrix.docker == 'amazonlinux:2'
+        if: matrix.docker == 'amazonlinux:2023'
         run: |
           yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
@@ -90,6 +90,10 @@ jobs:
       - name: Setup toolchain on Linux
         if: matrix.os == 'ubuntu-latest'
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Add macOS x86 target
+        if: matrix.target == 'x86_64-apple-darwin'
+        run: sed -i '' 's/"wasm32-unknown-unknown"/"x86_64-apple-darwin", "wasm32-unknown-unknown"/g' rust-toolchain.toml
 
       - name: Add macOS ARM target
         if: matrix.target == 'aarch64-apple-darwin'
