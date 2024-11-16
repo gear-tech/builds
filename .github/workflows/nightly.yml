@@ -64,7 +64,7 @@ jobs:
       - name: Configure Amazon Linux
         if: matrix.docker == 'amazonlinux:2023'
         run: |
-          yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz
+          yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz perl-core openssl openssl-devel
           wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
           chmod +x cmake-3.24.0-linux-x86_64.sh
           ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
