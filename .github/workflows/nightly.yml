@@ -77,13 +77,13 @@ jobs:
           ./aws/install
 
       - name: Checkout `gear-tech/gear`
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: gear-tech/gear
           ref: ${{ github.event.inputs.release_version || 'master' }}
 
       - name: Checkout `gear-tech/builds`
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: builds
 
@@ -105,7 +105,7 @@ jobs:
           rustup target list --installed
 
       - name: Install Protoc
-        uses: arduino/setup-protoc@v2
+        uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -149,12 +149,15 @@ jobs:
           7z a "..\..\..\${{ env.ARTIFACT_NAME }}" gear.exe
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         env:
           ARTIFACT_NAME: gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}
         with:
-          if-no-files-found: ignore
+          name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_NAME }}
+          if-no-files-found: warn
+          compression-level: 0
+          overwrite: false
 
       - name: Update latest symlink for release artifacts (Linux/macOS)
         if: >
@@ -181,16 +184,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout `gear-tech/builds`
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: artifact
+          merge-multiple: true
 
       - name: List artifacts
         run: ls -la artifact/
 
       - name: AWS login
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
@@ -254,7 +260,7 @@ jobs:
 
           echo "    </div>
               <div class='footer'>
-                  &copy; 2024 Gear Technologies, Inc. All Rights Reserved.
+                  &copy; 2025 Gear Technologies, Inc. All Rights Reserved.
               </div>
           </body>
           </html>" >> src/index.html
