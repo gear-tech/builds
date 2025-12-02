@@ -93,11 +93,11 @@ jobs:
 
       - name: Add macOS x86 target
         if: matrix.target == 'x86_64-apple-darwin'
-        run: sed -i '' 's/"wasm32-unknown-unknown"/"x86_64-apple-darwin", "wasm32-unknown-unknown"/g' rust-toolchain.toml
+        run: sed -i '' 's/"wasm32v1-none"/"x86_64-apple-darwin", "wasm32v1-none"/g' rust-toolchain.toml
 
       - name: Add macOS ARM target
         if: matrix.target == 'aarch64-apple-darwin'
-        run: sed -i '' 's/"wasm32-unknown-unknown"/"aarch64-apple-darwin", "wasm32-unknown-unknown"/g' rust-toolchain.toml
+        run: sed -i '' 's/"wasm32v1-none"/"aarch64-apple-darwin", "wasm32v1-none"/g' rust-toolchain.toml
 
       - name: List toolchains and targets
         run: |
