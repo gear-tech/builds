@@ -20,7 +20,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  TERM: xterm-256color
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: short
+  RUSTUP_TOOLCHAIN: nightly-2025-10-20
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: eu-central-1
@@ -28,130 +31,221 @@ env:
 
 jobs:
   build:
-    name: Build binaries
+    name: ${{ matrix.binary }} / ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            docker: amazonlinux:2023
+          # Gear - Linux x86_64
+          - binary: gear
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
             file_ext: tar.xz
 
-          - target: aarch64-unknown-linux-musl
-            os: ubuntu-latest
+          # Gear - Linux ARM64
+          - binary: gear
+            os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
             file_ext: tar.xz
 
-          - target: x86_64-apple-darwin
-            os: macOS-latest
+          # Gear - macOS x86_64
+          - binary: gear
+            os: macos-latest
+            target: x86_64-apple-darwin
             file_ext: tar.xz
 
-          - target: aarch64-apple-darwin
-            os: macOS-latest
+          # Gear - macOS ARM64
+          - binary: gear
+            os: macos-latest
+            target: aarch64-apple-darwin
             file_ext: tar.xz
 
-          - target: x86_64-pc-windows-msvc
+          # Gear - Windows
+          - binary: gear
             os: windows-latest
+            target: x86_64-pc-windows-msvc
             file_ext: zip
 
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.docker }}
+          # Ethexe - Linux x86_64
+          - binary: ethexe
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            file_ext: tar.xz
+
+          # Ethexe - Linux ARM64
+          - binary: ethexe
+            os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            file_ext: tar.xz
+
+          # Ethexe - macOS x86_64
+          - binary: ethexe
+            os: macos-latest
+            target: x86_64-apple-darwin
+            file_ext: tar.xz
+
+          # Ethexe - macOS ARM64
+          - binary: ethexe
+            os: macos-latest
+            target: aarch64-apple-darwin
+            file_ext: tar.xz
+
+          # Ethexe - Windows
+          - binary: ethexe
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            file_ext: zip
+
     continue-on-error: true
     steps:
-      - name: Set artifact name
-        run: echo "ARTIFACT_NAME=gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+      - name: Enable long paths on Windows
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
 
-      - name: Configure Amazon Linux
-        if: matrix.docker == 'amazonlinux:2023'
-        run: |
-          yum update -y && yum install -y clang gcc git gzip make tar unzip wget xz perl-core openssl openssl-devel
-          wget https://cmake.org/files/v3.24/cmake-3.24.0-linux-x86_64.sh
-          chmod +x cmake-3.24.0-linux-x86_64.sh
-          ./cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/usr/local
-          rm cmake-3.24.0-linux-x86_64.sh
-          wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.2/protoc-3.20.2-linux-x86_64.zip
-          unzip protoc-3.20.2-linux-x86_64.zip -d /usr/local
-          rm protoc-3.20.2-linux-x86_64.zip
-          wget https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
-          unzip awscli-exe-linux-x86_64.zip
-          ./aws/install
+      - name: Set artifact name
+        shell: bash
+        run: echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
 
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v4
         with:
           repository: gear-tech/gear
           ref: ${{ github.event.inputs.release_version || 'master' }}
+          submodules: recursive
 
-      - name: Checkout `gear-tech/builds`
+      - name: Checkout `gear-tech/builds` (for patch)
         uses: actions/checkout@v4
         with:
           path: builds
 
-      - name: Setup toolchain on Linux
-        if: matrix.os == 'ubuntu-latest'
+      # =========== Rust Toolchain Setup ===========
+      
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add macOS x86 target
-        if: matrix.target == 'x86_64-apple-darwin'
-        run: sed -i '' 's/"wasm32v1-none"/"x86_64-apple-darwin", "wasm32v1-none"/g' rust-toolchain.toml
-
-      - name: Add macOS ARM target
-        if: matrix.target == 'aarch64-apple-darwin'
-        run: sed -i '' 's/"wasm32v1-none"/"aarch64-apple-darwin", "wasm32v1-none"/g' rust-toolchain.toml
+        with:
+          toolchain: ${{ env.RUSTUP_TOOLCHAIN }}
+          targets: wasm32v1-none
+      
+      - name: Add target
+        shell: bash
+        run: rustup target add ${{ matrix.target }}
 
       - name: List toolchains and targets
         run: |
           rustup toolchain list
           rustup target list --installed
 
+      # =========== Cache ===========
+
+      - name: Cache Cargo registry (non-ARM)
+        if: runner.arch != 'ARM64'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo registry (ARM)
+        if: runner.arch == 'ARM64'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-arm64-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-arm64-cargo-registry-
+
+      - name: Cache Cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-${{ matrix.target }}-${{ matrix.binary }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.target }}-${{ matrix.binary }}-cargo-build-
+
+      # =========== Dependencies ===========
+
+      - name: Fix git safe directory
+        if: runner.os == 'Linux'
+        run: git config --global --add safe.directory $(pwd)
+
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fix for `git rev-parse`
-        if: matrix.os == 'ubuntu-latest'
-        run: git config --global --add safe.directory `pwd`
+      - name: Install Linux packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler libssl-dev pkg-config
+      
+      - name: Install macOS packages
+        if: runner.os == 'macOS'
+        run: |
+          brew install protobuf openssl@3
+
+      - name: Install Windows OpenSSL
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install openssl -y
+          refreshenv
+
+      # =========== Ethexe Contracts ===========
+
+      - name: Setup Foundry (for ethexe contracts)
+        if: matrix.binary == 'ethexe'
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build ethexe contracts
+        if: matrix.binary == 'ethexe'
+        shell: bash
+        run: make ethexe-contracts-pre-commit
+
+      # =========== Build ===========
 
       - name: Build
-        if: matrix.target != 'aarch64-unknown-linux-musl'
-        run: cargo build -p gear-cli -F cli --profile production --target ${{ matrix.target }}
+        shell: bash
+        run: cargo build -p ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }}
 
-      - name: Install cross
-        if: matrix.target == 'aarch64-unknown-linux-musl'
-        uses: taiki-e/install-action@cross
+      # =========== Package ===========
 
-      - name: Build for Linux on ARM
-        if: matrix.target == 'aarch64-unknown-linux-musl'
-        run: |
-          cp builds/gear.diff ./
-          git apply gear.diff
-          cross build -p gear-cli -F cli --profile production --target ${{ matrix.target }}
-
-      - name: Linux artifacts
-        if: matrix.os == 'ubuntu-latest'
+      - name: Package Linux
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
           cd target/${{ matrix.target }}/production
-          XZ_OPT=-9 tar -cvJf ../../../${{ env.ARTIFACT_NAME }} gear
+          XZ_OPT=-9 tar -cvJf "../../../${{ env.ARTIFACT_NAME }}" ${{ matrix.binary }}
 
-      - name: macOS artifacts
-        if: matrix.os == 'macos-latest'
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        shell: bash
         run: |
           cd target/${{ matrix.target }}/production
-          tar -cvJf ../../../${{ env.ARTIFACT_NAME }} gear
+          tar -cvJf "../../../${{ env.ARTIFACT_NAME }}" ${{ matrix.binary }}
 
-      - name: Windows artifacts
-        if: matrix.os == 'windows-latest'
-        env:
-          ARTIFACT_NAME: gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
           cd target/${{ matrix.target }}/production
-          7z a "..\..\..\${{ env.ARTIFACT_NAME }}" gear.exe
+          7z a "../../../${{ env.ARTIFACT_NAME }}" ${{ matrix.binary }}.exe
+
+      # =========== Upload ===========
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
-        env:
-          ARTIFACT_NAME: gear-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_NAME }}
@@ -159,29 +253,30 @@ jobs:
           compression-level: 0
           overwrite: false
 
-      - name: Update latest symlink for release artifacts (Linux/macOS)
+      - name: Update latest symlink for release (Linux/macOS)
         if: >
           github.event.inputs.release_version != '' &&
           github.event.inputs.latest == 'true' &&
           runner.os != 'Windows'
+        shell: bash
         run: |
-          latest_artifact=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, 'gear-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text)
-          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key gear-latest-${{ matrix.target }}.${{ matrix.file_ext }} --website-redirect-location /$latest_artifact
+          latest_artifact=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, '${{ matrix.binary }}-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text)
+          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "${{ matrix.binary }}-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
 
-      - name: Update latest symlink for release artifacts (Windows)
+      - name: Update latest symlink for release (Windows)
         if: >
           github.event.inputs.release_version != '' &&
           github.event.inputs.latest == 'true' &&
           runner.os == 'Windows'
-        run: |
-          $latest_artifact = aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, 'gear-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text
-          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "gear-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
         shell: pwsh
+        run: |
+          $latest_artifact = aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, '${{ matrix.binary }}-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text
+          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "${{ matrix.binary }}-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
 
   publish:
     name: Publish artifacts
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout `gear-tech/builds`
         uses: actions/checkout@v4
@@ -206,10 +301,11 @@ jobs:
         if: github.event.inputs.release_version == ''
         run: |
           aws s3 rm s3://${{ env.AWS_BUCKET }}/ --recursive --exclude "*" --include "gear-nightly*"
+          aws s3 rm s3://${{ env.AWS_BUCKET }}/ --recursive --exclude "*" --include "ethexe-nightly*"
 
       - name: Publish artifacts
         run: |
-          aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*"
+          aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*" --include "ethexe-*"
 
       - name: Generate index page
         run: |
@@ -225,43 +321,111 @@ jobs:
               <div class='container'>
                   <div class='header'>
                       <h1>Gear Builds</h1>
+                      <div class='tabs'>
+                          <button class='tab active' onclick='switchTab(\"gear\")'>vara</button>
+                          <button class='tab' onclick='switchTab(\"ethexe\")'>vara-eth</button>
+                      </div>
                   </div>
-                  <div class='builds'>
-                      <h3 id='gear-nightly'>Nightly Builds<a href='#gear-nightly'></a></h3> 
-                      <ul>" > src/index.html
+                  <div id='gear-tab' class='tab-content active'>
+                      <div class='builds'>
+                          <h3 id='gear-nightly'>Nightly Builds</h3>
+                          <ul>" > src/index.html
 
           artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep gear-n)
-          for artifact in $artifacts; do
-              filename=$(basename "$artifact")
-              filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
-              filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-              last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
-              echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-          done >> src/index.html
-          echo "           </ul>
-                  </div>" >> src/index.html
-
-          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'gear-v' | sed -E 's/gear-v([0-9.]+)-.*/\1/' | sort -ur)
-          for version in $release_versions; do
-              echo "        <div class='builds'>
-                      <h3 id='gear-v$version'>Release Builds - <a href='#gear-v$version'>v$version</a></h3>
-                      <ul>"
-              artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "gear-v$version")
+          if [ -z "$artifacts" ]; then
+              echo "                <li>No nightly builds available</li>" >> src/index.html
+          else
               for artifact in $artifacts; do
                   filename=$(basename "$artifact")
                   filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
                   filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
                   last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
                   echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-          done >> src/index.html
-              echo "           </ul>
-                  </div>"
-          done >> src/index.html
+              done >> src/index.html
+          fi
+          echo "           </ul>
+                      </div>" >> src/index.html
 
+          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'gear-v' | sed -E 's/gear-v([0-9.]+)-.*/\1/' | sort -uV | tac)
+          if [ -z "$release_versions" ]; then
+              echo "        <div class='builds'>
+                          <h3>Release Builds</h3>
+                          <p>No release builds available</p>
+                      </div>" >> src/index.html
+          else
+              for version in $release_versions; do
+                  echo "        <div class='builds'>
+                          <h3 id='gear-v$version'>Release v$version</h3>
+                          <ul>"
+                  artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "gear-v$version")
+                  for artifact in $artifacts; do
+                      filename=$(basename "$artifact")
+                      filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
+                      filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
+                      last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
+                      echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
+              done >> src/index.html
+                  echo "           </ul>
+                      </div>"
+              done >> src/index.html
+          fi
+          echo "    </div>" >> src/index.html
+
+          echo "        <div id='ethexe-tab' class='tab-content'>
+                      <div class='builds'>
+                          <h3 id='ethexe-nightly'>Nightly Builds</h3>
+                          <ul>" >> src/index.html
+          artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep ethexe-n)
+          if [ -z "$artifacts" ]; then
+              echo "                <li>No nightly builds available</li>" >> src/index.html
+          else
+              for artifact in $artifacts; do
+                  filename=$(basename "$artifact")
+                  filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
+                  filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
+                  last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
+                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
+              done >> src/index.html
+          fi
+          echo "           </ul>
+                      </div>" >> src/index.html
+
+          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'ethexe-v' | sed -E 's/ethexe-v([0-9.]+)-.*/\1/' | sort -uV | tac)
+          if [ -z "$release_versions" ]; then
+              echo "        <div class='builds'>
+                          <h3>Release Builds</h3>
+                          <p>No release builds available</p>
+                      </div>" >> src/index.html
+          else
+              for version in $release_versions; do
+                  echo "        <div class='builds'>
+                          <h3 id='ethexe-v$version'>Release v$version</h3>
+                          <ul>"
+                  artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "ethexe-v$version")
+                  for artifact in $artifacts; do
+                      filename=$(basename "$artifact")
+                      filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
+                      filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
+                      last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
+                      echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
+              done >> src/index.html
+                  echo "           </ul>
+                      </div>"
+              done >> src/index.html
+          fi
           echo "    </div>
+              </div>
               <div class='footer'>
                   &copy; 2025 Gear Technologies, Inc. All Rights Reserved.
               </div>
+              <script>
+                  function switchTab(tab) {
+                      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                      document.querySelector(\".tab[onclick*='\" + tab + \"']\").classList.add('active');
+                      document.getElementById(tab + '-tab').classList.add('active');
+                  }
+              </script>
           </body>
           </html>" >> src/index.html
 

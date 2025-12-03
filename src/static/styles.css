@@ -4,21 +4,26 @@ body {
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     font-size: 16px;
 }
-.header, .footer {
+.header {
     color: #c9d1d9;
     text-align: center;
-    border-bottom: 1px solid #2e2e2e;
-    padding-bottom: 12px;
+    padding-bottom: 0;
     margin: 0 auto 24px auto;
     width: 100%;
     max-width: 800px;
     margin-bottom: 8px;
 }
 .footer {
+    color: #c9d1d9;
+    text-align: center;
     border-top: 1px solid #2e2e2e;
     font-size: 12px;
     padding: 16px 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 800px;
 }
+
 .container {
     display: flex;
     flex-direction: column;
@@ -43,4 +48,36 @@ a {
 a:hover {
     color: #00ffa0;
     text-decoration: underline;
+}
+.tabs {
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 10px 0 0 0;
+    border-bottom: 2px solid #888888;
+    justify-content: center;
+}
+.tab {
+    padding: 8px 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #c9d1d9;
+    font-size: 15px;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+.tab:hover {
+    color: #00ffa0;
+}
+.tab.active {
+    color: #00ffa0;
+    border-bottom-color: #00ffa0;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
 }
