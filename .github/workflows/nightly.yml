@@ -13,7 +13,7 @@ on:
         description: 'Tag as latest ?'
         type: boolean
         required: false
-        default: false
+        default: true
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -281,6 +281,12 @@ jobs:
       - name: Checkout `gear-tech/builds`
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "25"
+          cache: "npm"
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -307,128 +313,10 @@ jobs:
         run: |
           aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*" --include "ethexe-*"
 
-      - name: Generate index page
-        run: |
-          echo "<!DOCTYPE html>
-          <html lang='en'>
-          <head>
-              <meta charset='UTF-8'>
-              <title>Gear Builds</title>
-              <link rel="stylesheet" href="static/styles.css">
-              <link rel="icon" href="static/favicon.ico">
-          </head>
-          <body>
-              <div class='container'>
-                  <div class='header'>
-                      <h1>Gear Builds</h1>
-                      <div class='tabs'>
-                          <button class='tab active' onclick='switchTab(\"gear\")'>vara</button>
-                          <button class='tab' onclick='switchTab(\"ethexe\")'>vara-eth</button>
-                      </div>
-                  </div>
-                  <div id='gear-tab' class='tab-content active'>
-                      <div class='builds'>
-                          <h3 id='gear-nightly'>Nightly Builds</h3>
-                          <ul>" > src/index.html
+      - name: Generate static
+        run: | 
+          npm ci
+          npm run gen:builds
 
-          artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep gear-n)
-          if [ -z "$artifacts" ]; then
-              echo "                <li>No nightly builds available</li>" >> src/index.html
-          else
-              for artifact in $artifacts; do
-                  filename=$(basename "$artifact")
-                  filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
-                  filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-                  last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
-                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-              done >> src/index.html
-          fi
-          echo "           </ul>
-                      </div>" >> src/index.html
-
-          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'gear-v' | sed -E 's/gear-v([0-9.]+)-.*/\1/' | sort -uV | tac)
-          if [ -z "$release_versions" ]; then
-              echo "        <div class='builds'>
-                          <h3>Release Builds</h3>
-                          <p>No release builds available</p>
-                      </div>" >> src/index.html
-          else
-              for version in $release_versions; do
-                  echo "        <div class='builds'>
-                          <h3 id='gear-v$version'>Release v$version</h3>
-                          <ul>"
-                  artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "gear-v$version")
-                  for artifact in $artifacts; do
-                      filename=$(basename "$artifact")
-                      filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
-                      filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-                      last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
-                      echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-              done >> src/index.html
-                  echo "           </ul>
-                      </div>"
-              done >> src/index.html
-          fi
-          echo "    </div>" >> src/index.html
-
-          echo "        <div id='ethexe-tab' class='tab-content'>
-                      <div class='builds'>
-                          <h3 id='ethexe-nightly'>Nightly Builds</h3>
-                          <ul>" >> src/index.html
-          artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep ethexe-n)
-          if [ -z "$artifacts" ]; then
-              echo "                <li>No nightly builds available</li>" >> src/index.html
-          else
-              for artifact in $artifacts; do
-                  filename=$(basename "$artifact")
-                  filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
-                  filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-                  last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
-                  echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-              done >> src/index.html
-          fi
-          echo "           </ul>
-                      </div>" >> src/index.html
-
-          release_versions=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'Contents[].Key' | jq -r '.[]' | grep 'ethexe-v' | sed -E 's/ethexe-v([0-9.]+)-.*/\1/' | sort -uV | tac)
-          if [ -z "$release_versions" ]; then
-              echo "        <div class='builds'>
-                          <h3>Release Builds</h3>
-                          <p>No release builds available</p>
-                      </div>" >> src/index.html
-          else
-              for version in $release_versions; do
-                  echo "        <div class='builds'>
-                          <h3 id='ethexe-v$version'>Release v$version</h3>
-                          <ul>"
-                  artifacts=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --region ${{ env.AWS_REGION }} --query 'reverse(sort_by(Contents, &LastModified))[].Key' | jq -r '.[]' | grep "ethexe-v$version")
-                  for artifact in $artifacts; do
-                      filename=$(basename "$artifact")
-                      filesize_bytes=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'ContentLength' --output text)
-                      filesize_mb=$(echo "$filesize_bytes / 1024 / 1024" | bc -l | xargs printf "%.2f")
-                      last_modified=$(aws s3api head-object --bucket ${{ env.AWS_BUCKET }} --key "$artifact" --region ${{ env.AWS_REGION }} --query 'LastModified' --output text | xargs -I {} date -u -d {} "+%d.%m.%Y %H:%M:%S UTC")
-                      echo "                <li><a href='https://${{ env.AWS_BUCKET }}.s3.amazonaws.com/$filename'>$filename</a> ($filesize_mb MB, $last_modified)</li>"
-              done >> src/index.html
-                  echo "           </ul>
-                      </div>"
-              done >> src/index.html
-          fi
-          echo "    </div>
-              </div>
-              <div class='footer'>
-                  &copy; 2025 Gear Technologies, Inc. All Rights Reserved.
-              </div>
-              <script>
-                  function switchTab(tab) {
-                      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                      document.querySelector(\".tab[onclick*='\" + tab + \"']\").classList.add('active');
-                      document.getElementById(tab + '-tab').classList.add('active');
-                  }
-              </script>
-          </body>
-          </html>" >> src/index.html
-
-      - name: Publish index page
-        run: |
-          aws s3 sync ./src/ s3://${{ env.AWS_BUCKET }}/
+      - name: Publish static to S3
+        run: aws s3 sync ./src/ s3://${{ env.AWS_BUCKET }}/

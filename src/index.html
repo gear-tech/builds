@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gear Builds</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="static/styles.css" />
+    <link rel="icon" href="static/favicon.ico" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Gear Builds</h1>
+        <div class="tabs">
+          <a class="tab active" href="#vara" data-tab="gear">vara</a>
+          <a class="tab" href="#vara-eth" data-tab="ethexe">vara-eth</a>
+        </div>
+      </div>
+
+      <div id="gear-tab" class="tab-content active">
+        <div class="builds">
+          <h3 id="gear-nightly">Nightly</h3>
+          <div id="gear-nightly-list" class="build-list">
+            Loading nightly builds...
+          </div>
+        </div>
+        <div class="builds">
+          <h3>Release</h3>
+          <div id="gear-releases" class="build-list">
+            Loading release builds...
+          </div>
+        </div>
+      </div>
+
+      <div id="ethexe-tab" class="tab-content">
+        <div class="builds">
+          <h3 id="ethexe-nightly">Nightly</h3>
+          <div id="ethexe-nightly-list" class="build-list">
+            Loading nightly builds...
+          </div>
+        </div>
+        <div class="builds">
+          <h3>Release</h3>
+          <div id="ethexe-releases" class="build-list">
+            Loading release builds...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      &copy; <span id="year"></span> Gear Technologies, Inc. All Rights Reserved.
+    </div>
+
+    <script src="static/app.js" type="module"></script>
+  </body>
+</html>
