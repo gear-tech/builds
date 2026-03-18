@@ -202,17 +202,6 @@ jobs:
           choco install openssl -y
           refreshenv
 
-      # =========== Ethexe Contracts ===========
-
-      - name: Setup Foundry (for ethexe contracts)
-        if: matrix.binary == 'ethexe'
-        uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Build ethexe contracts
-        if: matrix.binary == 'ethexe'
-        shell: bash
-        run: make ethexe-contracts-pre-commit
-
       # =========== Build ===========
 
       - name: Build
