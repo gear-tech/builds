@@ -204,7 +204,7 @@ jobs:
 
       - name: "Install: Packages from Scoop (Windows)"
         if: runner.os == 'Windows'
-        uses: MinoruSekine/setup-scoop@v4.0.1
+        uses: MinoruSekine/setup-scoop@v4.0.2
         with:
           apps: >-
             perl
