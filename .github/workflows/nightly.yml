@@ -195,6 +195,31 @@ jobs:
         run: |
           brew install protobuf openssl@3
 
+      - name: "Install: Setup MSYS2 environment"
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          path-type: inherit
+          install: procps
+
+      - name: "Install: Packages from Scoop"
+        if: runner.os == 'Windows'
+        uses: MinoruSekine/setup-scoop@v4.0.1
+        with:
+          apps: >-
+            perl
+            binaryen
+            wabt
+            protobuf
+          buckets: extras
+
+      - name: "Install: Set `OPENSSL_SRC_PERL` environment variable"
+        if: runner.os == 'Windows'
+        run: |
+          $perl = Resolve-Path "~\scoop\apps\perl\current\perl\bin\perl.exe"
+          Add-Content -Path $Env:GITHUB_ENV -Value "OPENSSL_SRC_PERL=$perl"
+        shell: powershell
+
       - name: Install Windows OpenSSL
         if: runner.os == 'Windows'
         shell: pwsh
