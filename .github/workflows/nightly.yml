@@ -314,7 +314,7 @@ jobs:
           cache: "npm"
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifact
           merge-multiple: true
@@ -323,7 +323,7 @@ jobs:
         run: ls -la artifact/
 
       - name: AWS login
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
