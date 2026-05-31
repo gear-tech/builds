@@ -183,7 +183,7 @@ jobs:
 
       # TODO: swicth back to `arduino/setup-protoc@v3` after it supports Node 24
       - name: Install Protoc
-        uses: benjyw/setup-protoc@node24
+        uses: StackOverflowExcept1on/setup-protoc@node24
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
