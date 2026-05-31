@@ -107,6 +107,7 @@ jobs:
         shell: bash
         run: |
           echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> $GITHUB_ENV
 
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v6
@@ -234,7 +235,6 @@ jobs:
         run: cargo build --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }}
 
       - name: Build Debian package (Linux)
-        id: debian_package
         if: runner.os == 'Linux'
         shell: bash
         run: |
@@ -250,10 +250,10 @@ jobs:
             echo "Debian package was not found"
             exit 1
           fi
+          cp "$DEB_PATH" "${{ env.DEB_ARTIFACT_NAME }}"
           DEB_FILE_NAME=$(basename "$DEB_PATH")
-          echo "DEB_FILE_NAME=$DEB_FILE_NAME" >> "$GITHUB_ENV"
-          echo "deb_file_name=$DEB_FILE_NAME" >> "$GITHUB_OUTPUT"
-          cp "$DEB_PATH" "$DEB_FILE_NAME"
+          mkdir -p aptly
+          cp "$DEB_PATH" "aptly/$DEB_FILE_NAME"
 
       # =========== Package ===========
 
@@ -293,8 +293,8 @@ jobs:
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.debian_package.outputs.deb_file_name }}
-          path: ${{ steps.debian_package.outputs.deb_file_name }}
+          name: ${{ env.DEB_ARTIFACT_NAME }}
+          path: ${{ env.DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
           overwrite: false
@@ -349,13 +349,15 @@ jobs:
         run: |
           DIR="nightly"
           NAME="nightly"
-          find artifact -maxdepth 1 -type f \( -name "gear-cli_*.deb" -o -name "ethexe-cli_*.deb" \) -print0 |
+          cd aptly
+          find . -maxdepth 1 -type f -name "*.deb" -print0 |
             while IFS= read -r -d '' deb_path; do
               FILE=$(basename "$deb_path")
-              DIR_AND_FILE=$(curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST -F "file=@$deb_path;filename=$FILE" "$APTLY_API_URL/api/files/$DIR" | jq -r '.[0]')
+              DIR_AND_FILE=$(curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST -F "file=@$FILE" "$APTLY_API_URL/api/files/$DIR" | jq -r '.[0]')
               echo "$DIR_AND_FILE"
               curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST "$APTLY_API_URL/api/repos/$NAME/file/$DIR_AND_FILE" | jq -r '.Report.Added[]'
             done
+          cd ..
 
           curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X PUT -H "Content-Type: application/json" -d '{"Signing": {"Passphrase": "'"$APTLY_API_GPG_PASSWORD"'"}}' "$APTLY_API_URL/api/publish/:./nightly"
 
