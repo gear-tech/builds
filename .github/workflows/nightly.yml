@@ -182,8 +182,9 @@ jobs:
         run: git config --global --add safe.directory $(pwd)
 
       # TODO: swicth back to `arduino/setup-protoc@v3` after it supports Node 24
+      #       https://github.com/arduino/setup-protoc/pull/113
       - name: Install Protoc
-        uses: StackOverflowExcept1on/setup-protoc@node24
+        uses: StackOverflowExcept1on/setup-protoc@3c8638272249639ffb4bc8571caff93ee0383579
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -241,7 +242,7 @@ jobs:
           if [ -n "${{ github.event.inputs.release_version }}" ]; then
             VERSION="${BASE_VERSION}"
           else
-            VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d).git$(git rev-parse --short HEAD)"
+            VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d.%H%M%S).git$(git rev-parse --short HEAD)"
           fi
           cargo deb --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }} --deb-version "$VERSION"
           DEB_PATH=$(find target -path '*/debian/${{ matrix.binary }}-cli_*.deb' -print -quit)
@@ -349,7 +350,7 @@ jobs:
             done
 
       - name: Generate static
-        run: | 
+        run: |
           npm ci
           npm run gen:builds
 
