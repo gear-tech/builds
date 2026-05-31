@@ -43,7 +43,7 @@ async function listAllObjects() {
 function parseKey(
   key: string,
 ): { product: Product; version: string; target: string } | null {
-  const m = key.match(/^(gear|ethexe)-(nightly|v[0-9.]+)-(.+)\.(?:tar\.xz|zip)$/);
+  const m = key.match(/^(gear|ethexe)-(nightly|v[0-9.]+)-(.+)\.(?:tar\.xz|zip|deb)$/);
   if (!m) return null;
   return { product: m[1] as Product, version: m[2], target: m[3] };
 }

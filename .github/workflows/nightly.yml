@@ -39,7 +39,7 @@ jobs:
         include:
           # Gear - Linux x86_64
           - binary: gear
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             file_ext: tar.xz
 
@@ -69,7 +69,7 @@ jobs:
 
           # Ethexe - Linux x86_64
           - binary: ethexe
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             file_ext: tar.xz
 
@@ -105,22 +105,24 @@ jobs:
 
       - name: Set artifact name
         shell: bash
-        run: echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+        run: |
+          echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> $GITHUB_ENV
 
       - name: Checkout `gear-tech/gear`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: gear-tech/gear
           ref: ${{ github.event.inputs.release_version || 'master' }}
           submodules: recursive
 
       - name: Checkout `gear-tech/builds` (for patch)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: builds
 
       # =========== Rust Toolchain Setup ===========
-      
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -189,7 +191,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler libssl-dev pkg-config
-      
+
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall --no-confirm cargo-deb
+
       - name: Install macOS packages
         if: runner.os == 'macOS'
         run: |
@@ -222,9 +227,27 @@ jobs:
 
       # =========== Build ===========
 
-      - name: Build
+      - name: Build Binary
         shell: bash
-        run: cargo build -p ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }}
+        run: cargo build --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }}
+
+      - name: Build Debian package (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          BASE_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "${{ matrix.binary }}-cli") | .version')
+          if [ -n "${{ github.event.inputs.release_version }}" ]; then
+            VERSION="${BASE_VERSION}"
+          else
+            VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d).git$(git rev-parse --short HEAD)"
+          fi
+          cargo deb --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }} --deb-version "$VERSION"
+          DEB_PATH=$(find target -path '*/debian/${{ matrix.binary }}-cli_*.deb' -print -quit)
+          if [ -z "$DEB_PATH" ]; then
+            echo "Debian package was not found"
+            exit 1
+          fi
+          cp "$DEB_PATH" "${{ env.DEB_ARTIFACT_NAME }}"
 
       # =========== Package ===========
 
@@ -260,38 +283,28 @@ jobs:
           compression-level: 0
           overwrite: false
 
-      - name: Update latest symlink for release (Linux/macOS)
-        if: >
-          github.event.inputs.release_version != '' &&
-          github.event.inputs.latest == 'true' &&
-          runner.os != 'Windows'
-        shell: bash
-        run: |
-          latest_artifact=$(aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, '${{ matrix.binary }}-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text)
-          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "${{ matrix.binary }}-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
-
-      - name: Update latest symlink for release (Windows)
-        if: >
-          github.event.inputs.release_version != '' &&
-          github.event.inputs.latest == 'true' &&
-          runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $latest_artifact = aws s3api list-objects --bucket ${{ env.AWS_BUCKET }} --query "reverse(sort_by(Contents, &LastModified))[?contains(Key, '${{ matrix.binary }}-${{ github.event.inputs.release_version }}-${{ matrix.target }}')].[Key]" --output text
-          aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "${{ matrix.binary }}-latest-${{ matrix.target }}.${{ matrix.file_ext }}" --website-redirect-location "/$latest_artifact"
+      - name: Upload Debian package
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.DEB_ARTIFACT_NAME }}
+          path: ${{ env.DEB_ARTIFACT_NAME }}
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: false
 
   publish:
     name: Publish artifacts
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout `gear-tech/builds`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "25"
+          node-version: "26"
           cache: "npm"
 
       - name: Download artifacts
@@ -319,6 +332,19 @@ jobs:
       - name: Publish artifacts
         run: |
           aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*" --include "ethexe-*"
+
+      - name: Update latest symlinks for release
+        if: >
+          github.event.inputs.release_version != '' &&
+          github.event.inputs.latest == 'true'
+        shell: bash
+        run: |
+          find artifact -maxdepth 1 -type f \( -name "gear-${{ github.event.inputs.release_version }}-*" -o -name "ethexe-${{ github.event.inputs.release_version }}-*" \) -print0 |
+            while IFS= read -r -d '' artifact; do
+              key=$(basename "$artifact")
+              latest_key=${key/${{ github.event.inputs.release_version }}/latest}
+              aws s3api put-object --bucket ${{ env.AWS_BUCKET }} --key "$latest_key" --website-redirect-location "/$key"
+            done
 
       - name: Generate static
         run: | 
