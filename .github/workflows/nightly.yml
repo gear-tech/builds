@@ -41,12 +41,14 @@ jobs:
           - binary: gear
             os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
+            deb_target: amd64
             file_ext: tar.xz
 
           # Gear - Linux ARM64
           - binary: gear
             os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+            deb_target: arm64
             file_ext: tar.xz
 
           # Gear - macOS x86_64
@@ -71,12 +73,14 @@ jobs:
           - binary: ethexe
             os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
+            deb_target: amd64
             file_ext: tar.xz
 
           # Ethexe - Linux ARM64
           - binary: ethexe
             os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+            deb_target: arm64
             file_ext: tar.xz
 
           # Ethexe - macOS x86_64
@@ -103,18 +107,28 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
 
-      - name: Set artifact name
-        shell: bash
-        run: |
-          echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
-          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> $GITHUB_ENV
-
       - name: Checkout `gear-tech/gear`
         uses: actions/checkout@v6
         with:
           repository: gear-tech/gear
           ref: ${{ github.event.inputs.release_version || 'master' }}
           submodules: recursive
+
+      - name: Set artifact names and Debian version
+        shell: bash
+        run: |
+          echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
+          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> $GITHUB_ENV
+
+          BASE_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "${{ matrix.binary }}-cli") | .version')
+          if [ -n "${{ github.event.inputs.release_version }}" ]; then
+            DEB_VERSION="${BASE_VERSION}"
+          else
+            DEB_VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d).git$(git rev-parse --short HEAD)"
+          fi
+
+          echo "DEB_VERSION=${DEB_VERSION}" >> $GITHUB_ENV
+          echo "APTLY_DEB_ARTIFACT_NAME=aptly-${{ matrix.binary }}-cli_${DEB_VERSION}_${{ matrix.deb_target }}.deb" >> $GITHUB_ENV
 
       - name: Checkout `gear-tech/builds` (for patch)
         uses: actions/checkout@v6
@@ -238,22 +252,14 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          BASE_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "${{ matrix.binary }}-cli") | .version')
-          if [ -n "${{ github.event.inputs.release_version }}" ]; then
-            VERSION="${BASE_VERSION}"
-          else
-            VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d.%H%M%S).git$(git rev-parse --short HEAD)"
-          fi
-          cargo deb --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }} --deb-version "$VERSION"
+          cargo deb --package ${{ matrix.binary }}-cli --profile production --target ${{ matrix.target }} --deb-version "${{ env.DEB_VERSION }}"
           DEB_PATH=$(find target -path '*/debian/${{ matrix.binary }}-cli_*.deb' -print -quit)
           if [ -z "$DEB_PATH" ]; then
             echo "Debian package was not found"
             exit 1
           fi
           cp "$DEB_PATH" "${{ env.DEB_ARTIFACT_NAME }}"
-          DEB_FILE_NAME=$(basename "$DEB_PATH")
-          mkdir -p aptly
-          cp "$DEB_PATH" "aptly/$DEB_FILE_NAME"
+          cp "$DEB_PATH" "${{ env.APTLY_DEB_ARTIFACT_NAME }}"
 
       # =========== Package ===========
 
@@ -295,6 +301,16 @@ jobs:
         with:
           name: ${{ env.DEB_ARTIFACT_NAME }}
           path: ${{ env.DEB_ARTIFACT_NAME }}
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: false
+
+      - name: Upload Debian package (aptly)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APTLY_DEB_ARTIFACT_NAME }}
+          path: ${{ env.APTLY_DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
           overwrite: false
@@ -349,15 +365,13 @@ jobs:
         run: |
           DIR="nightly"
           NAME="nightly"
-          cd aptly
-          find . -maxdepth 1 -type f -name "*.deb" -print0 |
+          find artifact -maxdepth 1 -type f -name "aptly-*.deb" -print0 |
             while IFS= read -r -d '' deb_path; do
               FILE=$(basename "$deb_path")
-              DIR_AND_FILE=$(curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST -F "file=@$FILE" "$APTLY_API_URL/api/files/$DIR" | jq -r '.[0]')
+              DIR_AND_FILE=$(curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST -F "file=@$deb_path;filename=$FILE" "$APTLY_API_URL/api/files/$DIR" | jq -r '.[0]')
               echo "$DIR_AND_FILE"
               curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X POST "$APTLY_API_URL/api/repos/$NAME/file/$DIR_AND_FILE" | jq -r '.Report.Added[]'
             done
-          cd ..
 
           curl -fsSL -u "$APTLY_API_AUTHORIZATION_HEADER" -X PUT -H "Content-Type: application/json" -d '{"Signing": {"Passphrase": "'"$APTLY_API_GPG_PASSWORD"'"}}' "$APTLY_API_URL/api/publish/:./nightly"
 
