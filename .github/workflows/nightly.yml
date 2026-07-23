@@ -15,7 +15,7 @@ on:
         required: false
         default: true
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -23,7 +23,7 @@ env:
   TERM: xterm-256color
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: short
-  RUSTUP_TOOLCHAIN: nightly-2025-10-20
+  RUSTUP_TOOLCHAIN: nightly-2026-07-21
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: eu-central-1
