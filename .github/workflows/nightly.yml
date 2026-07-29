@@ -356,7 +356,7 @@ jobs:
           aws s3 sync ./artifact/ s3://${{ env.AWS_BUCKET }}/ --exclude "*" --include "gear-*" --include "ethexe-*"
 
       - name: Publish nightly Debian packages to APT repo
-        if: github.event.inputs.release_version == ''
+        if: false && github.event.inputs.release_version == ''
         shell: bash
         env:
           APTLY_API_URL: ${{ secrets.APTLY_API_URL }}
