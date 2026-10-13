@@ -273,7 +273,7 @@ jobs:
           path: ${{ env.ARTIFACT_NAME }}
           if-no-files-found: warn
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
       - name: Upload Debian package
         if: runner.os == 'Linux'
@@ -283,7 +283,7 @@ jobs:
           path: ${{ env.DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
       - name: Upload Debian package (aptly)
         if: runner.os == 'Linux'
@@ -293,7 +293,7 @@ jobs:
           path: ${{ env.APTLY_DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
   publish:
     name: Publish artifacts

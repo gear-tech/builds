@@ -9,23 +9,35 @@ Prebuilt binaries
 ## Targeted release recovery
 
 Scheduled builds and dispatches with `binary=all` and `target=all` build all ten
-binary/target combinations. To repair a failed job without rebuilding successful
-targets, dispatch the fixed workflow branch with explicit selectors:
+binary/target combinations. Build failures block publication of the entire run.
+For a failed full run, rerun only failed jobs in that same run:
 
 ```bash
-gh workflow run nightly.yml --repo gear-tech/builds --ref fix/targeted-release-recovery \
+: "${RUN_ID:?Set the failed full workflow run ID}"
+gh run rerun "$RUN_ID" --failed --repo gear-tech/builds
+```
+
+This preserves successful jobs' artifacts for the publication job. A retried job
+replaces its own partial uploads without deleting other targets. Reruns use the
+original workflow revision; they do not pick up later workflow fixes. If packaging
+code must change, retain the original artifacts and arrange their publication
+alongside the repaired target; a new targeted run does not import those artifacts.
+
+Use a separate targeted dispatch only when the other required packages are already
+published, as with the v2.1.0 Linux packaging repair:
+
+```bash
+gh workflow run nightly.yml --repo gear-tech/builds --ref master \
   -f release_version=v2.1.0 -f latest=false \
   -f binary=gear -f target=x86_64-unknown-linux-gnu
 ```
 
 The workflow ref selects packaging code only: `release_version=v2.1.0` keeps the
 Gear source pinned to the existing release tag. Do not change that tag or rerun
-successful targets. Use a different binary/target pair only to repair its failed
-job. Build failures fail the workflow and block its publication job. Successful
-recovery uploads only the selected packages to S3 and refreshes the builds index;
-`latest=false` leaves release redirects unchanged. Partial nightly builds skip
-the bulk nightly deletion, preserving unrelated binary/target artifacts. This
-does not publish or promote the GitHub release.
+successful targets. Targeted recovery uploads only its selected packages to S3
+and refreshes the builds index; `latest=false` leaves release redirects unchanged.
+Partial nightly builds skip bulk nightly deletion, preserving unrelated packages.
+Neither recovery path publishes or promotes the GitHub release.
 
 Linux GNU packages are built on Ubuntu 24.04. For v2.1.0, use a compatible
 glibc 2.39 host/container (not Debian 12 or Ubuntu 22.04); run the new `gear --version`
