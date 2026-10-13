@@ -14,6 +14,22 @@ on:
         type: boolean
         required: false
         default: true
+      binary:
+        description: 'Binary to build (all for a full build)'
+        type: choice
+        default: all
+        options: [all, gear, ethexe]
+      target:
+        description: 'Target to build (all for a full build)'
+        type: choice
+        default: all
+        options:
+          - all
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+          - x86_64-pc-windows-msvc
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -30,78 +46,41 @@ env:
   AWS_BUCKET: gear-builds
 
 jobs:
+  prepare:
+    name: Select build matrix
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Select binaries and targets
+        id: matrix
+        env:
+          BINARY: ${{ inputs.binary || 'all' }}
+          TARGET: ${{ inputs.target || 'all' }}
+        run: |
+          matrix=$(jq -cn --arg binary "$BINARY" --arg target "$TARGET" '
+            {include: [
+              {binary: "gear", os: "ubuntu-24.04", target: "x86_64-unknown-linux-gnu", deb_target: "amd64", file_ext: "tar.xz"},
+              {binary: "gear", os: "ubuntu-24.04-arm", target: "aarch64-unknown-linux-gnu", deb_target: "arm64", file_ext: "tar.xz"},
+              {binary: "gear", os: "macos-latest", target: "x86_64-apple-darwin", file_ext: "tar.xz"},
+              {binary: "gear", os: "macos-latest", target: "aarch64-apple-darwin", file_ext: "tar.xz"},
+              {binary: "gear", os: "windows-latest", target: "x86_64-pc-windows-msvc", file_ext: "zip"},
+              {binary: "ethexe", os: "ubuntu-24.04", target: "x86_64-unknown-linux-gnu", deb_target: "amd64", file_ext: "tar.xz"},
+              {binary: "ethexe", os: "ubuntu-24.04-arm", target: "aarch64-unknown-linux-gnu", deb_target: "arm64", file_ext: "tar.xz"},
+              {binary: "ethexe", os: "macos-latest", target: "x86_64-apple-darwin", file_ext: "tar.xz"},
+              {binary: "ethexe", os: "macos-latest", target: "aarch64-apple-darwin", file_ext: "tar.xz"},
+              {binary: "ethexe", os: "windows-latest", target: "x86_64-pc-windows-msvc", file_ext: "zip"}
+            ] | map(select(($binary == "all" or .binary == $binary) and ($target == "all" or .target == $target)))}
+          ')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
   build:
     name: ${{ matrix.binary }} / ${{ matrix.target }}
+    needs: prepare
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          # Gear - Linux x86_64
-          - binary: gear
-            os: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-            deb_target: amd64
-            file_ext: tar.xz
-
-          # Gear - Linux ARM64
-          - binary: gear
-            os: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-gnu
-            deb_target: arm64
-            file_ext: tar.xz
-
-          # Gear - macOS x86_64
-          - binary: gear
-            os: macos-latest
-            target: x86_64-apple-darwin
-            file_ext: tar.xz
-
-          # Gear - macOS ARM64
-          - binary: gear
-            os: macos-latest
-            target: aarch64-apple-darwin
-            file_ext: tar.xz
-
-          # Gear - Windows
-          - binary: gear
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            file_ext: zip
-
-          # Ethexe - Linux x86_64
-          - binary: ethexe
-            os: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-            deb_target: amd64
-            file_ext: tar.xz
-
-          # Ethexe - Linux ARM64
-          - binary: ethexe
-            os: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-gnu
-            deb_target: arm64
-            file_ext: tar.xz
-
-          # Ethexe - macOS x86_64
-          - binary: ethexe
-            os: macos-latest
-            target: x86_64-apple-darwin
-            file_ext: tar.xz
-
-          # Ethexe - macOS ARM64
-          - binary: ethexe
-            os: macos-latest
-            target: aarch64-apple-darwin
-            file_ext: tar.xz
-
-          # Ethexe - Windows
-          - binary: ethexe
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            file_ext: zip
-
-    continue-on-error: true
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - name: Enable long paths on Windows
         if: runner.os == 'Windows'
@@ -117,8 +96,8 @@ jobs:
       - name: Set artifact names and Debian version
         shell: bash
         run: |
-          echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> $GITHUB_ENV
-          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.${{ matrix.file_ext }}" >> "$GITHUB_ENV"
+          echo "DEB_ARTIFACT_NAME=${{ matrix.binary }}-${{ github.event.inputs.release_version || 'nightly' }}-${{ matrix.target }}.deb" >> "$GITHUB_ENV"
 
           BASE_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "${{ matrix.binary }}-cli") | .version')
           if [ -n "${{ github.event.inputs.release_version }}" ]; then
@@ -127,8 +106,8 @@ jobs:
             DEB_VERSION="${BASE_VERSION}~nightly.$(date -u +%Y%m%d).git$(git rev-parse --short HEAD)"
           fi
 
-          echo "DEB_VERSION=${DEB_VERSION}" >> $GITHUB_ENV
-          echo "APTLY_DEB_ARTIFACT_NAME=aptly-${{ matrix.binary }}-cli_${DEB_VERSION}_${{ matrix.deb_target }}.deb" >> $GITHUB_ENV
+          echo "DEB_VERSION=${DEB_VERSION}" >> "$GITHUB_ENV"
+          echo "APTLY_DEB_ARTIFACT_NAME=aptly-${{ matrix.binary }}-cli_${DEB_VERSION}_${{ matrix.deb_target }}.deb" >> "$GITHUB_ENV"
 
       - name: Checkout `gear-tech/builds` (for patch)
         uses: actions/checkout@v6
@@ -193,7 +172,7 @@ jobs:
 
       - name: Fix git safe directory
         if: runner.os == 'Linux'
-        run: git config --global --add safe.directory $(pwd)
+        run: git config --global --add safe.directory "$(pwd)"
 
       # TODO: swicth back to `arduino/setup-protoc@v3` after it supports Node 24
       #       https://github.com/arduino/setup-protoc/pull/113
@@ -209,7 +188,8 @@ jobs:
           sudo apt-get install -y protobuf-compiler libssl-dev pkg-config
 
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          cargo binstall --no-confirm cargo-deb
+          # The cache restores binaries without Cargo's installation metadata.
+          cargo binstall --no-confirm --force cargo-deb
 
       - name: Install macOS packages
         if: runner.os == 'macOS'
@@ -293,7 +273,7 @@ jobs:
           path: ${{ env.ARTIFACT_NAME }}
           if-no-files-found: warn
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
       - name: Upload Debian package
         if: runner.os == 'Linux'
@@ -303,7 +283,7 @@ jobs:
           path: ${{ env.DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
       - name: Upload Debian package (aptly)
         if: runner.os == 'Linux'
@@ -313,7 +293,7 @@ jobs:
           path: ${{ env.APTLY_DEB_ARTIFACT_NAME }}
           if-no-files-found: error
           compression-level: 0
-          overwrite: false
+          overwrite: true
 
   publish:
     name: Publish artifacts
@@ -346,7 +326,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Delete old nightly artifacts
-        if: github.event.inputs.release_version == ''
+        if: >-
+          github.event.inputs.release_version == '' &&
+          (inputs.binary == '' || inputs.binary == 'all') &&
+          (inputs.target == '' || inputs.target == 'all')
         run: |
           aws s3 rm s3://${{ env.AWS_BUCKET }}/ --recursive --exclude "*" --include "gear-nightly*"
           aws s3 rm s3://${{ env.AWS_BUCKET }}/ --recursive --exclude "*" --include "ethexe-nightly*"
